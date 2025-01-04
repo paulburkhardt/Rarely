@@ -6,7 +6,6 @@ import { User } from 'lucide-react';
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { colors } from "@/styles/colors";
-import BottomNav from "@/components/BottomNav";
 
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -98,8 +97,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </main>
-
-      <BottomNav />
     </div>
   );
 }
