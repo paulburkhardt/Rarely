@@ -42,7 +42,7 @@ To set up the project, you'll need to have [NVM (Node Version Manager)](https://
    ```
 
 4. **Install Dependencies**:
-   Navigate to the project directory and install the required npm packages:
+   Navigate to the project directory (/my-app) and install the required npm packages:
 
    ```bash
    npm install
