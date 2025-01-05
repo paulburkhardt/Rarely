@@ -83,112 +83,120 @@ export default function ForumPage() {
   const [activeTab, setActiveTab] = useState('groups')
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-white">
-      <div className="p-4">
-        <h1 className="text-xl font-semibold text-[#473F63] mb-4">Forum</h1>
+    <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[#f8f8ff]">
+      <div className="p-6">
+        <h1 className="text-2xl font-semibold text-[#473F63] mb-6">Forum</h1>
         
-        <Tabs defaultValue="groups" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-2 bg-[#E6E3FD]">
+        <Tabs defaultValue="groups" className="space-y-6">
+          <TabsList className={`grid w-full grid-cols-2 rounded-xl p-1 ${
+            activeTab === 'private' ? 'bg-[#DEEAE5]' : 'bg-[#E6E3FD]'
+          }`}>
             <TabsTrigger 
               value="groups"
-              className="data-[state=active]:bg-[#473F63] data-[state=active]:text-white"
+              onClick={() => setActiveTab('groups')}
+              className="rounded-lg data-[state=active]:bg-[#473F63] data-[state=active]:text-white transition-all duration-200"
             >
               Groups
             </TabsTrigger>
             <TabsTrigger 
               value="private"
-              className="data-[state=active]:bg-[#473F63] data-[state=active]:text-white"
+              onClick={() => setActiveTab('private')}
+              className="rounded-lg data-[state=active]:bg-[#1E4D57] data-[state=active]:text-white transition-all duration-200"
             >
               Private Chats
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="groups" className="space-y-6">
+          <TabsContent value="groups" className="space-y-8">
             {/* Your Groups */}
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-[#473F63] font-medium flex items-center gap-2">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-[#473F63] text-lg font-medium flex items-center gap-3">
                   <Users className="w-5 h-5" />
                   Your Groups
                 </h2>
-                <Link href="#" className="text-sm text-[#1E4D57]">
+                <Link href="#" className="text-sm text-[#1E4D57] hover:text-[#473F63] transition-colors">
                   View all
                 </Link>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-10">
                 {groups.map((group) => (
-                  <Card key={group.id} className="p-3 bg-[#DEEAE5]">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={group.imageUrl}
-                        alt={group.name}
-                        className="w-12 h-12 rounded-full"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-[#473F63] font-medium truncate">
-                            {group.name}
-                          </h3>
-                          <span className="text-xs text-[#1E4D57]">
-                            {formatTimeAgo(group.lastActivity)}
-                          </span>
+                  <Link key={group.id} href={`/forum/chat/${group.id}`}>
+                    <Card className="p-4 border-b border-gray-100 hover:bg-[#E6E3FD]/30 transition-colors duration-200 rounded-none shadow-none">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={group.imageUrl}
+                          alt={group.name}
+                          className="w-12 h-12 rounded-full shadow-sm"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-[#473F63] font-medium truncate">
+                              {group.name}
+                            </h3>
+                            <span className="text-xs text-[#1E4D57]">
+                              {formatTimeAgo(group.lastActivity)}
+                            </span>
+                          </div>
+                          <p className="text-sm text-[#1E4D57] truncate mt-1">
+                            {group.description}
+                          </p>
                         </div>
-                        <p className="text-sm text-[#1E4D57] truncate">
-                          {group.description}
-                        </p>
+                        {group.unreadCount && (
+                          <span className="bg-[#473F63] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                            {group.unreadCount}
+                          </span>
+                        )}
                       </div>
-                      {group.unreadCount && (
-                        <span className="bg-[#473F63] text-white text-xs px-2 py-1 rounded-full">
-                          {group.unreadCount}
-                        </span>
-                      )}
-                    </div>
-                  </Card>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </div>
 
             {/* Trending Discussions */}
             <div>
-              <div className="flex justify-between items-center mb-2">
-                <h2 className="text-[#473F63] font-medium flex items-center gap-2">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-[#473F63] text-lg font-medium flex items-center gap-3">
                   <MessageCircle className="w-5 h-5" />
                   Trending Discussions
                 </h2>
-                <Link href="#" className="text-sm text-[#1E4D57]">
+                <Link href="#" className="text-sm text-[#1E4D57] hover:text-[#473F63] transition-colors">
                   View all
                 </Link>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-10">
                 {discussions.map((discussion) => (
-                  <Card key={discussion.id} className="p-3 bg-[#E6E3FD]">
-                    <Link href="#" className="space-y-2">
-                      <h3 className="text-[#473F63] font-medium">
-                        {discussion.title}
-                      </h3>
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={discussion.groupImage}
-                            alt={discussion.groupName}
-                            className="w-6 h-6 rounded-full"
-                          />
-                          <span className="text-[#1E4D57]">
+                  <Link key={discussion.id} href={`/forum/chat/discussion${discussion.id}`}>
+                    <Card className="p-4 border-b border-gray-100 hover:bg-[#E6E3FD]/30 transition-colors duration-200 rounded-none shadow-none">
+                      <div className="flex items-center gap-4">
+                        <img
+                          src={discussion.groupImage}
+                          alt={discussion.groupName}
+                          className="w-12 h-12 rounded-full shadow-sm"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h3 className="text-[#473F63] font-medium truncate">
+                              {discussion.title}
+                            </h3>
+                            <span className="text-xs text-[#1E4D57] bg-[#E6E3FD]/50 px-2 py-1 rounded-full">
+                              {discussion.messageCount} messages
+                            </span>
+                          </div>
+                          <p className="text-sm text-[#1E4D57] truncate mt-1">
                             {discussion.groupName}
-                          </span>
+                          </p>
                         </div>
-                        <span className="text-[#1E4D57]">
-                          {discussion.messageCount} messages
-                        </span>
                       </div>
-                    </Link>
-                  </Card>
+                    </Card>
+                  </Link>
                 ))}
               </div>
             </div>
           </TabsContent>
 
-          <TabsContent value="private" className="space-y-4">
+          <TabsContent value="private" className="space-y-10">
             {[
               {
                 id: '1',
@@ -207,34 +215,35 @@ export default function ForumPage() {
                 unread: 0
               }
             ].map((chat) => (
-              <Card key={chat.id} className="p-3 bg-[#DEEAE5]">
-                <Link href="#" className="flex items-center gap-3">
-                  <img
-                    src={chat.image}
-                    alt={chat.name}
-                    className="w-10 h-10 rounded-full"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-[#473F63] font-medium">
-                        {chat.name}
-                      </h3>
-                      <span className="text-xs text-[#1E4D57]">
-                        {formatTimeAgo(chat.time)}
-                      </span>
+              <Link key={chat.id} href={`/forum/chat/private${chat.id}`}>
+                <Card className="p-4 border-b border-gray-100 hover:bg-[#DEEAE5] transition-colors duration-200 rounded-none shadow-none">
+                  <div className="flex items-center gap-4">
+                    <img
+                      src={chat.image}
+                      alt={chat.name}
+                      className="w-12 h-12 rounded-full shadow-sm"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-[#473F63] font-medium">
+                          {chat.name}
+                        </h3>
+                        <span className="text-xs text-[#1E4D57]">
+                          {formatTimeAgo(chat.time)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-[#1E4D57] truncate mt-1">
+                        {chat.lastMessage}
+                      </p>
                     </div>
-                    <p className="text-sm text-[#1E4D57] truncate">
-                      {chat.lastMessage}
-                    </p>
+                    {chat.unread > 0 && (
+                      <span className="bg-[#1E4D57] text-white text-xs w-5 h-5 rounded-full flex items-center justify-center shadow-sm">
+                        {chat.unread}
+                      </span>
+                    )}
                   </div>
-                  {chat.unread > 0 && (
-                    <span className="bg-[#473F63] text-white text-xs px-2 py-1 rounded-full">
-                      {chat.unread}
-                    </span>
-                  )}
-                  <ChevronRight className="w-5 h-5 text-[#473F63]" />
-                </Link>
-              </Card>
+                </Card>
+              </Link>
             ))}
           </TabsContent>
         </Tabs>
