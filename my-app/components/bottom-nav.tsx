@@ -14,12 +14,12 @@ export function BottomNav() {
 
   const getLinkStyle = (path: string) => {
     return isActive(path) 
-      ? { color: '#473F63', backgroundColor: '#E6E3FD' }
-      : { color: '#E6E3FD' }
+      ? { color: '#E6E3FD', backgroundColor: '#473F63' }
+      : { color: '#473F63' }
   }
-
+  
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-[#473F63] border-t border-gray-200">
+    <div className="fixed bottom-0 left-0 right-0 bg-[#E6E3FD] border-t border-gray-200">
       <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
         <Link 
           href="/" 

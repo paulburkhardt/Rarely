@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { BookOpen } from 'lucide-react'
 import { useEffect, useState } from "react";
 import { useMediaQuery } from "@/hooks/use-media-query"
+import Image from 'next/image'
 
 export default function Page() {
 
@@ -27,7 +28,15 @@ export default function Page() {
     <div className="min-h-screen bg-white">
       {/* Top Navigation */}
       <div className="flex justify-between items-center p-4 text-[#473F63]">
-        <div className="text-sm">Fp Fe</div>
+        <div className="flex items-center">
+          <Image 
+            src="/placeholder.svg" 
+            alt="Logo" 
+            width={30}
+            height={30}
+          />
+          <span className="text-sm ml-2">Fe</span>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -35,7 +44,16 @@ export default function Page() {
         <div className="space-y-6">
           {/* App Name */}
           <div className="text-center space-y-4">
-            <h1 className="text-2xl text-[#473F63]">rarely</h1>
+            {/* Logo */}
+            <div className="flex justify-center items-center py-6">
+              <Image 
+                src="/logo_purple.png" 
+                alt="Logo" 
+                width={140}
+                height={140}
+                priority
+              />
+            </div>
             <h2 className="text-xl font-medium text-[#473F63]">
               Welcome to rarely Fe!
             </h2>

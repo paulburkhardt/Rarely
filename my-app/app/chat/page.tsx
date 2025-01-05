@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import Link from 'next/link'
 import { initialMessages } from '@/data/mock-messages'
 import type { Message } from '@/types/chat'
+import Image from 'next/image'
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>(initialMessages)
@@ -61,14 +62,15 @@ export default function ChatPage() {
         <div className="text-sm font-medium text-[#473F63]">Health Care</div>
       </div>
 
-      {/* Heart Rate Icon */}
+      {/* Logo */}
       <div className="flex justify-center items-center py-6">
-        <div className="relative">
-          <Heart className="w-12 h-12 text-[#E6E3FD]" fill="#E6E3FD" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-16 h-px bg-[#473F63] animate-pulse" />
-          </div>
-        </div>
+        <Image 
+          src="/logo_purple.png" 
+          alt="Logo" 
+          width={80}
+          height={80}
+          priority
+        />
       </div>
 
       {/* Messages */}

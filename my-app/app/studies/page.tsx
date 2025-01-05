@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Users } from 'lucide-react'
+import { colors } from "@/styles/colors"
 
 type Study = {
   id: string
@@ -46,39 +47,50 @@ const studies: Study[] = [
 
 export default function StudiesPage() {
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-white p-4">
-      <h1 className="text-xl font-semibold text-[#473F63] mb-4">Studies for Arrhythmogenic Cardiomyopathy</h1>
-      <div className="space-y-4">
+    <div className={`min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[${colors.lightgreen}]/30 p-6 md:p-8`}>
+      <h1 className={`text-2xl md:text-3xl font-bold text-[${colors.darkgreen}] mb-6`}>
+        Available Research Studies
+        <span className={`block text-base font-normal text-[${colors.darkgreen}]/80 mt-2`}>
+          Exploring Arrhythmogenic Cardiomyopathy
+        </span>
+      </h1>
+      
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {studies.map((study) => (
-          <Card key={study.id} className="bg-[#DEEAE5]">
-            <CardHeader>
-              <CardTitle className="text-[#473F63]">{study.title}</CardTitle>
+          <Card 
+            key={study.id} 
+            className="group hover:shadow-lg transition-all duration-300 border-none bg-white/80 backdrop-blur-sm"
+          >
+            <CardHeader className="pb-2">
+              <Badge 
+                variant="secondary" 
+                className={`w-fit mb-2 bg-[${colors.lightgreen}] text-[${colors.darkgreen}] font-medium`}
+              >
+                {Math.round((study.availableSpots / study.totalSpots) * 100)}% spots available
+              </Badge>
+              <CardTitle className={`text-[${colors.darkgreen}] text-xl group-hover:text-[${colors.darkgreen}] transition-colors`}>
+                {study.title}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-[#1E4D57] mb-4">{study.purpose}</p>
-              <div className="space-y-2">
-                <div className="flex items-center text-[#473F63]">
-                  <MapPin className="w-5 h-5 mr-2" />
-                  <span>{study.location}</span>
+              <p className={`text-[${colors.darkgreen}]/90 text-sm mb-6 line-clamp-2`}>
+                {study.purpose}
+              </p>
+              <div className="space-y-3 text-sm">
+                <div className={`flex items-center text-[${colors.darkgreen}]/80 group-hover:text-[${colors.darkgreen}]`}>
+                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="line-clamp-1">{study.location}</span>
                 </div>
-                <div className="flex items-center text-[#473F63]">
-                  <Calendar className="w-5 h-5 mr-2" />
+                <div className={`flex items-center text-[${colors.darkgreen}]/80 group-hover:text-[${colors.darkgreen}]`}>
+                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
                   <span>Starts: {study.startDate.toLocaleDateString()}</span>
                 </div>
-                <div className="flex items-center text-[#473F63]">
-                  <Users className="w-5 h-5 mr-2" />
-                  <span>
-                    {study.availableSpots} of {study.totalSpots} spots available
+                <div className={`flex items-center text-[${colors.darkgreen}]/80 group-hover:text-[${colors.darkgreen}]`}>
+                  <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                  <span className="font-medium">
+                    {study.availableSpots} of {study.totalSpots} spots remaining
                   </span>
                 </div>
-              </div>
-              <div className="mt-4">
-                <Badge 
-                  variant="secondary" 
-                  className="bg-[#E6E3FD] text-[#473F63]"
-                >
-                  {Math.round((study.availableSpots / study.totalSpots) * 100)}% spots left
-                </Badge>
               </div>
             </CardContent>
           </Card>
