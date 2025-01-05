@@ -3,8 +3,10 @@
 import { Home, BookOpen, User, Search } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
+import { Suspense } from 'react'
 
-export function BottomNav() {
+// Create a separate component for the navigation content
+function NavigationContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const activeTab = searchParams.get('tab')
@@ -27,7 +29,7 @@ export function BottomNav() {
           color: 'rgba(71, 63, 99, 0.5)'
         }  
   }
-  
+
   return (
     <div className={`fixed bottom-0 left-0 right-0 ${
       isPrivateTab ? 'bg-[#DEEAE5]' : 'bg-[#E6E3FD]'
@@ -70,3 +72,18 @@ export function BottomNav() {
   )
 }
 
+// Main component wrapped in Suspense
+export function BottomNav() {
+  return (
+    <Suspense fallback={
+      // You can provide a loading state here
+      <div className="fixed bottom-0 left-0 right-0 bg-[#E6E3FD] border-t border-gray-200">
+        <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
+          {/* Add loading skeleton or simplified version of your nav */}
+        </div>
+      </div>
+    }>
+      <NavigationContent />
+    </Suspense>
+  )
+}

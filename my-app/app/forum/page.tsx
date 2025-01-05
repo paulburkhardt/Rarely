@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ChevronRight, MessageCircle, Users } from 'lucide-react'
@@ -83,7 +83,8 @@ function formatTimeAgo(date: Date) {
   return `${Math.floor(diffInMinutes / 1440)}d`
 }
 
-export default function ForumPage() {
+
+function ForumContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const activeTab = searchParams.get('tab') || 'groups'
@@ -235,3 +236,29 @@ export default function ForumPage() {
   )
 }
 
+
+// Main component wrapped in Suspense
+export default function ForumPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[#DEEAE5]/30 p-2 md:p-8">
+        <h1 className="text-2xl md:text-3xl font-bold text-[#473F63] mb-4">
+          Forum
+          <span className="block text-base font-normal text-[#1E4D57]/80 mt-1">
+            Connect with your community
+          </span>
+        </h1>
+        <div className="animate-pulse">
+          <div className="h-10 bg-gray-200 rounded-xl mb-4"></div>
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-24 bg-gray-100 rounded-lg"></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <ForumContent />
+    </Suspense>
+  )
+}
