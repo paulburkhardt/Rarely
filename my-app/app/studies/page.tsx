@@ -47,7 +47,7 @@ const studies: Study[] = [
 
 export default function StudiesPage() {
   return (
-    <div className={`min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[${colors.lightgreen}]/30 p-6 md:p-8`}>
+    <div className={`min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[${colors.lightgreen}]/30 p-4 md:p-8`}>
       <h1 className={`text-2xl md:text-3xl font-bold text-[${colors.darkgreen}] mb-6`}>
         Available Research Studies
         <span className={`block text-base font-normal text-[${colors.darkgreen}]/80 mt-2`}>
@@ -55,45 +55,43 @@ export default function StudiesPage() {
         </span>
       </h1>
       
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="flex flex-col gap-4">
         {studies.map((study) => (
-          <Card 
+          <div 
             key={study.id} 
-            className="group hover:shadow-lg transition-all duration-300 border-none bg-white/80 backdrop-blur-sm"
+            className="border-b border-gray-300 pb-4 mb-4"
           >
-            <CardHeader className="pb-2">
+            <div className="flex justify-between items-center  mb-1">
+              <h2 className={`text-[${colors.darkgreen}] text-xl`}>
+                {study.title}
+              </h2>
               <Badge 
                 variant="secondary" 
-                className={`w-fit mb-2 bg-[${colors.lightgreen}] text-[${colors.darkgreen}] font-medium`}
+                className={`w-fit bg-[${colors.lightgreen}] text-[${colors.darkgreen}] font-medium`}
               >
-                {Math.round((study.availableSpots / study.totalSpots) * 100)}% spots available
+                {study.availableSpots} spots left
               </Badge>
-              <CardTitle className={`text-[${colors.darkgreen}] text-xl group-hover:text-[${colors.darkgreen}] transition-colors`}>
-                {study.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className={`text-[${colors.darkgreen}]/90 text-sm mb-6 line-clamp-2`}>
-                {study.purpose}
-              </p>
-              <div className="space-y-3 text-sm">
-                <div className={`flex items-center text-[${colors.darkgreen}]/80 group-hover:text-[${colors.darkgreen}]`}>
-                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="line-clamp-1">{study.location}</span>
-                </div>
-                <div className={`flex items-center text-[${colors.darkgreen}]/80 group-hover:text-[${colors.darkgreen}]`}>
-                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span>Starts: {study.startDate.toLocaleDateString()}</span>
-                </div>
-                <div className={`flex items-center text-[${colors.darkgreen}]/80 group-hover:text-[${colors.darkgreen}]`}>
-                  <Users className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="font-medium">
-                    {study.availableSpots} of {study.totalSpots} spots remaining
-                  </span>
-                </div>
+            </div>
+            <p className={`text-[${colors.darkgreen}]/90 text-sm mb-2 line-clamp-2`}>
+              {study.purpose}
+            </p>
+            <div className="space-y-1 text-sm">
+              <div className={`flex items-center text-[${colors.darkgreen}]/80`}>
+                <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="line-clamp-1">{study.location}</span>
               </div>
-            </CardContent>
-          </Card>
+              <div className={`flex items-center text-[${colors.darkgreen}]/80`}>
+                <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span>Starts: {study.startDate.toLocaleDateString()}</span>
+              </div>
+              <div className={`flex items-center text-[${colors.darkgreen}]/80`}>
+                <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                <span className="font-medium">
+                  {study.availableSpots} of {study.totalSpots} spots remaining
+                </span>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </div>
