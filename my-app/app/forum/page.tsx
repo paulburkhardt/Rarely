@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { Badge } from "@/components/ui/badge"
 import { colors } from '@/styles/colors'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 
 type Group = {
@@ -94,7 +95,7 @@ function ForumContent() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[#DEEAE5]/30 p-2 md:p-8">
+    <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[#DEEAE5]/30 p-4 md:p-8">
       <h1 className="text-2xl md:text-3xl font-bold text-[#473F63] mb-4">
         Forum
         <span className="block text-base font-normal text-[#1E4D57]/80 mt-1">
@@ -120,51 +121,27 @@ function ForumContent() {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="groups" className="grid gap-4">
-          {groups.map((group) => (
-            <Link key={group.id} href={`/forum/chat/${group.id}`}>
-              <div className="flex items-center p-2 border-b border-gray-200">
-                <img
-                  src={group.imageUrl}
-                  alt={group.name}
-                  className="w-12 h-12 rounded-full shadow-sm"
-                />
-                <div className="flex-1 min-w-0 ml-2">
-                  <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
-                    {group.name}
-                  </h3>
-                  <p className="text-[#473F63]/90 text-sm mt-1 line-clamp-2">
-                    {group.description}
-                  </p>
-                  <div className="flex items-center gap-2 mt-1 text-sm text-[#473F63]/80 group-hover:text-[#473F63]">
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-1" />
-                      {group.memberCount} members
-                    </div>
-                    <span>Active {formatTimeAgo(group.lastActivity)}</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          ))}
 
+          
+
+        <TabsContent value="groups" className="grid gap-2">
           {/* Trending Discussions section with similar styling */}
           <div className="mt-4">
             <h2 className="text-xl font-semibold text-[#473F63] mb-2">Trending Discussions</h2>
             {discussions.map((discussion) => (
               <Link key={discussion.id} href={`/forum/chat/discussion${discussion.id}`}>
                 <div className="flex items-center p-2 border-b border-gray-200">
-                  <img
-                    src={discussion.groupImage}
-                    alt={discussion.groupName}
-                    className="w-12 h-12 rounded-full shadow-sm"
-                  />
+                  <Avatar className="w-10 h-10 mr-2">
+                    <AvatarImage  alt={discussion.groupName} />
+                    <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
+                    </Avatar>
                   <div className="flex-1 min-w-0 ml-2">
                     <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
-                      {discussion.title}
+                      {discussion.groupName}
+
                     </h3>
                     <p className="text-[#473F63]/90 text-sm mt-1">
-                      {discussion.groupName}
+                      {discussion.title}
                     </p>
                     <Badge 
                       variant="secondary" 
@@ -177,10 +154,37 @@ function ForumContent() {
               </Link>
             ))}
           </div>
+        <h2 className="text-xl font-semibold text-[#473F63] mb-2">Group Discussions</h2>
+          {groups.map((group) => (
+            <Link key={group.id} href={`/forum/chat/${group.id}`}>
+              <div className="flex items-center p-2 border-b border-gray-200">
+                <Avatar className="w-10 h-10 mr-2">
+                  <AvatarImage  alt={group.name} />
+                  <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
+                  </Avatar>
+                <div className="flex-1 min-w-0 ml-2">
+                  <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
+                    {group.name}
+                  </h3>
+                 {/*  <p className="text-[#473F63]/90 text-sm mt-1 line-clamp-2">
+                    {group.description}
+                  </p> */}
+                  <div className="flex items-center gap-2 mt-1 text-sm text-[#473F63]/80 group-hover:text-[#473F63]">
+                    <div className="flex items-center">
+                      <Users className="w-4 h-4 mr-1" />
+                      {group.memberCount} members
+                    </div>
+                    <span className="ml-auto">Active {formatTimeAgo(group.lastActivity)}</span>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+
         </TabsContent>
 
         {/* Private chats tab with green styling */}
-        <TabsContent value="private" className="grid gap-4">
+        <TabsContent value="private" className="grid gap-2">
           {[
             {
               id: '1',
@@ -201,11 +205,10 @@ function ForumContent() {
           ].map((chat) => (
             <Link key={chat.id} href={`/forum/chat/private${chat.id}`}>
               <div className="flex items-center p-2 border-b border-gray-200">
-                <img
-                  src={chat.image}
-                  alt={chat.name}
-                  className="w-12 h-12 rounded-full shadow-sm"
-                />
+                <Avatar className="w-10 h-10 mr-2">
+                  <AvatarImage  alt={chat.name} />
+                  <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5] ]">DR</AvatarFallback>
+                </Avatar>
                 <div className="flex-1 min-w-0 ml-2">
                   <div className="flex items-center justify-between">
                     <h3 className="text-[#1E4D57] font-medium">
@@ -222,8 +225,7 @@ function ForumContent() {
                 {chat.unread > 0 && (
                   <Badge 
                     variant="secondary" 
-                    className="mt-2 bg-[#DEEAE5] text-[#1E4D57]"
-                  >
+                    className="mt-2 bg-[#DEEAE5] text-[#1E4D57]">
                     {chat.unread}
                   </Badge>
                 )}

@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, BookOpen, User, Search } from 'lucide-react'
+import { Home, BookOpen, User, Brain } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Suspense } from 'react'
@@ -36,14 +36,6 @@ function NavigationContent() {
     } border-t border-gray-200`}>
       <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
         <Link 
-          href="/" 
-          className="flex flex-col items-center px-4 py-2 w-1/4"
-          style={getLinkStyle('/')}
-        >
-          <Home className="w-6 h-6" style={{ opacity: isActive('/') ? 1 : 0.5 }} />
-          <span className="text-xs mt-1" style={{ opacity: isActive('/') ? 1 : 0.5 }}>Dashboard</span>
-        </Link>
-        <Link 
           href="/forum" 
           className="flex flex-col items-center px-4 py-2 w-1/4"
           style={getLinkStyle('/forum')}
@@ -60,11 +52,19 @@ function NavigationContent() {
           <span className="text-xs mt-1" style={{ opacity: isActive('/chat') ? 1 : 0.5 }}>Assistant</span>
         </Link>
         <Link 
+          href="/" 
+          className="flex flex-col items-center px-4 py-2 w-1/4"
+          style={getLinkStyle('/')}
+        >
+          <Home className="w-6 h-6" style={{ opacity: isActive('/') ? 1 : 0.5 }} />
+          <span className="text-xs mt-1" style={{ opacity: isActive('/') ? 1 : 0.5 }}>Dashboard</span>
+        </Link>
+        <Link 
           href="/studies" 
           className="flex flex-col items-center px-4 py-2 w-1/4"
           style={getLinkStyle('/studies')}
         >
-          <Search className="w-6 h-6" style={{ opacity: isActive('/studies') ? 1 : 0.5 }} />
+          <Brain className="w-6 h-6" style={{ opacity: isActive('/studies') ? 1 : 0.5 }} />
           <span className="text-xs mt-1" style={{ opacity: isActive('/studies') ? 1 : 0.5 }}>Studies</span>
         </Link>
       </div>

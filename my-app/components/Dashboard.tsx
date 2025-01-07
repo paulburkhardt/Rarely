@@ -111,9 +111,6 @@ export default function Dashboard() {
               <div className="w-6 h-6 bg-gray-200 rounded-full mx-auto mb-1" />
               <span className="text-xs text-gray-400">Library</span>
             </Link>
-            <Link href="/new" className="text-center -mt-8">
-              <div className="w-14 h-14 bg-black rounded-full flex items-center justify-center text-white text-2xl shadow-lg">+</div>
-            </Link>
             <Link href="/journey" className="text-center">
               <div className="w-6 h-6 bg-gray-200 rounded-full mx-auto mb-1" />
               <span className="text-xs text-gray-400">Journey</span>
