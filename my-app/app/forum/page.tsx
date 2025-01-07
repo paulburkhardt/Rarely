@@ -61,6 +61,13 @@ const groups: Group[] = [
 const discussions: Discussion[] = [
   {
     id: '1',
+    title: 'New Treatment Breakthrough',
+    groupName: 'Treatment Discussions',
+    groupImage: '/placeholder.svg?height=32&width=32',
+    messageCount: 23
+  },
+  {
+    id: '2',
     title: 'New research on chronic pain management',
     groupName: 'Chronic Pain Support',
     groupImage: '/placeholder.svg?height=32&width=32',

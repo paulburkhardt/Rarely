@@ -9,6 +9,9 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { BarChart } from "@/components/ui/bar-chart";
+import { Calendar, MessageCircle, Activity, Clock } from 'lucide-react';
 
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
@@ -25,7 +28,23 @@ export default function Dashboard() {
     setHasDiaryEntry(true);
     sessionStorage.setItem("hasDiaryEntry", "true");
   };
-    
+
+  // Sample data for charts
+  const moodData = [
+    { day: "Mon", value: 3 },
+    { day: "Tue", value: 4 },
+    { day: "Wed", value: 2 },
+    { day: "Thu", value: 5 },
+    { day: "Fri", value: 4 },
+    { day: "Sat", value: 3 },
+    { day: "Sun", value: 4 },
+  ];
+
+  const symptomsData = [
+    { name: "Fatigue", value: 4 },
+    { name: "Pain", value: 2 },
+    { name: "Stiffness", value: 3 },
+  ];
 
   // Sample streak data - replace with your actual data
   const currentDate = new Date();
@@ -79,82 +98,113 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         )}
+
       <main className="container mx-auto px-4 py-8">
-        {/* Header Section with Streak Count */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-2xl font-medium text-gray-900">Good Afternoon.</h2>
-            <h3 className="text-gray-500">5. January</h3>
-          </div>
-          <div className="flex items-center gap-2 bg-gray-100 px-4 py-2 rounded-full">
-            <span className="text-xl">🔥</span>
-            <span className="font-medium">2</span>
-          </div>
-        </div>
-
-        {/* Calendar Strip with Streaks */}
-        <div className="flex justify-between mb-8 bg-white p-4 rounded-2xl shadow-sm">
-          {weekDates.map((item) => (
-            <div key={item.day} className="text-center">
-              <div className="text-sm text-gray-400">{item.day}</div>
-              <div className="text-sm text-gray-600 mb-1">{item.date}</div>
-              {item.hasStreak ? (
-                <div className="w-2 h-2 bg-black rounded-full mx-auto" />
-              ) : (
-                <div className="w-2 h-2 bg-gray-200 rounded-full mx-auto" />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Collective Progress & Impact Stats */}
-        <div className="space-y-6 mb-8">
-          {/* Gentherapies Card - Full Width */}
-          <Card className="bg-white shadow-sm border-none rounded-2xl p-6">
+        {/* Personal Analytics Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Mood Tracking */}
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-6">
             <CardHeader className="p-0">
-              <CardTitle className="text-xl font-medium">Our Collective Progress</CardTitle>
+              <CardTitle className="text-[#473F63] text-lg">Your Mood This Week</CardTitle>
             </CardHeader>
             <CardContent className="p-0 mt-4">
-              <div className="text-2xl font-medium">2</div>
-              <div className="text-sm text-gray-400">Gentherapies initiated</div>
+              <ResponsiveContainer width="100%" height={200}>
+                <LineChart data={moodData}>
+                  <Line type="monotone" dataKey="value" stroke="#473F63" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
 
-          {/* Journal Entries and Daily Users - Two Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-white shadow-sm border-none rounded-2xl p-6">
-              <CardContent className="p-0">
-                <div className="text-2xl font-medium">200</div>
-                <div className="text-sm text-gray-400">Journal Entries</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-white shadow-sm border-none rounded-2xl p-6">
-              <CardContent className="p-0">
-                <div className="text-2xl font-medium">20</div>
-                <div className="text-sm text-gray-400">Daily Users and growing</div>
-                <div className="text-xs text-gray-400">yesterday</div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Daily Streaks and Total Entries - Two Cards */}
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="bg-white shadow-sm border-none rounded-2xl p-6">
-              <CardContent className="p-0">
-                <div className="text-2xl font-medium">4</div>
-                <div className="text-sm text-gray-400">Daily Streaks</div>
-                <div className="text-xs text-gray-400">Consistency is key!</div>
-              </CardContent>
-            </Card>
-            <Card className="bg-white shadow-sm border-none rounded-2xl p-6">
-              <CardContent className="p-0">
-                <div className="text-2xl font-medium">200</div>
-                <div className="text-sm text-gray-400">Total Entries</div>
-                <div className="text-xs text-gray-400">Impressive milestone!</div>
-              </CardContent>
-            </Card>
-          </div>
+          {/* Symptoms Overview */}
+          <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6">
+            <CardHeader className="p-0">
+              <CardTitle className="text-[#1E4D57] text-lg">Current Symptoms</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 mt-4">
+              <BarChart data={symptomsData} />
+            </CardContent>
+          </Card>
         </div>
+
+        {/* Upcoming Study & Forum Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Next Study Appointment */}
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-6">
+            <CardHeader className="p-0 flex flex-row items-center gap-4">
+              <Clock className="w-6 h-6 text-[#473F63]" />
+              <CardTitle className="text-[#473F63] text-lg">Next Appointment</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 mt-4">
+              <div className="text-[#473F63]">
+                <p className="font-medium">Gene Therapy Study - Phase 2</p>
+                <p>January 15th, 2024 - 10:00 AM</p>
+                <Button className="mt-4 bg-[#473F63] text-white">View Details</Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Trending Forum Post */}
+          <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6">
+            <CardHeader className="p-0 flex flex-row items-center gap-4">
+              <MessageCircle className="w-6 h-6 text-[#1E4D57]" />
+              <CardTitle className="text-[#1E4D57] text-lg">Trending Discussion</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 mt-4">
+              <Link href="/forum/chat/1" className="block">
+                <p className="font-medium text-[#1E4D57]">New Treatment Breakthrough</p>
+                <p className="text-sm text-[#1E4D57]/80">Join 45 others discussing the latest research...</p>
+                <div className="mt-2 flex items-center gap-2 text-sm text-[#1E4D57]/60">
+                  <span>💬 23 replies</span>
+                  <span>• 2h ago</span>
+                </div>
+              </Link>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Matching Study */}
+        <Card className="bg-[#E6E3FD] border-none rounded-2xl p-6 mb-8">
+          <CardHeader className="p-0">
+            <CardTitle className="text-[#473F63] text-lg">Recommended Study Match</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 mt-4">
+            <div className="space-y-4">
+              <p className="text-[#473F63]">Based on your profile: Gene Therapy Trial XYZ-123</p>
+              <div className="flex gap-4">
+                <Button className="bg-[#473F63] text-white">Apply Now</Button>
+                <Button variant="outline" className="border-[#473F63] text-[#473F63]">Learn More</Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Community Progress Section */}
+        <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6 mb-20">
+          <CardHeader className="p-0">
+            <CardTitle className="text-[#1E4D57] text-lg">Community Impact</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0 mt-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-medium text-[#1E4D57]">2,450</div>
+                <div className="text-sm text-[#1E4D57]/80">Active Members</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-medium text-[#1E4D57]">156</div>
+                <div className="text-sm text-[#1E4D57]/80">Studies Joined</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-medium text-[#1E4D57]">89%</div>
+                <div className="text-sm text-[#1E4D57]/80">Diary Completion</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-medium text-[#1E4D57]">12</div>
+                <div className="text-sm text-[#1E4D57]/80">Research Papers</div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-white p-4 border-t">
