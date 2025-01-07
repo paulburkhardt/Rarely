@@ -95,7 +95,7 @@ function ForumContent() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[#DEEAE5]/30 p-4 md:p-8">
+    <div className="min-h-[calc(100vh-5rem)] p-4 md:p-8">
       <h1 className="text-2xl md:text-3xl font-bold text-[#473F63] mb-4">
         Forum
         <span className="block text-base font-normal text-[#1E4D57]/80 mt-1">
@@ -243,7 +243,7 @@ function ForumContent() {
 export default function ForumPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-[calc(100vh-5rem)] bg-gradient-to-b from-white to-[#DEEAE5]/30 p-2 md:p-8">
+      <div className="min-h-[calc(100vh-5rem)]  p-2 md:p-8">
         <h1 className="text-2xl md:text-3xl font-bold text-[#473F63] mb-4">
           Forum
           <span className="block text-base font-normal text-[#1E4D57]/80 mt-1">

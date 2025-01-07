@@ -5,9 +5,27 @@ import { User } from 'lucide-react';
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { colors } from "@/styles/colors";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { BookOpen } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
+  const [hasDiaryEntry, setHasDiaryEntry] = useState<boolean>(false);
+
+  useEffect(() => {
+    const diaryEntryStatus = sessionStorage.getItem("hasDiaryEntry");
+    if (diaryEntryStatus === "true") {
+      setHasDiaryEntry(true);
+    }
+  }, []);
+
+  const handleDiaryClick = () => {
+    setHasDiaryEntry(true);
+    sessionStorage.setItem("hasDiaryEntry", "true");
+  };
+    
 
   // Sample streak data - replace with your actual data
   const currentDate = new Date();
@@ -22,7 +40,45 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="space-y-6">
+        {/* App Name */}
+        <div className="text-center space-y-4">
+          {/* Logo */}
+          <div className="flex justify-center items-center py-6">
+            <Image 
+              src="/logo_purple.png" 
+              alt="Logo" 
+              width={140}
+              height={140}
+              priority
+            />
+          </div>
+          <h2 className="text-xl font-medium text-[#473F63]">
+            Welcome to rarely Fe!
+          </h2>
+          <p className="text-[#473F63] opacity-80">
+            You haven&apos;t filled out your diary yet!
+          </p>
+        </div>
+        
+        {!hasDiaryEntry && (
+          <Card className="bg-[#E6E3FD] border-none shadow-none">
+            <CardContent className="p-6 text-center space-y-4">
+              <div className="mx-auto w-8 h-8">
+                <BookOpen className="w-full h-full text-[#473F63]" />
+              </div>
+              <p className="text-[#473F63]">
+                To understand your disease better we need to track your habits!
+              </p>
+              <Button 
+                className="bg-[#473F63] hover:bg-[#473F63]/90 text-white"
+                onClick={handleDiaryClick}
+              >
+                Continue
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       <main className="container mx-auto px-4 py-8">
         {/* Header Section with Streak Count */}
         <div className="flex justify-between items-center mb-8">

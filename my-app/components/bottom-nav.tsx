@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, BookOpen, User, Brain } from 'lucide-react'
+import { Home, BookOpen, User, Brain, Info } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Suspense } from 'react'
@@ -15,7 +15,7 @@ function NavigationContent() {
     return pathname === path
   }
 
-  const isPrivateTab = pathname === '/forum' && activeTab === 'private'
+  const isPrivateTab = pathname === '/forum' && activeTab === 'private' || pathname === '/studies' && activeTab === 'running'
 
   const getLinkStyle = (path: string) => {
     return isActive(path) 
@@ -37,7 +37,7 @@ function NavigationContent() {
       <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
         <Link 
           href="/forum" 
-          className="flex flex-col items-center px-4 py-2 w-1/4"
+          className="flex flex-col items-center px-4 py-2 w-1/5"
           style={getLinkStyle('/forum')}
         >
           <BookOpen className="w-6 h-6" style={{ opacity: isActive('/forum') ? 1 : 0.5 }} />
@@ -45,7 +45,7 @@ function NavigationContent() {
         </Link>
         <Link 
           href="/chat" 
-          className="flex flex-col items-center px-4 py-2 w-1/4"
+          className="flex flex-col items-center px-4 py-2 w-1/5"
           style={getLinkStyle('/chat')}
         >
           <User className="w-6 h-6" style={{ opacity: isActive('/chat') ? 1 : 0.5 }} />
@@ -53,7 +53,7 @@ function NavigationContent() {
         </Link>
         <Link 
           href="/" 
-          className="flex flex-col items-center px-4 py-2 w-1/4"
+          className="flex flex-col items-center px-4 py-2 w-1/5"
           style={getLinkStyle('/')}
         >
           <Home className="w-6 h-6" style={{ opacity: isActive('/') ? 1 : 0.5 }} />
@@ -61,11 +61,19 @@ function NavigationContent() {
         </Link>
         <Link 
           href="/studies" 
-          className="flex flex-col items-center px-4 py-2 w-1/4"
+          className="flex flex-col items-center px-4 py-2 w-1/5"
           style={getLinkStyle('/studies')}
         >
           <Brain className="w-6 h-6" style={{ opacity: isActive('/studies') ? 1 : 0.5 }} />
           <span className="text-xs mt-1" style={{ opacity: isActive('/studies') ? 1 : 0.5 }}>Studies</span>
+        </Link>
+        <Link 
+          href="/resources" 
+          className="flex flex-col items-center px-4 py-2 w-1/5"
+          style={getLinkStyle('/resources')}
+        >
+          <Info className="w-6 h-6" style={{ opacity: isActive('/resources') ? 1 : 0.5 }} />
+          <span className="text-xs mt-1" style={{ opacity: isActive('/resources') ? 1 : 0.5 }}>Resources</span>
         </Link>
       </div>
     </div>
