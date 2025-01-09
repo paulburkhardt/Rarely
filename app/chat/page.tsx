@@ -139,7 +139,7 @@ export default function ChatPage() {
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="sm"
             className="text-[#473F63]"
           >
             <Paperclip className="w-5 h-5" />
@@ -153,7 +153,7 @@ export default function ChatPage() {
           <Button
             type="submit"
             variant="ghost"
-            size="icon"
+            size="sm"
             className="text-[#473F63]"
             disabled={!input.trim() || isLoading}
           >
@@ -162,7 +162,7 @@ export default function ChatPage() {
           <Button
             type="button"
             variant="ghost"
-            size="icon"
+            size="sm"
             className="text-[#473F63]"
             onClick={handleReset}
           >

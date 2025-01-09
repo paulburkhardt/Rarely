@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Users } from 'lucide-react'
@@ -74,7 +75,7 @@ const studies: Study[] = [
   }
 ] */
 
-export default function StudiesPage() {
+function StudiesContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const activeTab = searchParams.get('tab') || 'recruiting'
@@ -229,6 +230,14 @@ export default function StudiesPage() {
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export default function StudiesPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <StudiesContent />
+    </Suspense>
   )
 }
 
