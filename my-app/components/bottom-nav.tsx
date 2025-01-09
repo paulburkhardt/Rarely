@@ -57,7 +57,7 @@ function NavigationContent() {
           style={getLinkStyle('/')}
         >
           <Home className="w-6 h-6" style={{ opacity: isActive('/') ? 1 : 0.5 }} />
-          <span className="text-xs mt-1" style={{ opacity: isActive('/') ? 1 : 0.5 }}>Dashboard</span>
+          <span className="text-xs mt-1" style={{ opacity: isActive('/') ? 1 : 0.5 }}>You</span>
         </Link>
         <Link 
           href="/studies" 

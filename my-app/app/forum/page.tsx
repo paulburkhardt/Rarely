@@ -65,8 +65,8 @@ const discussions: Discussion[] = [
     groupName: 'Treatment Discussions',
     groupImage: '/placeholder.svg?height=32&width=32',
     messageCount: 23
-  },
-  {
+  }
+ /*  {
     id: '2',
     title: 'New research on chronic pain management',
     groupName: 'Chronic Pain Support',
@@ -79,7 +79,7 @@ const discussions: Discussion[] = [
     groupName: 'Daily Wellness Tips',
     groupImage: '/placeholder.svg?height=32&width=32',
     messageCount: 8
-  }
+  } */
 ]
 
 function formatTimeAgo(date: Date) {

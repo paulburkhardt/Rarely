@@ -11,11 +11,66 @@ import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
-import { Calendar, MessageCircle, Activity, Clock } from 'lucide-react';
+import { Calendar, MessageCircle, Activity, Clock, AppleIcon } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Smile, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucide-react';
+
+interface Activity {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}
+
+interface Symptom {
+  label: string;
+  selected: boolean;
+}
+
+interface Medication {
+  name: string;
+  taken: boolean;
+  prescribed: boolean;
+}
 
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [hasDiaryEntry, setHasDiaryEntry] = useState<boolean>(false);
+  const [isHealthSynced, setIsHealthSynced] = useState<boolean>(false);
+  const [showDiaryModal, setShowDiaryModal] = useState(false);
+  const [mood, setMood] = useState<number>(3);
+  const [selectedActivity, setSelectedActivity] = useState<string[]>([]);
+  const [symptoms, setSymptoms] = useState<Symptom[]>([
+    { label: "Muscle Weakness", selected: false },
+    { label: "Fatigue", selected: false },
+    { label: "Joint Pain", selected: false },
+    { label: "Difficulty Swallowing", selected: false },
+    { label: "Custom Symptom", selected: false },
+  ]);
+  const [medications, setMedications] = useState<Medication[]>([
+    { name: "Prednisone", taken: false, prescribed: true },
+    { name: "Methotrexate", taken: false, prescribed: true },
+    { name: "Rituximab", taken: false, prescribed: true },
+  ]);
+  const [currentStep, setCurrentStep] = useState<number>(1);
+  const [newSymptom, setNewSymptom] = useState<string>("");
+  const [showSymptomInput, setShowSymptomInput] = useState(false);
+  const [newMedication, setNewMedication] = useState<string>("");
+  const [showMedicationInput, setShowMedicationInput] = useState(false);
+
+  const activities: Activity[] = [
+    { icon: <Bed size={24} />, label: "Mostly Resting", value: "resting" },
+    { icon: <Coffee size={24} />, label: "Light Activity", value: "light" },
+    { icon: <Footprints size={24} />, label: "Walking", value: "walking" },
+    { icon: <Dumbbell size={24} />, label: "Strength Training", value: "strength" },
+    { icon: <Bike size={24} />, label: "Cycling", value: "cycling" },
+  ];
 
   useEffect(() => {
     const diaryEntryStatus = sessionStorage.getItem("hasDiaryEntry");
@@ -25,25 +80,25 @@ export default function Dashboard() {
   }, []);
 
   const handleDiaryClick = () => {
-    setHasDiaryEntry(true);
-    sessionStorage.setItem("hasDiaryEntry", "true");
+    setShowDiaryModal(true);
   };
 
   // Sample data for charts
   const moodData = [
-    { day: "Mon", value: 3 },
-    { day: "Tue", value: 4 },
-    { day: "Wed", value: 2 },
-    { day: "Thu", value: 5 },
-    { day: "Fri", value: 4 },
-    { day: "Sat", value: 3 },
-    { day: "Sun", value: 4 },
+    { day: "Mon", value: isHealthSynced ? 4 : 3 },
+    { day: "Tue", value: isHealthSynced ? 3 : 4 },
+    { day: "Wed", value: isHealthSynced ? 4 : 2 },
+    { day: "Thu", value: isHealthSynced ? 5 : 5 },
+    { day: "Fri", value: isHealthSynced ? 3 : 4 },
+    { day: "Sat", value: isHealthSynced ? 4 : 3 },
+    { day: "Sun", value: isHealthSynced ? 5 : 4 },
   ];
 
   const symptomsData = [
-    { name: "Fatigue", value: 4 },
-    { name: "Pain", value: 2 },
-    { name: "Stiffness", value: 3 },
+    { name: "Fatigue", value: isHealthSynced ? 3 : 4 },
+    { name: "Pain", value: isHealthSynced ? 2 : 2 },
+    { name: "Stiffness", value: isHealthSynced ? 2 : 3 },
+    { name: "Sleep", value: isHealthSynced ? 4 : 0 },
   ];
 
   // Sample streak data - replace with your actual data
@@ -57,6 +112,28 @@ export default function Dashboard() {
       hasStreak: i >= 5 // Example: last 2 days have streaks
     };
   });
+
+  const handleHealthSync = () => {
+    setIsHealthSynced(true);
+    // In a real app, this would trigger the Apple Health API integration
+  };
+
+  const submitDiary = () => {
+    setHasDiaryEntry(true);
+    sessionStorage.setItem("hasDiaryEntry", "true");
+    setShowDiaryModal(false);
+    // Here you would typically save the diary entry to your backend
+  };
+
+  const getStepTitle = (step: number) => {
+    switch (step) {
+      case 1: return "How are you feeling today?";
+      case 2: return "What activities did you do?";
+      case 3: return "Any symptoms today?";
+      case 4: return "Track your medications";
+      default: return "";
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -80,24 +157,47 @@ export default function Dashboard() {
           </p>
         </div>
         
-        {!hasDiaryEntry && (
-          <Card className="bg-[#E6E3FD] border-none shadow-none">
-            <CardContent className="p-6 text-center space-y-4">
-              <div className="mx-auto w-8 h-8">
-                <BookOpen className="w-full h-full text-[#473F63]" />
+        <Card className="bg-[#E6E3FD] border-none shadow-none">
+          <CardContent className="p-6 text-center space-y-4">
+            <div className="mx-auto w-8 h-8">
+              <BookOpen className="w-full h-full text-[#473F63]" />
+            </div>
+            <p className="text-[#473F63]">
+              {hasDiaryEntry 
+                ? "Want to update your daily tracking?"
+                : "To understand your disease better we need to track your habits!"
+              }
+            </p>
+            <Button 
+              className="bg-[#473F63] hover:bg-[#473F63]/90 text-white"
+              onClick={handleDiaryClick}
+            >
+              {hasDiaryEntry ? "Update Diary" : "Continue"}
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white border-[#E6E3FD] shadow-sm">
+          <CardContent className="p-6 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <AppleIcon className="w-6 h-6 text-black" />
+              <div>
+                <p className="font-medium text-[#473F63]">Apple Health</p>
+                <p className="text-sm text-[#473F63]/70">
+                  {isHealthSynced ? "Last synced: Just now" : "Sync your health data"}
+                </p>
               </div>
-              <p className="text-[#473F63]">
-                To understand your disease better we need to track your habits!
-              </p>
-              <Button 
-                className="bg-[#473F63] hover:bg-[#473F63]/90 text-white"
-                onClick={handleDiaryClick}
-              >
-                Continue
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+            <Button 
+              variant="outline"
+              className="border-[#473F63] text-[#473F63] hover:bg-[#E6E3FD]"
+              onClick={handleHealthSync}
+              disabled={isHealthSynced}
+            >
+              {isHealthSynced ? "Synced" : "Sync"}
+            </Button>
+          </CardContent>
+        </Card>
 
       <main className="container mx-auto px-4 py-8">
         {/* Personal Analytics Section */}
@@ -139,7 +239,41 @@ export default function Dashboard() {
               <div className="text-[#473F63]">
                 <p className="font-medium">Gene Therapy Study - Phase 2</p>
                 <p>January 15th, 2024 - 10:00 AM</p>
-                <Button className="mt-4 bg-[#473F63] text-white">View Details</Button>
+                <div className="flex gap-2 mt-4">
+                  <Button className="bg-[#473F63] text-white">View Details</Button>
+                  <Button 
+                    variant="outline" 
+                    className="border-[#473F63] text-[#473F63]"
+                    onClick={() => {
+                      const event = {
+                        begin: '2024-01-15T10:00:00',
+                        title: 'Gene Therapy Study - Phase 2',
+                        description: 'Study appointment for Gene Therapy Phase 2',
+                      };
+                      
+                      const icsContent = [
+                        'BEGIN:VCALENDAR',
+                        'VERSION:2.0',
+                        'BEGIN:VEVENT',
+                        `DTSTART:${event.begin.replace(/[-:]/g, '')}`,
+                        `SUMMARY:${event.title}`,
+                        `DESCRIPTION:${event.description}`,
+                        'END:VEVENT',
+                        'END:VCALENDAR'
+                      ].join('\n');
+
+                      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                      const link = document.createElement('a');
+                      link.href = window.URL.createObjectURL(blob);
+                      link.download = 'appointment.ics';
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                    }}
+                  >
+                    Add to Calendar
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -228,6 +362,239 @@ export default function Dashboard() {
           </div>
         </div>
       </main>
+
+      <Dialog open={showDiaryModal} onOpenChange={(open) => {
+        setShowDiaryModal(open);
+        if (!open) setCurrentStep(1); // Reset to first step when closing
+      }}>
+        <DialogContent className="max-w-md mx-auto">
+          <DialogHeader>
+            <DialogTitle>{getStepTitle(currentStep)}</DialogTitle>
+          </DialogHeader>
+          
+          {/* Step 1: Mood */}
+          {currentStep === 1 && (
+            <div className="space-y-4">
+              <div className="flex justify-between items-center p-4">
+                <Frown className={`w-12 h-12 ${mood <= 2 ? 'text-red-500' : 'text-gray-300'} cursor-pointer transition-colors`} 
+                  onClick={() => setMood(2)} />
+                <Meh className={`w-12 h-12 ${mood === 3 ? 'text-yellow-500' : 'text-gray-300'} cursor-pointer transition-colors`}
+                  onClick={() => setMood(3)} />
+                <Smile className={`w-12 h-12 ${mood >= 4 ? 'text-green-500' : 'text-gray-300'} cursor-pointer transition-colors`}
+                  onClick={() => setMood(4)} />
+              </div>
+              <Slider
+                value={[mood]}
+                min={1}
+                max={5}
+                step={1}
+                onValueChange={(value) => setMood(value[0])}
+                className="w-full"
+              />
+            </div>
+          )}
+
+          {/* Step 2: Activity */}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                {activities.map((activity) => (
+                  <Button
+                    key={activity.value}
+                    variant={selectedActivity.includes(activity.value) ? "default" : "outline"}
+                    className="flex flex-col gap-2 h-auto py-4"
+                    onClick={() => setSelectedActivity(prev => 
+                      prev.includes(activity.value) 
+                        ? prev.filter(a => a !== activity.value)
+                        : [...prev, activity.value]
+                    )}
+                  >
+                    {activity.icon}
+                    <span className="text-sm">{activity.label}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Step 3: Symptoms */}
+          {currentStep === 3 && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                {symptoms.map((symptom, index) => (
+                  <Badge
+                    key={symptom.label}
+                    variant={symptom.selected ? "default" : "outline"}
+                    className="cursor-pointer p-3 flex justify-center items-center text-center"
+                    onClick={() => {
+                      const newSymptoms = [...symptoms];
+                      newSymptoms[index].selected = !newSymptoms[index].selected;
+                      setSymptoms(newSymptoms);
+                    }}
+                  >
+                    {symptom.label}
+                  </Badge>
+                ))}
+              </div>
+              
+              {showSymptomInput ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newSymptom}
+                      onChange={(e) => setNewSymptom(e.target.value)}
+                      placeholder="Enter symptom name"
+                      className="flex-1 px-3 py-2 border rounded-md"
+                    />
+                    <Button
+                      onClick={() => {
+                        if (newSymptom.trim()) {
+                          setSymptoms([...symptoms, { label: newSymptom.trim(), selected: true }]);
+                          setNewSymptom("");
+                          setShowSymptomInput(false);
+                        }
+                      }}
+                      size="sm"
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setNewSymptom("");
+                        setShowSymptomInput(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full gap-1"
+                  onClick={() => setShowSymptomInput(true)}
+                >
+                  <Plus size={16} /> Add Custom Symptom
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Step 4: Medications */}
+          {currentStep === 4 && (
+            <div className="space-y-4">
+              {medications.map((med, index) => (
+                <div key={med.name} className="flex items-center justify-between p-2 border rounded-lg">
+                  <span className="font-medium">{med.name}</span>
+                  <Button
+                    variant={med.taken ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const newMeds = [...medications];
+                      newMeds[index].taken = !newMeds[index].taken;
+                      setMedications(newMeds);
+                    }}
+                  >
+                    {med.taken ? "Taken" : "Not Taken"}
+                  </Button>
+                </div>
+              ))}
+              
+              {showMedicationInput ? (
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newMedication}
+                      onChange={(e) => setNewMedication(e.target.value)}
+                      placeholder="Enter medication name"
+                      className="flex-1 px-3 py-2 border rounded-md"
+                    />
+                    <Button
+                      onClick={() => {
+                        if (newMedication.trim()) {
+                          setMedications([
+                            ...medications,
+                            { name: newMedication.trim(), taken: true, prescribed: false }
+                          ]);
+                          setNewMedication("");
+                          setShowMedicationInput(false);
+                        }
+                      }}
+                      size="sm"
+                    >
+                      Add
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setNewMedication("");
+                        setShowMedicationInput(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full gap-1"
+                  onClick={() => setShowMedicationInput(true)}
+                >
+                  <Plus size={16} /> Add Medication
+                </Button>
+              )}
+            </div>
+          )}
+
+          {/* Navigation Buttons */}
+          <div className="flex gap-2 mt-4">
+            {currentStep > 1 && (
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStep(prev => prev - 1)}
+                className="flex-1"
+              >
+                Back
+              </Button>
+            )}
+            {currentStep < 4 ? (
+              <Button
+                onClick={() => setCurrentStep(prev => prev + 1)}
+                className="flex-1"
+              >
+                Next
+              </Button>
+            ) : (
+              <Button
+                onClick={submitDiary}
+                className="flex-1"
+              >
+                Save Entry
+              </Button>
+            )}
+          </div>
+
+          {/* Step Indicator */}
+          <div className="flex justify-center gap-2 mt-4">
+            {[1, 2, 3, 4].map((step) => (
+              <div
+                key={step}
+                className={`h-2 w-2 rounded-full ${
+                  step === currentStep ? 'bg-primary' : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

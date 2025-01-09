@@ -6,6 +6,8 @@ import { MapPin, Calendar, Users } from 'lucide-react'
 import { colors } from "@/styles/colors"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useSearchParams, useRouter } from 'next/navigation'
+import { toast } from "@/components/ui/use-toast"
+import { studies } from './data'
 
 type Study = {
   id: string
@@ -18,8 +20,9 @@ type Study = {
   status: 'recruiting' | 'running'
   progress?: number
   participants?: number
+  hasApplied?: boolean
 }
-
+/* 
 const studies: Study[] = [
   {
     id: '1',
@@ -29,7 +32,8 @@ const studies: Study[] = [
     startDate: new Date('2024-03-15'),
     totalSpots: 100,
     availableSpots: 37,
-    status: 'recruiting'
+    status: 'recruiting',
+    hasApplied: false
   },
   {
     id: '2',
@@ -39,7 +43,8 @@ const studies: Study[] = [
     startDate: new Date('2024-04-01'),
     totalSpots: 200,
     availableSpots: 85,
-    status: 'recruiting'
+    status: 'recruiting',
+    hasApplied: false
   },
   {
     id: '3',
@@ -51,7 +56,8 @@ const studies: Study[] = [
     availableSpots: 112,
     status: 'running',
     progress: 65,
-    participants: 150
+    participants: 150,
+    hasApplied: false
   },
   {
     id: '4',
@@ -63,9 +69,10 @@ const studies: Study[] = [
     availableSpots: 0,
     status: 'running',
     progress: 45,
-    participants: 300
+    participants: 300,
+    hasApplied: false
   }
-]
+] */
 
 export default function StudiesPage() {
   const searchParams = useSearchParams()
@@ -76,6 +83,9 @@ export default function StudiesPage() {
     router.push(`/studies?tab=${value}`)
   }
 
+  const handleApply = (studyId: string) => {
+    router.push(`/studies/apply/${studyId}`)
+  }
 
   const filteredStudies = studies.filter(study => study.status === activeTab)
 
@@ -156,11 +166,18 @@ export default function StudiesPage() {
                   </span>
                 </div>
               </div>
-              <button 
-                className="w-full bg-[#473F63] text-white px-4 py-2 rounded-lg hover:bg-[#473F63]/90 transition-colors"
-              >
-                Apply Now
-              </button>
+              {study.hasApplied ? (
+                <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-center font-medium">
+                  Application Submitted
+                </div>
+              ) : (
+                <button 
+                  onClick={() => handleApply(study.id)}
+                  className="w-full bg-[#473F63] text-white px-4 py-2 rounded-lg hover:bg-[#473F63]/90 transition-colors"
+                >
+                  Apply Now
+                </button>
+              )}
             </div>
           ))}
         </TabsContent>
@@ -200,7 +217,6 @@ export default function StudiesPage() {
                     {study.participants} participants enrolled
                   </span>
                 </div>
-                {/* Progress bar */}
                 <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
                   <div 
                     className="bg-[#1E4D57] h-2.5 rounded-full" 
