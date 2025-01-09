@@ -27,16 +27,15 @@ const mockMessages = [
 ]
 
 const examplePrompts = [
-  "What are common cold symptoms?",
-  "How can I improve my sleep?",
-  "Tips for staying healthy",
+  "What are common ACM symptoms?",
+  "How can I manage my ACM diagnosis?",
+  "Exercise guidelines for ACM patients",
 ]
 
-// Add welcome message constant
 const welcomeMessage = {
   id: 'welcome',
   role: 'assistant' as const,
-  content: 'Hi there! I\'m Dr. Joni, your personal medical assistant. I\'m here to help answer your health-related questions and provide guidance. How can I assist you today?'
+  content: 'Hi there! I\'m Dr. Joni, your ACM specialist. I\'m here to help answer your questions about Arrhythmogenic Cardiomyopathy and provide guidance. How can I assist you today?'
 }
 
 export default function ChatPage() {
@@ -59,7 +58,6 @@ export default function ChatPage() {
     setMessages([welcomeMessage]);
   }
 
-  // Add useEffect to show welcome message on first load
   useEffect(() => {
     if (messages.length === 0) {
       setMessages([welcomeMessage]);
@@ -69,7 +67,6 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
 
-      {/* Logo */}
       <div className="flex justify-center items-center py-6">
         <Image 
           src="/logo_purple.png" 
@@ -80,7 +77,6 @@ export default function ChatPage() {
         />
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
         {messages.map((message) => (
           <div
@@ -119,9 +115,7 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <form onSubmit={handleSubmit} className="border-t p-4 bg-white">
-        {/* Example Prompts */}
         <div className="flex gap-2 overflow-x-auto pb-4 px-2">
           {examplePrompts.map((prompt, index) => (
             <button

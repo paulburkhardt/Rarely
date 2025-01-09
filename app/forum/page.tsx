@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { colors } from '@/styles/colors'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { mockGroups, mockDiscussions, mockPrivateChats } from '@/data/mock-forum'
 
 
 type Group = {
@@ -24,63 +25,10 @@ type Group = {
 type Discussion = {
   id: string
   title: string
-  groupName: string
-  groupImage: string
+  group: Group
   messageCount: number
+  lastUpdated: Date
 }
-
-const groups: Group[] = [
-  {
-    id: '1',
-    name: 'Chronic Pain Support',
-    description: 'Share experiences and tips for managing chronic pain',
-    imageUrl: '/placeholder.svg?height=48&width=48',
-    lastActivity: new Date('2024-01-04T21:48:00'),
-    memberCount: 1234,
-    unreadCount: 3
-  },
-  {
-    id: '2',
-    name: 'Treatment Discussions',
-    description: 'Discussion about various treatment options',
-    imageUrl: '/placeholder.svg?height=48&width=48',
-    lastActivity: new Date('2024-01-04T15:30:00'),
-    memberCount: 856
-  },
-  {
-    id: '3',
-    name: 'Daily Wellness Tips',
-    description: 'Daily tips for maintaining wellness',
-    imageUrl: '/placeholder.svg?height=48&width=48',
-    lastActivity: new Date('2024-01-03T19:20:00'),
-    memberCount: 2341,
-    unreadCount: 1
-  }
-]
-
-const discussions: Discussion[] = [
-  {
-    id: '1',
-    title: 'New Treatment Breakthrough',
-    groupName: 'Treatment Discussions',
-    groupImage: '/placeholder.svg?height=32&width=32',
-    messageCount: 23
-  }
- /*  {
-    id: '2',
-    title: 'New research on chronic pain management',
-    groupName: 'Chronic Pain Support',
-    groupImage: '/placeholder.svg?height=32&width=32',
-    messageCount: 15
-  },
-  {
-    id: '2',
-    title: 'Share your wellness journey',
-    groupName: 'Daily Wellness Tips',
-    groupImage: '/placeholder.svg?height=32&width=32',
-    messageCount: 8
-  } */
-]
 
 function formatTimeAgo(date: Date) {
   const now = new Date()
@@ -132,20 +80,20 @@ function ForumContent() {
           
 
         <TabsContent value="groups" className="grid gap-2">
-          {/* Trending Discussions section with similar styling */}
           <div className="mt-4">
             <h2 className="text-xl font-semibold text-[#473F63] mb-2">Trending Discussions</h2>
-            {discussions.map((discussion) => (
+            {mockDiscussions.map((discussion) => (
               <Link key={discussion.id} href={`/forum/chat/discussion${discussion.id}`}>
                 <div className="flex items-center p-2 border-b border-gray-200">
                   <Avatar className="w-10 h-10 mr-2">
-                    <AvatarImage  alt={discussion.groupName} />
-                    <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
-                    </Avatar>
+                    <AvatarImage src={discussion.group.imageUrl} alt={discussion.group.name} />
+                    <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">
+                      {discussion.group.name.substring(0, 2)}
+                    </AvatarFallback>
+                  </Avatar>
                   <div className="flex-1 min-w-0 ml-2">
                     <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
-                      {discussion.groupName}
-
+                      {discussion.group.name}
                     </h3>
                     <p className="text-[#473F63]/90 text-sm mt-1">
                       {discussion.title}
@@ -162,13 +110,15 @@ function ForumContent() {
             ))}
           </div>
         <h2 className="text-xl font-semibold text-[#473F63] mb-2">Group Discussions</h2>
-          {groups.map((group) => (
+          {mockGroups.map((group) => (
             <Link key={group.id} href={`/forum/chat/${group.id}`}>
               <div className="flex items-center p-2 border-b border-gray-200">
                 <Avatar className="w-10 h-10 mr-2">
-                  <AvatarImage  alt={group.name} />
-                  <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
-                  </Avatar>
+                  <AvatarImage src={group.imageUrl} alt={group.name} />
+                  <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">
+                    {group.name.substring(0, 2)}
+                  </AvatarFallback>
+                </Avatar>
                 <div className="flex-1 min-w-0 ml-2">
                   <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
                     {group.name}
@@ -190,50 +140,34 @@ function ForumContent() {
 
         </TabsContent>
 
-        {/* Private chats tab with green styling */}
         <TabsContent value="private" className="grid gap-2">
-          {[
-            {
-              id: '1',
-              name: 'Dr. Sarah Johnson',
-              image: '/placeholder.svg?height=40&width=40',
-              lastMessage: 'How are you feeling today?',
-              time: new Date('2024-01-04T21:55:00'),
-              unread: 2
-            },
-            {
-              id: '2',
-              name: 'Support Coach Mike',
-              image: '/placeholder.svg?height=40&width=40',
-              lastMessage: 'Great progress on your exercises!',
-              time: new Date('2024-01-04T20:30:00'),
-              unread: 0
-            }
-          ].map((chat) => (
+          {mockPrivateChats.map((chat) => (
             <Link key={chat.id} href={`/forum/chat/private${chat.id}`}>
               <div className="flex items-center p-2 border-b border-gray-200">
                 <Avatar className="w-10 h-10 mr-2">
-                  <AvatarImage  alt={chat.name} />
-                  <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5] ]">DR</AvatarFallback>
+                  <AvatarImage src={chat.userImage} alt={chat.userName} />
+                  <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">
+                    {chat.userName.substring(0, 2)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 ml-2">
                   <div className="flex items-center justify-between">
                     <h3 className="text-[#1E4D57] font-medium">
-                      {chat.name}
+                      {chat.userName}
                     </h3>
                     <span className="text-xs text-[#1E4D57]/80">
-                      {formatTimeAgo(chat.time)}
+                      {formatTimeAgo(chat.lastMessageTime)}
                     </span>
                   </div>
                   <p className="text-sm text-[#1E4D57]/90 truncate mt-1">
                     {chat.lastMessage}
                   </p>
                 </div>
-                {chat.unread > 0 && (
+                {chat.unreadCount > 0 && (
                   <Badge 
                     variant="secondary" 
                     className="mt-2 bg-[#DEEAE5] text-[#1E4D57]">
-                    {chat.unread}
+                    {chat.unreadCount}
                   </Badge>
                 )}
               </div>
