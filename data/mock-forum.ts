@@ -3,8 +3,8 @@ import { Group, Discussion, PrivateChat } from '../types/forum'
 export const mockGroups: Group[] = [
   {
     id: '1',
-    name: 'Chronic Pain Support',
-    description: 'Share experiences and tips for managing chronic pain',
+    name: 'ACM Support Community',
+    description: 'Share experiences and support for living with ACM/ARVC',
     imageUrl: '/placeholder.svg?height=48&width=48',
     lastActivity: new Date('2024-01-04T21:48:00'),
     memberCount: 1234,
@@ -12,16 +12,16 @@ export const mockGroups: Group[] = [
   },
   {
     id: '2',
-    name: 'Treatment Discussions',
-    description: 'Discussion about various treatment options',
+    name: 'Treatment & Medications',
+    description: 'Discussions about ACM treatments, medications, and ICD management',
     imageUrl: '/placeholder.svg?height=48&width=48',
     lastActivity: new Date('2024-01-04T15:30:00'),
     memberCount: 856
   },
   {
     id: '3',
-    name: 'Daily Wellness Tips',
-    description: 'Daily tips for maintaining wellness',
+    name: 'Exercise & Lifestyle',
+    description: 'Safe exercise guidelines and lifestyle modifications for ACM patients',
     imageUrl: '/placeholder.svg?height=48&width=48',
     lastActivity: new Date('2024-01-03T19:20:00'),
     memberCount: 2341,
@@ -32,14 +32,14 @@ export const mockGroups: Group[] = [
 export const mockDiscussions: Discussion[] = [
   {
     id: '1',
-    title: 'New research on chronic pain management',
+    title: 'New genetic testing options for ACM',
     group: mockGroups[0],
     messageCount: 15,
     lastUpdated: new Date('2024-01-04T22:00:00')
   },
   {
     id: '2',
-    title: 'Share your wellness journey',
+    title: 'Managing exercise restrictions with ACM',
     group: mockGroups[2],
     messageCount: 8,
     lastUpdated: new Date('2024-01-04T21:30:00')
@@ -50,18 +50,18 @@ export const mockPrivateChats: PrivateChat[] = [
   {
     id: '1',
     userId: '1',
-    userName: 'Dr. Sarah Johnson',
+    userName: 'Olaf',
     userImage: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'How are you feeling today?',
+    lastMessage: 'How are your ICD readings...?',
     lastMessageTime: new Date('2024-01-04T21:55:00'),
     unreadCount: 2
   },
   {
     id: '2',
     userId: '2',
-    userName: 'Support Coach Mike',
+    userName: 'Maria',
     userImage: '/placeholder.svg?height=40&width=40',
-    lastMessage: 'Great progress on your exercises!',
+    lastMessage: 'Remember to stay within your...',
     lastMessageTime: new Date('2024-01-04T20:30:00'),
     unreadCount: 0
   }
