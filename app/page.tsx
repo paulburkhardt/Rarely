@@ -21,10 +21,15 @@ export default function Page() {
           </Avatar>
           <span className="text-sm ml-2">Fe</span>
         </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Streak:</span>
+          <span className="text-sm font-bold">7</span>
+          <span>🔥</span>
+        </div>
       </div>
 
       {/* Main Content */}
-      <main className="px-6 pt-8">
+      <main className="px-6 pt-0">
         <Dashboard />
       </main>
     </div>

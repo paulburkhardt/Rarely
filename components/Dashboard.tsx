@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, ResponsiveContainer } from "recharts";
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
 import { Calendar, MessageCircle, Activity, Clock, AppleIcon } from 'lucide-react';
 import {
@@ -21,6 +21,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Smile, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface Activity {
   icon: React.ReactNode;
@@ -37,6 +38,12 @@ interface Medication {
   name: string;
   taken: boolean;
   prescribed: boolean;
+}
+
+interface ActivityDataPoint {
+  time: string;
+  value: number;
+  activity: string;
 }
 
 export default function Dashboard() {
@@ -63,6 +70,33 @@ export default function Dashboard() {
   const [showSymptomInput, setShowSymptomInput] = useState(false);
   const [newMedication, setNewMedication] = useState<string>("");
   const [showMedicationInput, setShowMedicationInput] = useState(false);
+  const [timeRange, setTimeRange] = useState<"today" | "week" | "month">("today");
+  const [activityData, setActivityData] = useState({
+    today: [
+      { time: '9AM', value: 2, activity: 'Light Activity' },
+      { time: '11AM', value: 3, activity: 'Walking' },
+      { time: '1PM', value: 1, activity: 'Resting' },
+      { time: '3PM', value: 4, activity: 'Strength Training' },
+      { time: '5PM', value: 2, activity: 'Light Activity' },
+      { time: '7PM', value: 3, activity: 'Walking' },
+      { time: '9PM', value: 1, activity: 'Resting' },
+    ],
+    week: [
+      { time: 'Mon', value: 2, activity: 'Light Activity' },
+      { time: 'Tue', value: 3, activity: 'Walking' },
+      { time: 'Wed', value: 4, activity: 'Strength Training' },
+      { time: 'Thu', value: 2, activity: 'Light Activity' },
+      { time: 'Fri', value: 3, activity: 'Walking' },
+      { time: 'Sat', value: 1, activity: 'Resting' },
+      { time: 'Sun', value: 2, activity: 'Light Activity' },
+    ],
+    month: [
+      { time: 'Week 1', value: 2, activity: 'Light Activity' },
+      { time: 'Week 2', value: 3, activity: 'Walking' },
+      { time: 'Week 3', value: 4, activity: 'Strength Training' },
+      { time: 'Week 4', value: 2, activity: 'Light Activity' },
+    ],
+  });
 
   const activities: Activity[] = [
     { icon: <Bed size={24} />, label: "Mostly Resting", value: "resting" },
@@ -85,13 +119,13 @@ export default function Dashboard() {
 
   // Sample data for charts
   const moodData = [
-    { day: "Mon", value: isHealthSynced ? 4 : 3 },
-    { day: "Tue", value: isHealthSynced ? 3 : 4 },
-    { day: "Wed", value: isHealthSynced ? 4 : 2 },
-    { day: "Thu", value: isHealthSynced ? 5 : 5 },
-    { day: "Fri", value: isHealthSynced ? 3 : 4 },
-    { day: "Sat", value: isHealthSynced ? 4 : 3 },
-    { day: "Sun", value: isHealthSynced ? 5 : 4 },
+    { time: '9AM', value: isHealthSynced ? 4 : 3 },
+    { time: '11AM', value: isHealthSynced ? 3 : 4 },
+    { time: '1PM', value: isHealthSynced ? 4 : 2 },
+    { time: '3PM', value: isHealthSynced ? 5 : 5 },
+    { time: '5PM', value: isHealthSynced ? 3 : 4 },
+    { time: '7PM', value: isHealthSynced ? 4 : 3 },
+    { time: '9PM', value: isHealthSynced ? 5 : 4 },
   ];
 
   const symptomsData = [
@@ -113,8 +147,38 @@ export default function Dashboard() {
     };
   });
 
+  // Add this mock data for synced state
+  const syncedActivityData = {
+    today: [
+      { time: '9AM', value: 3, activity: 'Walking' },
+      { time: '11AM', value: 4, activity: 'Strength Training' },
+      { time: '1PM', value: 2, activity: 'Light Activity' },
+      { time: '3PM', value: 5, activity: 'Cycling' },
+      { time: '5PM', value: 3, activity: 'Walking' },
+      { time: '7PM', value: 2, activity: 'Light Activity' },
+      { time: '9PM', value: 1, activity: 'Resting' },
+    ],
+    week: [
+      { time: 'Mon', value: 3, activity: 'Walking' },
+      { time: 'Tue', value: 4, activity: 'Strength Training' },
+      { time: 'Wed', value: 5, activity: 'Cycling' },
+      { time: 'Thu', value: 3, activity: 'Walking' },
+      { time: 'Fri', value: 4, activity: 'Strength Training' },
+      { time: 'Sat', value: 2, activity: 'Light Activity' },
+      { time: 'Sun', value: 3, activity: 'Walking' },
+    ],
+    month: [
+      { time: 'Week 1', value: 3, activity: 'Walking' },
+      { time: 'Week 2', value: 4, activity: 'Strength Training' },
+      { time: 'Week 3', value: 5, activity: 'Cycling' },
+      { time: 'Week 4', value: 3, activity: 'Walking' },
+    ],
+  };
+
   const handleHealthSync = () => {
     setIsHealthSynced(true);
+    // Update the activity data with synced data
+    setActivityData(syncedActivityData);
     // In a real app, this would trigger the Apple Health API integration
   };
 
@@ -136,40 +200,37 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
         {/* App Name */}
-        <div className="text-center space-y-4">
+        <div className="text-center space-y-0">
           {/* Logo */}
-          <div className="flex justify-center items-center py-6">
+          <div className="flex justify-center items-center pt-2 pb-3">
             <Image 
               src="/logo_purple.png" 
               alt="Logo" 
-              width={140}
-              height={140}
+              width={100}
+              height={100}
               priority
             />
           </div>
-          <h2 className="text-xl font-medium text-[#473F63]">
+          <h2 className="text-lg font-medium text-[#473F63]">
             Welcome to rarely Fe!
           </h2>
-          <p className="text-[#473F63] opacity-80">
-            You haven&apos;t filled out your diary yet!
-          </p>
         </div>
         
-        <Card className="bg-[#E6E3FD] border-none shadow-none">
+        <Card className="bg-[#473F63] border-none shadow-none">
           <CardContent className="p-6 text-center space-y-4">
             <div className="mx-auto w-8 h-8">
-              <BookOpen className="w-full h-full text-[#473F63]" />
+              <BookOpen className="w-full h-full text-white" />
             </div>
-            <p className="text-[#473F63]">
+            <p className="text-white">
               {hasDiaryEntry 
                 ? "Want to update your daily tracking?"
-                : "To understand your disease better we need to track your habits!"
+                : "You haven't filled out your diary yet! To understand your disease better we need to track your habits!"
               }
             </p>
             <Button 
-              className="bg-[#473F63] hover:bg-[#473F63]/90 text-white"
+              className="bg-white hover:bg-white/90 text-[#473F63]"
               onClick={handleDiaryClick}
             >
               {hasDiaryEntry ? "Update Diary" : "Continue"}
@@ -177,164 +238,306 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-white border-[#E6E3FD] shadow-sm">
-          <CardContent className="p-6 flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <AppleIcon className="w-6 h-6 text-black" />
-              <div>
-                <p className="font-medium text-[#473F63]">Apple Health</p>
-                <p className="text-sm text-[#473F63]/70">
-                  {isHealthSynced ? "Last synced: Just now" : "Sync your health data"}
+        
+
+        {/* Study Cards Row */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Next Study Appointment */}
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-4">
+            <CardHeader className="p-0">
+              <CardTitle className="text-[#473F63] text-sm sm:text-lg flex items-center gap-2">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                Next Visit
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 mt-2">
+              <div className="text-[#473F63] space-y-1">
+                <p className="font-medium text-xs sm:text-sm line-clamp-1">
+                  Gene Therapy - Ph.2
                 </p>
+                <p className="text-xs">Jan 15, 10:00 AM</p>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="border-[#473F63] text-white bg-[#473F63] mt-2 text-xs w-full sm:w-auto"
+                  onClick={() => {
+                    const event = {
+                      begin: '2024-01-15T10:00:00',
+                      title: 'Gene Therapy Study - Phase 2',
+                      description: 'Study appointment for Gene Therapy Phase 2',
+                    };
+                    
+                    const icsContent = [
+                      'BEGIN:VCALENDAR',
+                      'VERSION:2.0',
+                      'BEGIN:VEVENT',
+                      `DTSTART:${event.begin.replace(/[-:]/g, '')}`,
+                      `SUMMARY:${event.title}`,
+                      `DESCRIPTION:${event.description}`,
+                      'END:VEVENT',
+                      'END:VCALENDAR'
+                    ].join('\n');
+
+                    const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = window.URL.createObjectURL(blob);
+                    link.download = 'appointment.ics';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                >
+                  Add to Calendar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Matching Study */}
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-4">
+            <CardHeader className="p-0">
+              <CardTitle className="text-[#473F63] text-sm sm:text-lg flex items-center gap-2">
+                <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                Study Match
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 mt-2">
+              <div className="space-y-2">
+                <p className="text-[#473F63] text-xs sm:text-sm line-clamp-2">
+                  Gene Therapy Trial XYZ-123
+                </p>
+                <Button 
+                  size="sm"
+                  className="bg-[#473F63] text-white w-full sm:w-auto text-xs"
+                >
+                  Apply Now
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6">
+          <CardHeader className="p-0">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-[#1E4D57] text-lg">Your Activity Level</CardTitle>
+              <div className="flex gap-4 items-center">
+                <div className="flex flex-col items-center">
+                  <Button 
+                    variant="ghost"
+                    size="sm"
+                    className="h-auto p-2"
+                    onClick={handleHealthSync}
+                    disabled={isHealthSynced}
+                  >
+                    <AppleIcon className="w-5 h-5 text-[#1E4D57]" />
+                  </Button>
+                  <span className="text-xs text-[#1E4D57]/70">
+                    {isHealthSynced ? "Synced" : "Sync"}
+                  </span>
+                </div>
+                <Select value={timeRange} onValueChange={(value: "today" | "week" | "month") => setTimeRange(value)}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="Select range" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="week">This Week</SelectItem>
+                    <SelectItem value="month">This Month</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            <Button 
-              variant="outline"
-              className="border-[#473F63] text-[#473F63] hover:bg-[#E6E3FD]"
-              onClick={handleHealthSync}
-              disabled={isHealthSynced}
-            >
-              {isHealthSynced ? "Synced" : "Sync"}
-            </Button>
+          </CardHeader>
+          <CardContent className="p-0 mt-4">
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={activityData[timeRange]} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#8F8BAF" />
+                <XAxis 
+                  dataKey="time" 
+                  stroke="#1E4D57"
+                  fontSize={12}
+                />
+                <YAxis 
+                  stroke="#1E4D57"
+                  domain={[0, 5]}
+                  ticks={[0, 1, 2, 3, 4, 5]}
+                  fontSize={12}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: '#fff',
+                    border: '1px solid #1E4D57' 
+                  }}
+                  formatter={(value: number, name: string, props: any) => [
+                    `${props.payload.activity} (Level ${value})`,
+                    'Activity'
+                  ]}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke="#1E4D57" 
+                  strokeWidth={2}
+                  dot={{ fill: '#1E4D57', strokeWidth: 2 }}
+                  activeDot={{ r: 6 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+            <div className="mt-2 text-sm text-[#1E4D57]/70">
+              Activity Level: 1 = Resting, 2 = Light Activity, 3 = Walking, 4 = Strength Training, 5 = Intense Exercise
+            </div>
           </CardContent>
         </Card>
 
-      <main className="container mx-auto px-4 py-8">
-        {/* Personal Analytics Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Mood Tracking */}
-          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-6">
+        {/* Quick Overview Cards */}
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {/* Mood Overview */}
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-3 sm:p-4">
             <CardHeader className="p-0">
-              <CardTitle className="text-[#473F63] text-lg">Your Mood This Week</CardTitle>
+              <CardTitle className="text-[#473F63] text-xs sm:text-base flex items-center gap-1 sm:gap-2">
+                <Smile className="w-3 h-3 sm:w-5 sm:h-5" />
+                Mood
+              </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 mt-4">
-              <ResponsiveContainer width="100%" height={200}>
-                <LineChart data={moodData}>
-                  <Line type="monotone" dataKey="value" stroke="#473F63" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+            <CardContent className="p-0 mt-1 sm:mt-2">
+              <div className="flex items-center justify-between">
+                <div className="text-[#473F63]">
+                  <p className="text-lg sm:text-2xl font-medium">
+                    {mood}/5
+                  </p>
+                  <p className="text-[10px] sm:text-xs">Today</p>
+                </div>
+                {mood >= 4 ? (
+                  <Smile className="w-6 h-6 sm:w-8 sm:h-8 text-green-500" />
+                ) : mood === 3 ? (
+                  <Meh className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
+                ) : (
+                  <Frown className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
+                )}
+              </div>
             </CardContent>
           </Card>
 
           {/* Symptoms Overview */}
-          <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6">
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-3 sm:p-4">
             <CardHeader className="p-0">
-              <CardTitle className="text-[#1E4D57] text-lg">Current Symptoms</CardTitle>
+              <CardTitle className="text-[#473F63] text-xs sm:text-base flex items-center gap-1 sm:gap-2">
+                <Activity className="w-3 h-3 sm:w-5 sm:h-5" />
+                Symptoms
+              </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 mt-4">
-              <BarChart data={symptomsData} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Upcoming Study & Forum Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Next Study Appointment */}
-          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-6">
-            <CardHeader className="p-0 flex flex-row items-center gap-4">
-              <Clock className="w-6 h-6 text-[#473F63]" />
-              <CardTitle className="text-[#473F63] text-lg">Next Appointment</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0 mt-4">
+            <CardContent className="p-0 mt-1 sm:mt-2">
               <div className="text-[#473F63]">
-                <p className="font-medium">Gene Therapy Study - Phase 2</p>
-                <p>January 15th, 2024 - 10:00 AM</p>
-                <div className="flex gap-2 mt-4">
-                  <Button className="bg-[#473F63] text-white">View Details</Button>
-                  <Button 
-                    variant="outline" 
-                    className="border-[#473F63] text-[#473F63]"
-                    onClick={() => {
-                      const event = {
-                        begin: '2024-01-15T10:00:00',
-                        title: 'Gene Therapy Study - Phase 2',
-                        description: 'Study appointment for Gene Therapy Phase 2',
-                      };
-                      
-                      const icsContent = [
-                        'BEGIN:VCALENDAR',
-                        'VERSION:2.0',
-                        'BEGIN:VEVENT',
-                        `DTSTART:${event.begin.replace(/[-:]/g, '')}`,
-                        `SUMMARY:${event.title}`,
-                        `DESCRIPTION:${event.description}`,
-                        'END:VEVENT',
-                        'END:VCALENDAR'
-                      ].join('\n');
-
-                      const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
-                      const link = document.createElement('a');
-                      link.href = window.URL.createObjectURL(blob);
-                      link.download = 'appointment.ics';
-                      document.body.appendChild(link);
-                      link.click();
-                      document.body.removeChild(link);
-                    }}
-                  >
-                    Add to Calendar
-                  </Button>
-                </div>
+                <p className="text-lg sm:text-2xl font-medium">
+                  {symptoms.filter(s => s.selected).length}
+                </p>
+                <p className="text-[10px] sm:text-xs">Active</p>
+              </div>
+              <div className="mt-1 hidden sm:flex flex-wrap gap-1">
+                {symptoms.filter(s => s.selected).slice(0, 2).map(symptom => (
+                  <Badge key={symptom.label} variant="secondary" className="text-xs">
+                    {symptom.label}
+                  </Badge>
+                ))}
+                {symptoms.filter(s => s.selected).length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{symptoms.filter(s => s.selected).length - 2}
+                  </Badge>
+                )}
               </div>
             </CardContent>
           </Card>
 
-          {/* Trending Forum Post */}
-          <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6">
-            <CardHeader className="p-0 flex flex-row items-center gap-4">
-              <MessageCircle className="w-6 h-6 text-[#1E4D57]" />
-              <CardTitle className="text-[#1E4D57] text-lg">Trending Discussion</CardTitle>
+          {/* Medications Overview */}
+          <Card className="bg-[#E6E3FD] border-none rounded-2xl p-3 sm:p-4">
+            <CardHeader className="p-0">
+              <CardTitle className="text-[#473F63] text-xs sm:text-base flex items-center gap-1 sm:gap-2">
+                <Clock className="w-3 h-3 sm:w-5 sm:h-5" />
+                Meds
+              </CardTitle>
             </CardHeader>
-            <CardContent className="p-0 mt-4">
-              <Link href="/forum/chat/1" className="block">
-                <p className="font-medium text-[#1E4D57]">New Treatment Breakthrough</p>
-                <p className="text-sm text-[#1E4D57]/80">Join 45 others discussing the latest research...</p>
-                <div className="mt-2 flex items-center gap-2 text-sm text-[#1E4D57]/60">
-                  <span>💬 23 replies</span>
-                  <span>• 2h ago</span>
-                </div>
-              </Link>
+            <CardContent className="p-0 mt-1 sm:mt-2">
+              <div className="text-[#473F63]">
+                <p className="text-lg sm:text-2xl font-medium">
+                  {medications.filter(m => m.taken).length}/{medications.length}
+                </p>
+                <p className="text-[10px] sm:text-xs">Taken</p>
+              </div>
+              <div className="mt-1 hidden sm:flex flex-wrap gap-1">
+                {medications.slice(0, 2).map(med => (
+                  <Badge 
+                    key={med.name} 
+                    variant={med.taken ? "default" : "secondary"}
+                    className="text-xs"
+                  >
+                    {med.name}
+                  </Badge>
+                ))}
+                {medications.length > 2 && (
+                  <Badge variant="secondary" className="text-xs">
+                    +{medications.length - 2}
+                  </Badge>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Matching Study */}
-        <Card className="bg-[#E6E3FD] border-none rounded-2xl p-6 mb-8">
-          <CardHeader className="p-0">
-            <CardTitle className="text-[#473F63] text-lg">Recommended Study Match</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 mt-4">
-            <div className="space-y-4">
-              <p className="text-[#473F63]">Based on your profile: Gene Therapy Trial XYZ-123</p>
-              <div className="flex gap-4">
-                <Button className="bg-[#473F63] text-white">Apply Now</Button>
-                <Button variant="outline" className="border-[#473F63] text-[#473F63]">Learn More</Button>
+       
+
+        {/* Forum Section - More compact for mobile */}
+        <Card className="bg-[#DEEAE5] border-none rounded-2xl p-4">
+          <Link href="/forum/chat/1" className="block">
+            <div className="flex items-start gap-3">
+              <MessageCircle className="w-5 h-5 text-[#1E4D57] mt-0.5 flex-shrink-0" />
+              <div className="flex-1 min-w-0"> {/* min-w-0 prevents flex item from overflowing */}
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-[#1E4D57] font-medium text-sm truncate">
+                    New Treatment Breakthrough
+                  </h3>
+                  <Badge variant="secondary" className="flex-shrink-0 text-xs">
+                    Trending
+                  </Badge>
+                </div>
+                <p className="text-xs text-[#1E4D57]/80 line-clamp-2">
+                  Join 45 others discussing the latest research on treatment options and clinical trials...
+                </p>
+                <div className="flex items-center gap-2 mt-1 text-xs text-[#1E4D57]/60">
+                  <span className="flex items-center gap-1">
+                    <MessageCircle className="w-3 h-3" /> 23
+                  </span>
+                  <span>•</span>
+                  <span>2h ago</span>
+                </div>
               </div>
             </div>
-          </CardContent>
+          </Link>
         </Card>
 
         {/* Community Progress Section */}
-        <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6 mb-20">
+        <Card className="bg-[#DEEAE5] border-none rounded-2xl p-4 sm:p-6 mb-20">
           <CardHeader className="p-0">
-            <CardTitle className="text-[#1E4D57] text-lg">Community Impact</CardTitle>
+            <CardTitle className="text-[#1E4D57] text-base sm:text-lg">Our Collective Progress</CardTitle>
           </CardHeader>
-          <CardContent className="p-0 mt-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <CardContent className="p-0 mt-2 sm:mt-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
+              {/* Active Users */}
               <div className="text-center">
-                <div className="text-2xl font-medium text-[#1E4D57]">2,450</div>
-                <div className="text-sm text-[#1E4D57]/80">Active Members</div>
+                <div className="text-xl sm:text-2xl font-medium text-[#1E4D57]">2,450</div>
+                <div className="text-xs sm:text-sm text-[#1E4D57]">Active Users</div>
               </div>
+
+              {/* Therapies */}
               <div className="text-center">
-                <div className="text-2xl font-medium text-[#1E4D57]">156</div>
-                <div className="text-sm text-[#1E4D57]/80">Studies Joined</div>
+                <div className="text-xl sm:text-2xl font-medium text-[#1E4D57]">156</div>
+                <div className="text-xs sm:text-sm text-[#1E4D57]">Therapies</div>
               </div>
+
+              {/* Journal Entries */}
               <div className="text-center">
-                <div className="text-2xl font-medium text-[#1E4D57]">89%</div>
-                <div className="text-sm text-[#1E4D57]/80">Diary Completion</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-medium text-[#1E4D57]">12</div>
-                <div className="text-sm text-[#1E4D57]/80">Research Papers</div>
+                <div className="text-xl sm:text-2xl font-medium text-[#1E4D57]">8.2k</div>
+                <div className="text-xs sm:text-sm text-[#1E4D57]">Journal Entries</div>
               </div>
             </div>
           </CardContent>
@@ -361,7 +564,6 @@ export default function Dashboard() {
             </Link>
           </div>
         </div>
-      </main>
 
       <Dialog open={showDiaryModal} onOpenChange={(open) => {
         setShowDiaryModal(open);
