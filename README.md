@@ -1,68 +1,36 @@
-# Rarely
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Welcome to the Rarely project! This is a Next.js application designed for managing diary entries.
+## Getting Started
 
-## Table of Contents
+First, run the development server:
 
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-## Installation
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-To set up the project, you'll need to have [NVM (Node Version Manager)](https://github.com/nvm-sh/nvm) installed. Follow these steps:
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-1. **Install NVM**:
-   Run the following command to install NVM:
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-   ```bash
-   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-   ```
+## Learn More
 
-2. **Load NVM**:
-   Add the following lines to your shell configuration file (e.g., `~/.bashrc`, `~/.zshrc`, or `~/.profile`):
+To learn more about Next.js, take a look at the following resources:
 
-   ```bash
-   export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-   [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-   ```
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-   Then, run:
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-   ```bash
-   source ~/.bashrc  # or source ~/.zshrc or source ~/.profile, depending on your shell
-   ```
+## Deploy on Vercel
 
-3. **Install Node.js**:
-   Use NVM to install Node.js version 20:
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-   ```bash
-   nvm install 20
-   ```
-
-4. **Install Dependencies**:
-   Navigate to the project directory (/my-app) and install the required npm packages:
-
-   ```bash
-   npm install
-   ```
-
-## Usage
-
-To start the development server, run:
- ```bash
-   npm run dev
-   ```
-
-
-
-You can then access the application at `http://localhost:3000`.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a pull request or open an issue.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
