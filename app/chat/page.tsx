@@ -8,30 +8,7 @@ import { useChat } from 'ai/react'
 import Image from 'next/image'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
-
-const mockMessages = [
-  {
-    id: '1',
-    role: 'assistant' as const,
-    content: 'Hello! How can I help you today?'
-  },
-  {
-    id: '2',
-    role: 'user' as const,
-    content: 'I need help with my garden. What are some easy vegetables to grow?'
-  },
-  {
-    id: '3',
-    role: 'assistant' as const,
-    content: 'Some of the easiest vegetables to grow for beginners include tomatoes, lettuce, green beans, and radishes. They require minimal care and can grow well in containers too. Would you like specific tips for any of these?'
-  }
-]
-
-const examplePrompts = [
-  "What are common ACM symptoms?",
-  "How can I manage my ACM diagnosis?",
-  "Exercise guidelines for ACM patients",
-]
+import ReactMarkdown from 'react-markdown'
 
 const welcomeMessage = {
   id: 'welcome',
@@ -46,8 +23,23 @@ interface UploadedFile {
   content?: string;
 }
 
+const examplePrompts = [
+  "What is ACM?",
+  "What are the symptoms?",
+  "Is ACM hereditary?",
+  "How is ACM diagnosed?"
+];
+
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export default function ChatPage() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat()
+  const [messages, setMessages] = useState<Message[]>([welcomeMessage])
+  const [input, setInput] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -61,12 +53,61 @@ export default function ChatPage() {
     scrollToBottom()
   }, [messages])
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!input.trim() || isLoading) return
+
+    const userMessage = {
+      id: Date.now().toString(),
+      role: 'user' as const,
+      content: input.trim()
+    }
+    
+    setMessages(messages => [...messages, userMessage])
+    setInput('')
+    setIsLoading(true)
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [...messages, userMessage].map(({ role, content }) => ({
+            role,
+            content
+          }))
+        }),
+      })
+
+      if (!response.ok) throw new Error('Failed to fetch response')
+
+      const data = await response.json()
+      
+      setMessages(messages => [...messages, {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant' as const,
+        content: data.message
+      }])
+    } catch (error) {
+      console.error('Error:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const handleExampleClick = (prompt: string) => {
-    handleInputChange({ target: { value: prompt } } as React.ChangeEvent<HTMLInputElement>)
+    setInput(prompt)
   }
 
   const handleReset = () => {
-    setMessages([welcomeMessage]);
+    setMessages([welcomeMessage])
   }
 
   useEffect(() => {
@@ -103,6 +144,8 @@ export default function ChatPage() {
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+
+    // Optionally, send the uploaded files to the server here
   };
 
   const removeFile = (fileName: string) => {
@@ -131,7 +174,7 @@ export default function ChatPage() {
             {message.role === 'assistant' && (
               <Avatar className="w-8 h-8">
                 <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
-                <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5] ]">J</AvatarFallback>
+                <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">J</AvatarFallback>
               </Avatar>
             )}
             <div
@@ -141,7 +184,21 @@ export default function ChatPage() {
                   : 'bg-[#DEEAE5] text-[#1E4D57]'
               }`}
             >
-              {message.content}
+              <ReactMarkdown 
+                className="prose prose-sm max-w-none"
+                components={{
+                  // Override link styles
+                  a: ({ node, ...props }) => (
+                    <a {...props} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" />
+                  ),
+                  // Style code blocks
+                  code: ({ node, ...props }) => (
+                    <code {...props} className="bg-gray-100 rounded px-1 py-0.5" />
+                  ),
+                }}
+              >
+                {message.content}
+              </ReactMarkdown>
             </div>
             {message.role === 'user' && (
               <Avatar className="w-8 h-8">
