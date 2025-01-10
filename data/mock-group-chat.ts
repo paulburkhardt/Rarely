@@ -2,27 +2,25 @@ import { GroupChat } from '@/types/groupChat'
 
 export const mockGroupChat: GroupChat = {
   id: '1',
-  name: 'Chronic Pain Support',
-  description: 'Share experiences and tips for managing chronic pain',
-  imageUrl: '/placeholder.svg?height=48&width=48',
+  name: 'ACM Support Community',
+  description: 'Share experiences and support for living with ACM/ARVC',
+  imageUrl: '/icons/heart-pulse.svg',
   messages: [
     {
       id: '1',
-      content: 'Has anyone tried acupuncture for chronic pain management?',
+      content: 'Has anyone had experience with ICD implantation recovery?',
       sender: {
         id: 'user1',
-        name: 'Sarah Johnson',
-        imageUrl: '/placeholder.svg?height=32&width=32'
+        name: 'Maria',
       },
       timestamp: new Date('2024-01-04T14:00:00')
     },
     {
       id: '2',
-      content: 'Yes! I\'ve been doing it for 6 months and it\'s helped a lot with my back pain.',
+      content: 'Yes, I had mine implanted 6 months ago. Recovery was smooth - back to normal activities within weeks.',
       sender: {
         id: 'user2',
-        name: 'Mike Wilson',
-        imageUrl: '/placeholder.svg?height=32&width=32'
+        name: 'Olaf',
       },
       timestamp: new Date('2024-01-04T14:05:00')
     },
@@ -32,57 +30,19 @@ export const mockGroupChat: GroupChat = {
       sender: {
         id: 'user3',
         name: 'Emily Chen',
-        imageUrl: '/placeholder.svg?height=32&width=32'
       },
       timestamp: new Date('2024-01-04T14:10:00')
     }
   ]
 }
 
-export const mockPrivateChat: GroupChat = {
-  id: 'private1',
-  name: 'Dr. Sarah Johnson',
-  description: 'Private conversation',
-  imageUrl: '/placeholder.svg?height=40&width=40',
-  messages: [
-    {
-      id: 'p1',
-      content: 'How are you feeling today?',
-      sender: {
-        id: 'doctor1',
-        name: 'Dr. Sarah Johnson',
-        imageUrl: '/placeholder.svg?height=32&width=32'
-      },
-      timestamp: new Date('2024-01-04T21:55:00')
-    },
-    {
-      id: 'p2',
-      content: 'Much better, the new medication seems to be helping',
-      sender: {
-        id: 'currentUser',
-        name: 'You',
-        imageUrl: '/placeholder.svg?height=32&width=32'
-      },
-      timestamp: new Date('2024-01-04T21:56:00')
-    },
-    {
-      id: 'p3',
-      content: 'That\'s great to hear! Any side effects?',
-      sender: {
-        id: 'doctor1',
-        name: 'Dr. Sarah Johnson',
-        imageUrl: '/placeholder.svg?height=32&width=32'
-      },
-      timestamp: new Date('2024-01-04T21:57:00')
-    }
-  ]
-}
+
 
 export const mockDiscussionChat: GroupChat = {
   id: 'discussion1',
-  name: 'New research on chronic pain management',
-  description: 'Discussion in Chronic Pain Support group',
-  imageUrl: '/placeholder.svg?height=48&width=48',
+  name: 'New genetic testing options for ACM',
+  description: 'Discussion in ACM Support Community',
+  imageUrl: '/icons/heart-pulse.svg',
   messages: [
     {
       id: 'd1',
@@ -90,7 +50,6 @@ export const mockDiscussionChat: GroupChat = {
       sender: {
         id: 'user4',
         name: 'Dr. James Wilson',
-        imageUrl: '/placeholder.svg?height=32&width=32'
       },
       timestamp: new Date('2024-01-04T15:00:00')
     },
@@ -100,9 +59,62 @@ export const mockDiscussionChat: GroupChat = {
       sender: {
         id: 'user5',
         name: 'Lisa Chen',
-        imageUrl: '/placeholder.svg?height=32&width=32'
       },
       timestamp: new Date('2024-01-04T15:05:00')
+    }
+  ]
+}
+
+export const mockOlafChat: GroupChat = {
+  id: 'private2',
+  name: 'Olaf',
+  description: 'Private conversation with Olaf',
+  imageUrl: '/icons/user.svg',
+  messages: [
+    {
+      id: 'o1',
+      content: 'Hey, I saw your question about ICD recovery in the main group.',
+      sender: {
+        id: 'user2',
+        name: 'Olaf',
+      },
+      timestamp: new Date('2024-01-04T14:30:00')
+    },
+    {
+      id: 'o2',
+      content: 'Thanks for reaching out! Would love to hear more about your experience.',
+      sender: {
+        id: 'currentUser',
+        name: 'You',
+      },
+      timestamp: new Date('2024-01-04T14:32:00')
+    }
+  ]
+}
+
+export const mockMariaChat: GroupChat = {
+  id: 'private3',
+  name: 'Maria',
+  description: 'Private conversation with Maria',
+  imageUrl: '/icons/user.svg',
+  messages: [
+    {
+      id: 's1',
+      content: 'Hi! I noticed you\'re new to the group. Welcome!',
+      sender: {
+        id: 'user6',
+        name: 'Maria',
+      },
+      timestamp: new Date('2024-01-04T16:00:00')
+    },
+    {
+      id: 's2',
+      content: 'Thank you Maria! Yes, just joined yesterday.',
+      sender: {
+        id: 'currentUser',
+        name: 'You',
+      },
+      timestamp: new Date('2024-01-04T16:05:00')
     }
   ]
 } 

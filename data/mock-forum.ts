@@ -5,8 +5,8 @@ export const mockGroups: Group[] = [
     id: '1',
     name: 'ACM Support Community',
     description: 'Share experiences and support for living with ACM/ARVC',
-    imageUrl: '/placeholder.svg?height=48&width=48',
-    lastActivity: new Date('2024-01-04T21:48:00'),
+    imageUrl: '/icons/heart-pulse.svg',
+    lastActivity: new Date(Date.now() - 1 * 60 * 60 * 1000),
     memberCount: 1234,
     unreadCount: 3
   },
@@ -14,16 +14,16 @@ export const mockGroups: Group[] = [
     id: '2',
     name: 'Treatment & Medications',
     description: 'Discussions about ACM treatments, medications, and ICD management',
-    imageUrl: '/placeholder.svg?height=48&width=48',
-    lastActivity: new Date('2024-01-04T15:30:00'),
+    imageUrl: '/icons/medicine.svg',
+    lastActivity: new Date(Date.now() - 12 * 60 * 60 * 1000),
     memberCount: 856
   },
   {
     id: '3',
     name: 'Exercise & Lifestyle',
     description: 'Safe exercise guidelines and lifestyle modifications for ACM patients',
-    imageUrl: '/placeholder.svg?height=48&width=48',
-    lastActivity: new Date('2024-01-03T19:20:00'),
+    imageUrl: '/icons/exercise.svg',
+    lastActivity: new Date(Date.now() - 24 * 60 * 60 * 1000),
     memberCount: 2341,
     unreadCount: 1
   }
@@ -35,14 +35,14 @@ export const mockDiscussions: Discussion[] = [
     title: 'New genetic testing options for ACM',
     group: mockGroups[0],
     messageCount: 15,
-    lastUpdated: new Date('2024-01-04T22:00:00')
+    lastUpdated: new Date(Date.now() - 30 * 60 * 1000)
   },
   {
     id: '2',
     title: 'Managing exercise restrictions with ACM',
     group: mockGroups[2],
     messageCount: 8,
-    lastUpdated: new Date('2024-01-04T21:30:00')
+    lastUpdated: new Date(Date.now() - 2 * 60 * 60 * 1000)
   }
 ]
 
@@ -51,18 +51,18 @@ export const mockPrivateChats: PrivateChat[] = [
     id: '1',
     userId: '1',
     userName: 'Olaf',
-    userImage: '/placeholder.svg?height=40&width=40',
+    userImage: '/icons/avatar-1.svg',
     lastMessage: 'How are your ICD readings...?',
-    lastMessageTime: new Date('2024-01-04T21:55:00'),
+    lastMessageTime: new Date(Date.now() - 15 * 60 * 1000),
     unreadCount: 2
   },
   {
     id: '2',
     userId: '2',
     userName: 'Maria',
-    userImage: '/placeholder.svg?height=40&width=40',
+    userImage: '/icons/avatar-2.svg',
     lastMessage: 'Remember to stay within your...',
-    lastMessageTime: new Date('2024-01-04T20:30:00'),
+    lastMessageTime: new Date(Date.now() - 3 * 60 * 60 * 1000),
     unreadCount: 0
   }
 ]

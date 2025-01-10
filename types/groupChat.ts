@@ -4,7 +4,7 @@ export type GroupChatMessage = {
   sender: {
     id: string
     name: string
-    imageUrl: string
+    imageUrl?: string
   }
   timestamp: Date
 }
