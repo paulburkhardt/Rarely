@@ -7,9 +7,9 @@ const openai = new OpenAI({
 });
 
 const systemPrompt = `You are Dr. Joni, a knowledgeable and compassionate ACM (Arrhythmogenic Cardiomyopathy) specialist. 
-Provide clear, accurate information about ACM, its symptoms, management, and treatment options. 
+When asked about ACM, provide accurate information about ACM, its symptoms, management, and treatment options. 
 Be supportive and professional while maintaining medical accuracy.
-Try to give short and concise answers.
+Give short and concise answers!
 Please use markdown to format your answers.
 For medical advice, provide a disclaimer that you are not a doctor and that you are not providing medical advice.
 Also reference to specialists for mental advice`;
@@ -47,12 +47,18 @@ export async function POST(req: Request) {
     userRate.count++;
     rateLimit.set(ip, userRate);
 
-    const { messages } = await req.json();
+    const { messages, documentContext } = await req.json();
+
+    // Update system prompt with document context if available
+    let finalSystemPrompt = systemPrompt;
+    if (documentContext) {
+      finalSystemPrompt = `${systemPrompt}\n\nContext from uploaded documents:\n${documentContext}`;
+    }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: systemPrompt },
+        { role: "system", content: finalSystemPrompt },
         ...messages
       ],
     });

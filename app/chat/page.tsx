@@ -20,7 +20,7 @@ interface UploadedFile {
   name: string;
   size: number;
   type: string;
-  content?: string;
+  content: string;
 }
 
 const examplePrompts = [
@@ -35,6 +35,12 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
 }
+
+const formatFileSize = (bytes: number) => {
+  if (bytes < 1024) return bytes + ' B';
+  else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+  else return (bytes / 1048576).toFixed(1) + ' MB';
+};
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([welcomeMessage])
@@ -68,11 +74,22 @@ export default function ChatPage() {
       content: input.trim()
     }
     
-    setMessages(messages => [...messages, userMessage])
+    const documentInfo = uploadedFiles.length > 0 
+      ? `\n\n[Using context from: ${uploadedFiles.map(f => f.name).join(', ')}]`
+      : '';
+    
+    setMessages(messages => [...messages, {
+      ...userMessage,
+      content: userMessage.content + documentInfo
+    }])
     setInput('')
     setIsLoading(true)
 
     try {
+      const documentContext = uploadedFiles
+        .map(file => `Content from ${file.name}:\n${file.content}`)
+        .join('\n\n');
+
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -82,13 +99,16 @@ export default function ChatPage() {
           messages: [...messages, userMessage].map(({ role, content }) => ({
             role,
             content
-          }))
+          })),
+          documentContext: documentContext || null,
         }),
       })
 
       if (!response.ok) throw new Error('Failed to fetch response')
 
       const data = await response.json()
+      
+      setUploadedFiles([])
       
       setMessages(messages => [...messages, {
         id: (Date.now() + 1).toString(),
@@ -123,29 +143,49 @@ export default function ChatPage() {
     const newFiles: UploadedFile[] = [];
 
     for (const file of Array.from(files)) {
-      if (file.type !== 'application/pdf') {
-        alert('Only PDF files are allowed');
+      if (!file.type.startsWith('application/pdf') && !file.type.startsWith('image/')) {
+        alert('Only PDF and image files are allowed');
         continue;
       }
 
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        alert('File size should be less than 5MB');
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File size should be less than 10MB');
         continue;
       }
 
-      newFiles.push({
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      });
+      try {
+        // Create FormData to send the file
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Send to your API endpoint for OCR processing
+        const response = await fetch('/api/ocr', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('OCR processing failed');
+        }
+
+        const { text } = await response.json();
+
+        newFiles.push({
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          content: text,
+        });
+      } catch (error) {
+        console.error('Error processing file:', error);
+        alert(`Error processing ${file.name}`);
+      }
     }
 
     setUploadedFiles([...uploadedFiles, ...newFiles]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-
-    // Optionally, send the uploaded files to the server here
   };
 
   const removeFile = (fileName: string) => {
@@ -219,22 +259,30 @@ export default function ChatPage() {
 
       <form onSubmit={handleSubmit} className="border-t p-4 bg-white">
         {uploadedFiles.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-4">
-            {uploadedFiles.map((file) => (
-              <div
-                key={file.name}
-                className="flex items-center gap-2 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm"
-              >
-                <span>{file.name}</span>
-                <button
-                  type="button"
-                  onClick={() => removeFile(file.name)}
-                  className="hover:text-red-500"
+          <div className="flex flex-col gap-2 mb-4">
+            <div className="text-sm text-gray-500 px-2">
+              Documents to be used in next response:
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {uploadedFiles.map((file) => (
+                <div
+                  key={file.name}
+                  className="flex items-center gap-2 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm"
                 >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
+                  <span>{file.name}</span>
+                  <span className="text-xs text-gray-500">
+                    ({formatFileSize(file.size)})
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(file.name)}
+                    className="hover:text-red-500"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -256,7 +304,7 @@ export default function ChatPage() {
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept=".pdf"
+            accept=".pdf, image/*"
             className="hidden"
             multiple
           />
