@@ -1,79 +1,128 @@
 import { OpenAI } from 'openai';
+import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
-
 const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-const systemPrompt = `You are Dr. Joni, a knowledgeable and compassionate ACM (Arrhythmogenic Cardiomyopathy) specialist. 
-When asked about ACM, provide accurate information about ACM, its symptoms, management, and treatment options. 
-Be supportive and professional while maintaining medical accuracy.
-Give short and concise answers!
-Please use markdown to format your answers.
-For medical advice, provide a disclaimer that you are not a doctor and that you are not providing medical advice.
-Also reference to specialists for mental advice`;
+const MAX_TOKENS = 4000; // Adjust based on your needs
+const MEMORY_WINDOW = 10; // Number of recent messages to keep in full
 
-// Add rate limiting map outside the handler
-const rateLimit = new Map<string, { count: number; timestamp: number }>();
-const RATE_LIMIT = 3; // messages
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute in milliseconds
+// Add rate limiting configuration
+const RATE_LIMIT = 5; // messages per minute
+const RATE_WINDOW = 60 * 1000; // 1 minute in milliseconds
+
+// Store request timestamps by IP
+const requestLog = new Map<string, number[]>();
+
+// Add this function to handle rate limiting
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const userRequests = requestLog.get(ip) || [];
+  
+  // Clean old requests
+  const recentRequests = userRequests.filter(
+    timestamp => now - timestamp < RATE_WINDOW
+  );
+  
+  // Check if rate limit is exceeded
+  if (recentRequests.length >= RATE_LIMIT) {
+    return true;
+  }
+  
+  // Update requests log
+  recentRequests.push(now);
+  requestLog.set(ip, recentRequests);
+  return false;
+}
+
+async function summarizeMessages(messages: any[]) {
+  try {
+    const conversation = messages
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: "Please provide a brief, informative summary of the key points from this conversation. Focus on the most important information that would be relevant for continuing the discussion."
+        },
+        {
+          role: "user",
+          content: conversation
+        }
+      ],
+    });
+
+    return response.choices[0].message.content || '';
+  } catch (error) {
+    console.error('Summarization error:', error);
+    return 'Error summarizing previous conversation.';
+  }
+}
 
 export async function POST(req: Request) {
   try {
-    // Get IP address from headers
+    // Get user IP
     const headersList = headers();
     const ip = headersList.get('x-forwarded-for') || 'unknown';
     
     // Check rate limit
-    const now = Date.now();
-    const userRate = rateLimit.get(ip) || { count: 0, timestamp: now };
-    
-    // Reset count if outside window
-    if (now - userRate.timestamp > RATE_LIMIT_WINDOW) {
-      userRate.count = 0;
-      userRate.timestamp = now;
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { 
+          error: 'Rate limit exceeded. Please try again later.',
+          message: 'This chatbot is for demonstration purposes and is limited to 5 messages per minute. Please wait a moment before sending more messages.' 
+        },
+        { status: 429 }
+      );
     }
-    
-    // Check if rate limit exceeded
-    if (userRate.count >= RATE_LIMIT) {
-      return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    
-    // Increment count
-    userRate.count++;
-    rateLimit.set(ip, userRate);
 
     const { messages, documentContext } = await req.json();
 
-    // Update system prompt with document context if available
-    let finalSystemPrompt = systemPrompt;
+    // If we have more messages than our window, summarize older ones
+    let processedMessages = [...messages];
+    if (messages.length > MEMORY_WINDOW) {
+      const oldMessages = messages.slice(0, -MEMORY_WINDOW);
+      const recentMessages = messages.slice(-MEMORY_WINDOW);
+      
+      const summary = await summarizeMessages(oldMessages);
+      
+      processedMessages = [
+        {
+          role: "system",
+          content: `Previous conversation summary: ${summary}`
+        },
+        ...recentMessages
+      ];
+    }
+
+    // Add document context if available
+    let finalSystemPrompt = "You are a helpful medical assistant specializing in ACM.";
     if (documentContext) {
-      finalSystemPrompt = `${systemPrompt}\n\nContext from uploaded documents:\n${documentContext}`;
+      finalSystemPrompt += `\n\nContext from uploaded documents:\n${documentContext}`;
     }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4",
       messages: [
         { role: "system", content: finalSystemPrompt },
-        ...messages
+        ...processedMessages
       ],
     });
 
-    console.log(completion.choices[0].message.content);
-
-    return new Response(JSON.stringify({ message: completion.choices[0].message.content }), {
-      headers: { 'Content-Type': 'application/json' },
+    return NextResponse.json({
+      message: completion.choices[0].message.content
     });
 
   } catch (error) {
-    console.error('Error:', error);
-    return new Response(JSON.stringify({ error: 'Failed to process request' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    console.error('Chat error:', error);
+    return NextResponse.json(
+      { error: 'Failed to process chat' },
+      { status: 500 }
+    );
   }
 }

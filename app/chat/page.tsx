@@ -30,11 +30,20 @@ const examplePrompts = [
   "How is ACM diagnosed?"
 ];
 
-interface Message {
+interface MessageSummary {
+  id: string;
+  role: 'system';
+  content: string;
+  isSummary: true;
+}
+
+interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
 }
+
+type Message = ChatMessage | MessageSummary;
 
 const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return bytes + ' B';
@@ -104,7 +113,17 @@ export default function ChatPage() {
         }),
       })
 
-      if (!response.ok) throw new Error('Failed to fetch response')
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (response.status === 429 && errorData.message) {
+          setMessages(messages => [...messages, {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: errorData.message
+          }]);
+        }
+        throw new Error('Failed to fetch response');
+      }
 
       const data = await response.json()
       
@@ -192,6 +211,49 @@ export default function ChatPage() {
     setUploadedFiles(uploadedFiles.filter(file => file.name !== fileName));
   };
 
+  const renderMessage = (message: Message) => {
+    if ('isSummary' in message) {
+      return (
+        <div key={message.id} className="flex justify-center my-4">
+          <div className="bg-gray-100 rounded-lg p-3 text-sm text-gray-600 max-w-[80%]">
+            <div className="font-medium mb-1">Previous Conversation Summary:</div>
+            <div>{message.content}</div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div
+        key={message.id}
+        className={`flex items-start gap-2 ${
+          message.role === 'user' ? 'justify-end' : 'justify-start'
+        }`}
+      >
+        {message.role === 'assistant' && (
+          <Avatar className="w-8 h-8">
+            <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
+            <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">J</AvatarFallback>
+          </Avatar>
+        )}
+        <div
+          className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+            message.role === 'user'
+              ? 'bg-[#E6E3FD] text-[#473F63]'
+              : 'bg-[#DEEAE5] text-[#1E4D57]'
+          }`}
+        >
+          <ReactMarkdown>{message.content}</ReactMarkdown>
+        </div>
+        {message.role === 'user' && (
+          <Avatar className="w-8 h-8">
+            <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
+          </Avatar>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
 
@@ -206,47 +268,7 @@ export default function ChatPage() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex items-start gap-2 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            {message.role === 'assistant' && (
-              <Avatar className="w-8 h-8">
-                <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
-                <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">J</AvatarFallback>
-              </Avatar>
-            )}
-            <div
-              className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                message.role === 'user'
-                  ? 'bg-[#E6E3FD] text-[#473F63]'
-                  : 'bg-[#DEEAE5] text-[#1E4D57]'
-              }`}
-            >
-              <ReactMarkdown 
-                className="prose prose-sm max-w-none"
-                components={{
-                  // Override link styles
-                  a: ({ node, ...props }) => (
-                    <a {...props} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer" />
-                  ),
-                  // Style code blocks
-                  code: ({ node, ...props }) => (
-                    <code {...props} className="bg-gray-100 rounded px-1 py-0.5" />
-                  ),
-                }}
-              >
-                {message.content}
-              </ReactMarkdown>
-            </div>
-            {message.role === 'user' && (
-              <Avatar className="w-8 h-8">
-                <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
-              </Avatar>
-            )}
-          </div>
-        ))}
+        {messages.map((message) => renderMessage(message))}
         {isLoading && (
           <div className="flex justify-start">
             <div className="bg-[#DEEAE5] text-[#1E4D57] rounded-2xl px-4 py-2">
