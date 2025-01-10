@@ -11,8 +11,8 @@ interface Resource {
 export const resources: Resource[] = [
   {
     id: '1',
-    title: 'ACM Support Group',
-    description: 'Connect with others affected by ACM in a supportive environment',
+    title: 'ARVC Self Help Group',
+    description: 'Learn more about ACM and connect with others affected by ACM in a supportive environment',
     category: 'support',
     link: 'https://acm-support.org',
     contact: 'contact@acm-support.org'

@@ -247,7 +247,7 @@ export default function Dashboard() {
             <CardHeader className="p-0">
               <CardTitle className="text-[#473F63] text-sm sm:text-lg flex items-center gap-2">
                 <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
-                Next Visit
+                Next Study Appointment
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 mt-2">
@@ -298,7 +298,7 @@ export default function Dashboard() {
             <CardHeader className="p-0">
               <CardTitle className="text-[#473F63] text-sm sm:text-lg flex items-center gap-2">
                 <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
-                Study Match
+                Study Match for you
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 mt-2">
@@ -306,12 +306,16 @@ export default function Dashboard() {
                 <p className="text-[#473F63] text-xs sm:text-sm line-clamp-2">
                   Gene Therapy Trial XYZ-123
                 </p>
-                <Button 
-                  size="sm"
-                  className="bg-[#473F63] text-white w-full sm:w-auto text-xs"
-                >
-                  Apply Now
-                </Button>
+                <div>
+                <Link href="/studies/apply/1">
+                  <Button 
+                    size="sm"
+                    className="bg-[#473F63] text-white w-full sm:w-auto text-xs"
+                  >
+                    Apply Now
+                  </Button>
+                </Link>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -320,7 +324,7 @@ export default function Dashboard() {
         <Card className="bg-[#DEEAE5] border-none rounded-2xl p-6">
           <CardHeader className="p-0">
             <div className="flex justify-between items-center">
-              <CardTitle className="text-[#1E4D57] text-lg">Your Activity Level</CardTitle>
+              <CardTitle className="text-[#1E4D57] text-lg">Your Activity</CardTitle>
               <div className="flex gap-4 items-center">
                 <div className="flex flex-col items-center">
                   <Button 
@@ -385,7 +389,11 @@ export default function Dashboard() {
               </LineChart>
             </ResponsiveContainer>
             <div className="mt-2 text-sm text-[#1E4D57]/70">
-              Activity Level: 1 = Resting, 2 = Light Activity, 3 = Walking, 4 = Strength Training, 5 = Intense Exercise
+          {/*     Activity Level:  */}
+              1 = Resting
+{/*               , 2 = Light Activity, 3 = Walking, 4 = Strength Training, 
+ */}              ---
+              5 = Intense Exercise
             </div>
           </CardContent>
         </Card>

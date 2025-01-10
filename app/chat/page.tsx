@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Heart, Paperclip, Send, Trash2 } from 'lucide-react'
+import { ArrowLeft, Heart, Paperclip, Send, Trash2, X } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useChat } from 'ai/react'
 import Image from 'next/image'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 
 const mockMessages = [
   {
@@ -38,9 +39,19 @@ const welcomeMessage = {
   content: 'Hi there! I\'m Dr. Joni, your ACM specialist. I\'m here to help answer your questions about Arrhythmogenic Cardiomyopathy and provide guidance. How can I assist you today?'
 }
 
+interface UploadedFile {
+  name: string;
+  size: number;
+  type: string;
+  content?: string;
+}
+
 export default function ChatPage() {
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat()
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [showWelcomeModal, setShowWelcomeModal] = useState(true)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -63,6 +74,40 @@ export default function ChatPage() {
       setMessages([welcomeMessage]);
     }
   }, []);
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newFiles: UploadedFile[] = [];
+
+    for (const file of Array.from(files)) {
+      if (file.type !== 'application/pdf') {
+        alert('Only PDF files are allowed');
+        continue;
+      }
+
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('File size should be less than 5MB');
+        continue;
+      }
+
+      newFiles.push({
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
+    }
+
+    setUploadedFiles([...uploadedFiles, ...newFiles]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeFile = (fileName: string) => {
+    setUploadedFiles(uploadedFiles.filter(file => file.name !== fileName));
+  };
 
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
@@ -116,6 +161,26 @@ export default function ChatPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="border-t p-4 bg-white">
+        {uploadedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {uploadedFiles.map((file) => (
+              <div
+                key={file.name}
+                className="flex items-center gap-2 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm"
+              >
+                <span>{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => removeFile(file.name)}
+                  className="hover:text-red-500"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="flex gap-2 overflow-x-auto pb-4 px-2">
           {examplePrompts.map((prompt, index) => (
             <button
@@ -130,11 +195,20 @@ export default function ChatPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileUpload}
+            accept=".pdf"
+            className="hidden"
+            multiple
+          />
           <Button
             type="button"
             variant="ghost"
             size="sm"
             className="text-[#473F63]"
+            onClick={() => fileInputRef.current?.click()}
           >
             <Paperclip className="w-5 h-5" />
           </Button>
@@ -164,6 +238,31 @@ export default function ChatPage() {
           </Button>
         </div>
       </form>
+
+      <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="text-[#1E4D57]">Welcome to Your ACM Assistant</DialogTitle>
+            <DialogDescription className="space-y-4 pt-3">
+              <p>
+                I'm here to help you understand your medical documents and answer any questions about ACM.
+              </p>
+              <div className="bg-[#F5F4FF] p-4 rounded-lg">
+                <h4 className="font-medium text-[#473F63] mb-2">💡 Pro Tip</h4>
+                <p className="text-sm text-[#473F63]">
+                  You can upload your doctor's letters or medical reports (PDF format) using the paperclip icon. 
+                  This helps me provide more personalized answers about your specific situation.
+                </p>
+              </div>
+              <p className="text-sm text-gray-500">
+                All uploads are processed securely and confidentially.
+                We try to use the data to gain insights about the condition and enable further research.
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
 }
