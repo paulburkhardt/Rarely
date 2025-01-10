@@ -8,6 +8,14 @@ const openai = new OpenAI({
 
 const MAX_TOKENS = 4000; // Adjust based on your needs
 const MEMORY_WINDOW = 10; // Number of recent messages to keep in full
+let systemPrompt = `You are Dr. Joni, a knowledgeable and compassionate ACM (Arrhythmogenic Cardiomyopathy) specialist. 
+When asked about ACM, provide accurate information about ACM, its symptoms, management, and treatment options. 
+Be supportive and professional while maintaining medical accuracy.
+Give short and concise answers!
+Please use markdown to format your answers.
+For medical advice, provide a disclaimer that you are not a doctor and that you are not providing medical advice.
+Also reference to specialists for mental advice`;
+
 
 // Add rate limiting configuration
 const RATE_LIMIT = 5; // messages per minute
@@ -101,15 +109,14 @@ export async function POST(req: Request) {
     }
 
     // Add document context if available
-    let finalSystemPrompt = "You are a helpful medical assistant specializing in ACM.";
     if (documentContext) {
-      finalSystemPrompt += `\n\nContext from uploaded documents:\n${documentContext}`;
+      systemPrompt += `\n\nContext from uploaded documents:\n${documentContext}`;
     }
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
-        { role: "system", content: finalSystemPrompt },
+        { role: "system", content: systemPrompt },
         ...processedMessages
       ],
     });
