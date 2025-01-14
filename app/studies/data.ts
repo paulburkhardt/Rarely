@@ -26,7 +26,7 @@ export const studies: Study[] = [
   },
   {
     id: '2',
-    title: 'Novel Treatments for ACM',
+    title: 'Novel Treatment for ACM',
     purpose: 'Evaluating the efficacy of new medications in managing arrhythmogenic cardiomyopathy (ACM)',
     location: 'Mayo Clinic, Rochester, MN',
     startDate: new Date('2024-04-01'),

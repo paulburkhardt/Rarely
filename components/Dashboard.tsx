@@ -22,6 +22,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Smile, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 interface Activity {
   icon: React.ReactNode;
@@ -200,7 +201,24 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-4">
+    <>
+      {/* Top Navigation */}
+      <div className="flex justify-between items-center p-6 pb-0 text-[#473F63]">
+        <div className="flex items-center">
+          <Avatar className="h-12 w-12">
+            <AvatarImage alt="User avatar" />
+            <AvatarFallback>Fe</AvatarFallback>
+          </Avatar>
+          <span className="text-sm ml-2">Fe</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Streak:</span>
+          <span className="text-sm font-bold">7</span>
+          <span>🔥</span>
+        </div>
+      </div>
+
+      <div className="space-y-4 p-6 pt-0">
         {/* App Name */}
         <div className="text-center space-y-0">
           {/* Logo */}
@@ -806,6 +824,7 @@ export default function Dashboard() {
         </DialogContent>
       </Dialog>
     </div>
+    </>
   );
 }
 
