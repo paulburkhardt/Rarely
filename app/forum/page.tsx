@@ -85,8 +85,12 @@ function ForumContent() {
             {mockDiscussions.map((discussion) => (
               <Link key={discussion.id} href={`/forum/chat/discussion${discussion.id}`}>
                 <div className="flex items-center p-2 border-b border-gray-200">
-                  <Avatar className="w-10 h-10 mr-2">
-                    <AvatarImage src={discussion.group.imageUrl} alt={discussion.group.name} />
+                  <Avatar className="w-10 h-10 mr-2 p-1">
+                    <AvatarImage 
+                      src={discussion.group.imageUrl} 
+                      alt={discussion.group.name}
+                      className="object-contain"
+                    />
                     <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">
                       {discussion.group.name.substring(0, 2)}
                     </AvatarFallback>
@@ -113,8 +117,12 @@ function ForumContent() {
           {mockGroups.map((group) => (
             <Link key={group.id} href={`/forum/chat/${group.id}`}>
               <div className="flex items-center p-2 border-b border-gray-200">
-                <Avatar className="w-10 h-10 mr-2">
-                  <AvatarImage src={group.imageUrl} alt={group.name} />
+                <Avatar className="w-10 h-10 mr-2 p-1">
+                  <AvatarImage 
+                    src={group.imageUrl} 
+                    alt={group.name}
+                    className="object-contain"
+                  />
                   <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">
                     {group.name.substring(0, 2)}
                   </AvatarFallback>
@@ -144,8 +152,12 @@ function ForumContent() {
           {mockPrivateChats.map((chat) => (
             <Link key={chat.id} href={`/forum/chat/private${chat.id}`}>
               <div className="flex items-center p-2 border-b border-gray-200">
-                <Avatar className="w-10 h-10 mr-2">
-                  <AvatarImage src={chat.userImage} alt={chat.userName} />
+                <Avatar className="w-10 h-10 mr-2 p-0.5">
+                  <AvatarImage 
+                    src={chat.userImage} 
+                    alt={chat.userName}
+                    className="object-contain"
+                  />
                   <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">
                     {chat.userName.substring(0, 2)}
                   </AvatarFallback>

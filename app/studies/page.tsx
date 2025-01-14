@@ -78,7 +78,7 @@ const studies: Study[] = [
 function StudiesContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const activeTab = searchParams.get('tab') || 'recruiting'
+  const activeTab = searchParams?.get('tab') ?? 'recruiting'
 
   const handleTabChange = (value: string) => {
     router.push(`/studies?tab=${value}`)
@@ -127,7 +127,7 @@ function StudiesContent() {
               key={study.id} 
               className="border-b border-gray-300 pb-4"
             >
-              <div className="flex justify-between items-center mb-1">
+              <div className="relative mb-1">
                 <div className="flex flex-col">
                   <h2 className="text-[#473F63] text-xl">
                     {study.title}
@@ -143,7 +143,7 @@ function StudiesContent() {
                 </div>
                 <Badge 
                   variant="secondary" 
-                  className="w-fit bg-[#E6E3FD] text-[#473F63] font-medium"
+                  className="absolute top-0 right-0 bg-[#E6E3FD] text-[#473F63] font-medium"
                 >
                   {study.availableSpots} spots left
                 </Badge>
