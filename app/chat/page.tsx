@@ -58,7 +58,7 @@ export default function ChatPage() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [showWelcomeModal, setShowWelcomeModal] = useState(true)
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -253,6 +253,14 @@ export default function ChatPage() {
       </div>
     );
   };
+
+  useEffect(() => {
+    const hasVisited = localStorage.getItem('hasVisitedACMChat');
+    if (!hasVisited) {
+      setShowWelcomeModal(true);
+      localStorage.setItem('hasVisitedACMChat', 'true');
+    }
+  }, []);
 
   return (
     <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">

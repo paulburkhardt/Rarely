@@ -98,6 +98,7 @@ export default function Dashboard() {
       { time: 'Week 4', value: 2, activity: 'Light Activity' },
     ],
   });
+  const [userData, setUserData] = useState<{name: string}>({ name: '' });
 
   const activities: Activity[] = [
     { icon: <Bed size={24} />, label: "Mostly Resting", value: "resting" },
@@ -111,6 +112,14 @@ export default function Dashboard() {
     const diaryEntryStatus = sessionStorage.getItem("hasDiaryEntry");
     if (diaryEntryStatus === "true") {
       setHasDiaryEntry(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    const storedData = localStorage.getItem('patientData');
+    if (storedData) {
+      const parsedData = JSON.parse(storedData);
+      setUserData({ name: parsedData.name });
     }
   }, []);
 
@@ -207,9 +216,9 @@ export default function Dashboard() {
         <div className="flex items-center">
           <Avatar className="h-12 w-12">
             <AvatarImage alt="User avatar" />
-            <AvatarFallback>Fe</AvatarFallback>
+            <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
           </Avatar>
-          <span className="text-sm ml-2">Fe</span>
+          <span className="text-sm ml-2">{userData.name}</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Streak:</span>
@@ -232,7 +241,7 @@ export default function Dashboard() {
             />
           </div>
           <h2 className="text-lg font-medium text-[#473F63]">
-            Welcome to rarely Fe!
+            Welcome to rarely {userData.name}!
           </h2>
         </div>
         
@@ -379,39 +388,65 @@ export default function Dashboard() {
                   dataKey="time" 
                   stroke="#1E4D57"
                   fontSize={12}
+                  tick={{ fontSize: 10 }}
                 />
                 <YAxis 
                   stroke="#1E4D57"
                   domain={[0, 5]}
                   ticks={[0, 1, 2, 3, 4, 5]}
                   fontSize={12}
+                  tick={{ fontSize: 10 }}
                 />
                 <Tooltip 
                   contentStyle={{ 
                     backgroundColor: '#fff',
-                    border: '1px solid #1E4D57' 
+                    border: '1px solid #1E4D57',
+                    borderRadius: '8px',
+                    padding: '8px',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    fontSize: '12px',
+                    minWidth: 'auto',
                   }}
-                  formatter={(value: number, name: string, props: any) => [
-                    `${props.payload.activity} (Level ${value})`,
-                    'Activity'
-                  ]}
+                  labelStyle={{
+                    fontWeight: 'bold',
+                    marginBottom: '4px',
+                    fontSize: '12px',
+                  }}
+                  formatter={(value: number, name: string, props: any) => {
+                    const activityLabels = {
+                      1: 'Resting',
+                      2: 'Light Activity',
+                      3: 'Walking',
+                      4: 'Strength Training',
+                      5: 'Intense Exercise'
+                    };
+                    return [activityLabels[value as keyof typeof activityLabels], ''];
+                  }}
+                  labelFormatter={(label) => `${label}`}
+                  wrapperStyle={{
+                    zIndex: 1000,
+                    outline: 'none',
+                  }}
                 />
                 <Line 
                   type="monotone" 
                   dataKey="value" 
                   stroke="#1E4D57" 
                   strokeWidth={2}
-                  dot={{ fill: '#1E4D57', strokeWidth: 2 }}
-                  activeDot={{ r: 6 }}
+                  dot={{ fill: '#1E4D57', strokeWidth: 2, r: 4 }}
+                  activeDot={{ 
+                    r: 6,
+                    stroke: '#1E4D57',
+                    strokeWidth: 2,
+                    fill: '#fff'
+                  }}
                 />
               </LineChart>
             </ResponsiveContainer>
-            <div className="mt-2 text-sm text-[#1E4D57]/70">
-          {/*     Activity Level:  */}
-              1 = Resting
-{/*               , 2 = Light Activity, 3 = Walking, 4 = Strength Training, 
- */}              ---
-              5 = Intense Exercise
+            <div className="mt-2 text-xs text-[#1E4D57]/70 flex justify-between">
+              <span>1: Resting</span>
+              <span>---</span>
+              <span>5: Intense Exercise</span>
             </div>
           </CardContent>
         </Card>

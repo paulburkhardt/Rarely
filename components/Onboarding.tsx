@@ -75,6 +75,14 @@ export function Onboarding() {
   }, [messages]);
 
   const handleNext = () => {
+    // Store the name when user answers step 2
+    if (step === 2 && currentMessage) {
+      setData(prev => ({
+        ...prev,
+        name: currentMessage
+      }));
+    }
+
     // Add the user's answer to messages
     if (currentMessage) {
       setMessages(prev => [...prev, {
