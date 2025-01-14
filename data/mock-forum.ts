@@ -7,7 +7,7 @@ export const mockGroups: Group[] = [
     description: 'Share experiences and support for living with ACM/ARVC',
     imageUrl: '/icons/heart-pulse.svg',
     lastActivity: new Date(Date.now() - 1 * 60 * 60 * 1000),
-    memberCount: 1234,
+    memberCount: 76,
     unreadCount: 3
   },
   {
@@ -16,7 +16,7 @@ export const mockGroups: Group[] = [
     description: 'Discussions about ACM treatments, medications, and ICD management',
     imageUrl: '/icons/medicine.svg',
     lastActivity: new Date(Date.now() - 12 * 60 * 60 * 1000),
-    memberCount: 856
+    memberCount: 89
   },
   {
     id: '3',
@@ -24,7 +24,7 @@ export const mockGroups: Group[] = [
     description: 'Safe exercise guidelines and lifestyle modifications for ACM patients',
     imageUrl: '/icons/exercise.svg',
     lastActivity: new Date(Date.now() - 24 * 60 * 60 * 1000),
-    memberCount: 2341,
+    memberCount: 102,
     unreadCount: 1
   }
 ]
