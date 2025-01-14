@@ -141,7 +141,7 @@ export default function Dashboard() {
     const storedData = localStorage.getItem('patientData');
     if (storedData) {
       const parsedData = JSON.parse(storedData);
-      setUserData({ name: parsedData.name });
+      setUserData({ name: parsedData.name || 'user' });
     }
   }, []);
 
@@ -662,7 +662,7 @@ export default function Dashboard() {
             {/* Step 1: Mood */}
             {currentStep === 1 && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center px-2">
+                <div className="flex justify-between items-center p-2">
                   <div 
                     className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
                       mood === 1 ? 'scale-110' : 'opacity-50 hover:opacity-75'
