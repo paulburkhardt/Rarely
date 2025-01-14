@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Check } from "lucide-react"
 
 interface OnboardingData {
   name: string;
@@ -75,20 +76,46 @@ export function Onboarding() {
   }, [messages]);
 
   const handleNext = () => {
-    // Store the name when user answers step 2
-    if (step === 2 && currentMessage) {
-      setData(prev => ({
-        ...prev,
-        name: currentMessage
-      }));
-    }
-
     // Add the user's answer to messages
-    if (currentMessage) {
+    if (currentMessage || step === 5) { // Allow empty message for symptom step
       setMessages(prev => [...prev, {
         type: 'answer',
-        content: currentMessage
+        content: step === 5 
+          ? `Selected symptoms: ${data.symptoms.join(', ')}`
+          : currentMessage
       }]);
+    }
+
+    // Store the data based on current step
+    if (currentMessage || step === 5) {
+      switch (step) {
+        case 2:
+          setData(prev => ({ ...prev, name: currentMessage }));
+          break;
+        case 3:
+          setData(prev => ({ ...prev, diagnosisDate: currentMessage }));
+          break;
+        case 4:
+          setData(prev => ({ ...prev, geneticMutation: currentMessage }));
+          break;
+        case 6:
+          setData(prev => ({ ...prev, hasICD: currentMessage.toLowerCase().includes('yes') }));
+          break;
+        case 7:
+          setData(prev => ({ ...prev, medications: currentMessage.split(',').map(m => m.trim()) }));
+          break;
+        case 8:
+          setData(prev => ({ ...prev, exerciseRestrictions: currentMessage }));
+          break;
+        case 9:
+          // Parse emergency contact info
+          const [name, relationship, phone] = currentMessage.split(',').map(s => s.trim());
+          setData(prev => ({
+            ...prev,
+            emergencyContact: { name, relationship, phone }
+          }));
+          break;
+      }
     }
 
     // Add the next question
@@ -161,25 +188,53 @@ export function Onboarding() {
           {step === 5 && (
             <div className="grid grid-cols-2 gap-2">
               {commonSymptoms.map(symptom => (
-                <div key={symptom} className="flex items-center space-x-2">
-                  <Checkbox
-                    checked={data.symptoms.includes(symptom)}
-                    onCheckedChange={(checked) => {
-                      setData(prev => ({
-                        ...prev,
-                        symptoms: checked 
-                          ? [...prev.symptoms, symptom]
-                          : prev.symptoms.filter(s => s !== symptom)
-                      }));
-                    }}
-                  />
-                  <label className="text-sm">{symptom}</label>
+                <div
+                  key={symptom}
+                  className={`relative rounded-xl p-3 cursor-pointer transition-all ${
+                    data.symptoms.includes(symptom)
+                      ? 'bg-primary/10 border-2 border-primary'
+                      : 'bg-gray-50 border-2 border-transparent hover:border-primary/30'
+                  }`}
+                  onClick={() => {
+                    setData(prev => ({
+                      ...prev,
+                      symptoms: prev.symptoms.includes(symptom)
+                        ? prev.symptoms.filter(s => s !== symptom)
+                        : [...prev.symptoms, symptom]
+                    }));
+                  }}
+                >
+                  {data.symptoms.includes(symptom) && (
+                    <div className="absolute top-2 right-2">
+                      <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    </div>
+                  )}
+                  <span className="text-sm font-medium">{symptom}</span>
                 </div>
               ))}
             </div>
           )}
 
-          {step !== 5 && (
+          {step === 6 && (
+            <div className="flex justify-center gap-4">
+              <Button
+                variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
+                onClick={() => setCurrentMessage('Yes')}
+              >
+                Yes
+              </Button>
+              <Button
+                variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
+                onClick={() => setCurrentMessage('No')}
+              >
+                No
+              </Button>
+            </div>
+          )}
+
+          {step !== 5 && step !== 6 && (
             <Input
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
@@ -194,6 +249,23 @@ export function Onboarding() {
           >
             {step === 10 ? 'Complete Setup' : 'Continue'}
           </Button>
+
+          {/* Progress indicator */}
+          <div className="flex justify-between items-center px-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((s) => (
+              <div key={s} className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    s === step
+                      ? 'bg-primary scale-125'
+                      : s < step
+                      ? 'bg-primary/50'
+                      : 'bg-gray-200'
+                  }`}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

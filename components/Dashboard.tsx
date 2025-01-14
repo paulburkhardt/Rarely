@@ -11,7 +11,7 @@ import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
-import { Calendar, MessageCircle, Activity, Clock, AppleIcon } from 'lucide-react';
+import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,7 @@ interface Medication {
   name: string;
   taken: boolean;
   prescribed: boolean;
+  category: string;
 }
 
 interface ActivityDataPoint {
@@ -52,19 +53,40 @@ export default function Dashboard() {
   const [hasDiaryEntry, setHasDiaryEntry] = useState<boolean>(false);
   const [isHealthSynced, setIsHealthSynced] = useState<boolean>(false);
   const [showDiaryModal, setShowDiaryModal] = useState(false);
-  const [mood, setMood] = useState<number>(3);
-  const [selectedActivity, setSelectedActivity] = useState<string[]>([]);
+  const [mood, setMood] = useState<number>(2);
+  const [selectedActivity, setSelectedActivity] = useState<string>("");
   const [symptoms, setSymptoms] = useState<Symptom[]>([
-    { label: "Muscle Weakness", selected: false },
+    { label: "Palpitations", selected: false },
+    { label: "Extra Heartbeats", selected: false },
+    { label: "Rapid Heartbeat", selected: false },
+    { label: "Shortness of Breath", selected: false },
+    { label: "Chest Pain/Discomfort", selected: false },
+    { label: "Dizziness", selected: false },
+    { label: "Loss of Consciousness", selected: false },
     { label: "Fatigue", selected: false },
-    { label: "Joint Pain", selected: false },
-    { label: "Difficulty Swallowing", selected: false },
-    { label: "Custom Symptom", selected: false },
   ]);
   const [medications, setMedications] = useState<Medication[]>([
-    { name: "Prednisone", taken: false, prescribed: true },
-    { name: "Methotrexate", taken: false, prescribed: true },
-    { name: "Rituximab", taken: false, prescribed: true },
+    // Antiarrhythmic drugs
+    { name: "Sotalol", taken: false, prescribed: true, category: "Antiarrhythmic" },
+    { name: "Amiodarone", taken: false, prescribed: false, category: "Antiarrhythmic" },
+    { name: "Flecainide", taken: false, prescribed: false, category: "Antiarrhythmic" },
+    
+    // Beta blockers
+    { name: "Bisoprolol", taken: false, prescribed: true, category: "Beta Blocker" },
+    { name: "Metoprolol", taken: false, prescribed: false, category: "Beta Blocker" },
+    
+    // Heart failure drugs
+    { name: "ACE Inhibitor", taken: false, prescribed: true, category: "Heart Failure" },
+    { name: "Entresto (Sacubitril/Valsartan)", taken: false, prescribed: true, category: "Heart Failure" },
+    { name: "Eplerenon", taken: false, prescribed: false, category: "Heart Failure" },
+    { name: "Finerenon", taken: false, prescribed: false, category: "Heart Failure" },
+    
+    // Diuretics
+    { name: "Furosemide", taken: false, prescribed: false, category: "Diuretic" },
+    { name: "Torasemide", taken: false, prescribed: false, category: "Diuretic" },
+    
+    // SGLT2 Inhibitors
+    { name: "SGLT2 Inhibitor", taken: false, prescribed: false, category: "SGLT2" },
   ]);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [newSymptom, setNewSymptom] = useState<string>("");
@@ -74,38 +96,38 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month">("today");
   const [activityData, setActivityData] = useState({
     today: [
-      { time: '9AM', value: 2, activity: 'Light Activity' },
-      { time: '11AM', value: 3, activity: 'Walking' },
-      { time: '1PM', value: 1, activity: 'Resting' },
-      { time: '3PM', value: 4, activity: 'Strength Training' },
-      { time: '5PM', value: 2, activity: 'Light Activity' },
-      { time: '7PM', value: 3, activity: 'Walking' },
-      { time: '9PM', value: 1, activity: 'Resting' },
+      { time: '9AM', value: 1, activity: 'Complete Rest' },
+      { time: '11AM', value: 2, activity: 'Daily Activities' },
+      { time: '1PM', value: 3, activity: 'Light Exercise' },
+      { time: '3PM', value: 4, activity: 'Moderate Exercise' },
+      { time: '5PM', value: 2, activity: 'Daily Activities' },
+      { time: '7PM', value: 3, activity: 'Light Exercise' },
+      { time: '9PM', value: 1, activity: 'Complete Rest' },
     ],
     week: [
-      { time: 'Mon', value: 2, activity: 'Light Activity' },
-      { time: 'Tue', value: 3, activity: 'Walking' },
-      { time: 'Wed', value: 4, activity: 'Strength Training' },
-      { time: 'Thu', value: 2, activity: 'Light Activity' },
-      { time: 'Fri', value: 3, activity: 'Walking' },
-      { time: 'Sat', value: 1, activity: 'Resting' },
-      { time: 'Sun', value: 2, activity: 'Light Activity' },
+      { time: 'Mon', value: 2, activity: 'Daily Activities' },
+      { time: 'Tue', value: 3, activity: 'Light Exercise' },
+      { time: 'Wed', value: 4, activity: 'Moderate Exercise' },
+      { time: 'Thu', value: 2, activity: 'Daily Activities' },
+      { time: 'Fri', value: 3, activity: 'Light Exercise' },
+      { time: 'Sat', value: 1, activity: 'Complete Rest' },
+      { time: 'Sun', value: 2, activity: 'Daily Activities' },
     ],
     month: [
-      { time: 'Week 1', value: 2, activity: 'Light Activity' },
-      { time: 'Week 2', value: 3, activity: 'Walking' },
-      { time: 'Week 3', value: 4, activity: 'Strength Training' },
-      { time: 'Week 4', value: 2, activity: 'Light Activity' },
+      { time: 'Week 1', value: 2, activity: 'Daily Activities' },
+      { time: 'Week 2', value: 3, activity: 'Light Exercise' },
+      { time: 'Week 3', value: 4, activity: 'Moderate Exercise' },
+      { time: 'Week 4', value: 2, activity: 'Daily Activities' },
     ],
   });
   const [userData, setUserData] = useState<{name: string}>({ name: '' });
 
   const activities: Activity[] = [
-    { icon: <Bed size={24} />, label: "Mostly Resting", value: "resting" },
-    { icon: <Coffee size={24} />, label: "Light Activity", value: "light" },
-    { icon: <Footprints size={24} />, label: "Walking", value: "walking" },
-    { icon: <Dumbbell size={24} />, label: "Strength Training", value: "strength" },
-    { icon: <Bike size={24} />, label: "Cycling", value: "cycling" },
+    { icon: <Bed size={24} />, label: "Complete Rest", value: "rest" },
+    { icon: <Coffee size={24} />, label: "Daily Activities", value: "daily" },
+    { icon: <Footprints size={24} />, label: "Light Exercise", value: "light" },
+    { icon: <Dumbbell size={24} />, label: "Moderate Exercise", value: "moderate" },
+    { icon: <Bike size={24} />, label: "Intense Exercise", value: "intense" },
   ];
 
   useEffect(() => {
@@ -119,7 +141,7 @@ export default function Dashboard() {
     const storedData = localStorage.getItem('patientData');
     if (storedData) {
       const parsedData = JSON.parse(storedData);
-      setUserData({ name: parsedData.name });
+      setUserData({ name: parsedData.name || 'user' });
     }
   }, []);
 
@@ -160,28 +182,28 @@ export default function Dashboard() {
   // Add this mock data for synced state
   const syncedActivityData = {
     today: [
-      { time: '9AM', value: 3, activity: 'Walking' },
-      { time: '11AM', value: 4, activity: 'Strength Training' },
-      { time: '1PM', value: 2, activity: 'Light Activity' },
-      { time: '3PM', value: 5, activity: 'Cycling' },
-      { time: '5PM', value: 3, activity: 'Walking' },
-      { time: '7PM', value: 2, activity: 'Light Activity' },
-      { time: '9PM', value: 1, activity: 'Resting' },
+      { time: '9AM', value: 2, activity: 'Daily Activities' },
+      { time: '11AM', value: 3, activity: 'Light Exercise' },
+      { time: '1PM', value: 2, activity: 'Daily Activities' },
+      { time: '3PM', value: 4, activity: 'Moderate Exercise' },
+      { time: '5PM', value: 5, activity: 'Intense Exercise' },
+      { time: '7PM', value: 2, activity: 'Daily Activities' },
+      { time: '9PM', value: 1, activity: 'Complete Rest' },
     ],
     week: [
-      { time: 'Mon', value: 3, activity: 'Walking' },
-      { time: 'Tue', value: 4, activity: 'Strength Training' },
-      { time: 'Wed', value: 5, activity: 'Cycling' },
-      { time: 'Thu', value: 3, activity: 'Walking' },
-      { time: 'Fri', value: 4, activity: 'Strength Training' },
-      { time: 'Sat', value: 2, activity: 'Light Activity' },
-      { time: 'Sun', value: 3, activity: 'Walking' },
+      { time: 'Mon', value: 3, activity: 'Light Exercise' },
+      { time: 'Tue', value: 4, activity: 'Moderate Exercise' },
+      { time: 'Wed', value: 5, activity: 'Intense Exercise' },
+      { time: 'Thu', value: 3, activity: 'Light Exercise' },
+      { time: 'Fri', value: 4, activity: 'Moderate Exercise' },
+      { time: 'Sat', value: 2, activity: 'Daily Activities' },
+      { time: 'Sun', value: 3, activity: 'Light Exercise' },
     ],
     month: [
-      { time: 'Week 1', value: 3, activity: 'Walking' },
-      { time: 'Week 2', value: 4, activity: 'Strength Training' },
-      { time: 'Week 3', value: 5, activity: 'Cycling' },
-      { time: 'Week 4', value: 3, activity: 'Walking' },
+      { time: 'Week 1', value: 3, activity: 'Light Exercise' },
+      { time: 'Week 2', value: 4, activity: 'Moderate Exercise' },
+      { time: 'Week 3', value: 5, activity: 'Intense Exercise' },
+      { time: 'Week 4', value: 3, activity: 'Light Exercise' },
     ],
   };
 
@@ -414,10 +436,10 @@ export default function Dashboard() {
                   }}
                   formatter={(value: number, name: string, props: any) => {
                     const activityLabels = {
-                      1: 'Resting',
-                      2: 'Light Activity',
-                      3: 'Walking',
-                      4: 'Strength Training',
+                      1: 'Complete Rest',
+                      2: 'Daily Activities',
+                      3: 'Light Exercise',
+                      4: 'Moderate Exercise',
                       5: 'Intense Exercise'
                     };
                     return [activityLabels[value as keyof typeof activityLabels], ''];
@@ -444,7 +466,7 @@ export default function Dashboard() {
               </LineChart>
             </ResponsiveContainer>
             <div className="mt-2 text-xs text-[#1E4D57]/70 flex justify-between">
-              <span>1: Resting</span>
+              <span>1: Complete Rest</span>
               <span>---</span>
               <span>5: Intense Exercise</span>
             </div>
@@ -465,13 +487,13 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div className="text-[#473F63]">
                   <p className="text-lg sm:text-2xl font-medium">
-                    {mood}/5
+                    {mood}/3
                   </p>
                   <p className="text-[10px] sm:text-xs">Today</p>
                 </div>
-                {mood >= 4 ? (
+                {mood === 3 ? (
                   <Smile className="w-6 h-6 sm:w-8 sm:h-8 text-green-500" />
-                ) : mood === 3 ? (
+                ) : mood === 2 ? (
                   <Meh className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                 ) : (
                   <Frown className="w-6 h-6 sm:w-8 sm:h-8 text-red-500" />
@@ -630,231 +652,315 @@ export default function Dashboard() {
         setShowDiaryModal(open);
         if (!open) setCurrentStep(1); // Reset to first step when closing
       }}>
-        <DialogContent className="max-w-md mx-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>{getStepTitle(currentStep)}</DialogTitle>
           </DialogHeader>
           
-          {/* Step 1: Mood */}
-          {currentStep === 1 && (
-            <div className="space-y-4">
-              <div className="flex justify-between items-center p-4">
-                <Frown className={`w-12 h-12 ${mood <= 2 ? 'text-red-500' : 'text-gray-300'} cursor-pointer transition-colors`} 
-                  onClick={() => setMood(2)} />
-                <Meh className={`w-12 h-12 ${mood === 3 ? 'text-yellow-500' : 'text-gray-300'} cursor-pointer transition-colors`}
-                  onClick={() => setMood(3)} />
-                <Smile className={`w-12 h-12 ${mood >= 4 ? 'text-green-500' : 'text-gray-300'} cursor-pointer transition-colors`}
-                  onClick={() => setMood(4)} />
-              </div>
-              <Slider
-                value={[mood]}
-                min={1}
-                max={5}
-                step={1}
-                onValueChange={(value) => setMood(value[0])}
-                className="w-full"
-              />
-            </div>
-          )}
-
-          {/* Step 2: Activity */}
-          {currentStep === 2 && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                {activities.map((activity) => (
-                  <Button
-                    key={activity.value}
-                    variant={selectedActivity.includes(activity.value) ? "default" : "outline"}
-                    className="flex flex-col gap-2 h-auto py-4"
-                    onClick={() => setSelectedActivity(prev => 
-                      prev.includes(activity.value) 
-                        ? prev.filter(a => a !== activity.value)
-                        : [...prev, activity.value]
-                    )}
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto pr-2 -mr-2">
+            {/* Step 1: Mood */}
+            {currentStep === 1 && (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center p-2">
+                  <div 
+                    className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
+                      mood === 1 ? 'scale-110' : 'opacity-50 hover:opacity-75'
+                    }`}
+                    onClick={() => setMood(1)}
                   >
-                    {activity.icon}
-                    <span className="text-sm">{activity.label}</span>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Step 3: Symptoms */}
-          {currentStep === 3 && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-2">
-                {symptoms.map((symptom, index) => (
-                  <Badge
-                    key={symptom.label}
-                    variant={symptom.selected ? "default" : "outline"}
-                    className="cursor-pointer p-3 flex justify-center items-center text-center"
-                    onClick={() => {
-                      const newSymptoms = [...symptoms];
-                      newSymptoms[index].selected = !newSymptoms[index].selected;
-                      setSymptoms(newSymptoms);
-                    }}
+                    <Frown className={`w-16 h-16 ${mood === 1 ? 'text-red-500' : 'text-gray-300'}`} />
+                    <span className="text-sm font-medium">Not Good</span>
+                  </div>
+                  <div 
+                    className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
+                      mood === 2 ? 'scale-110' : 'opacity-50 hover:opacity-75'
+                    }`}
+                    onClick={() => setMood(2)}
                   >
-                    {symptom.label}
-                  </Badge>
-                ))}
+                    <Meh className={`w-16 h-16 ${mood === 2 ? 'text-yellow-500' : 'text-gray-300'}`} />
+                    <span className="text-sm font-medium">Okay</span>
+                  </div>
+                  <div 
+                    className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
+                      mood === 3 ? 'scale-110' : 'opacity-50 hover:opacity-75'
+                    }`}
+                    onClick={() => setMood(3)}
+                  >
+                    <Smile className={`w-16 h-16 ${mood === 3 ? 'text-green-500' : 'text-gray-300'}`} />
+                    <span className="text-sm font-medium">Good</span>
+                  </div>
+                </div>
               </div>
-              
-              {showSymptomInput ? (
-                <div className="space-y-2">
-                  <div className="flex gap-2">
+            )}
+
+            {/* Step 2: Activity */}
+            {currentStep === 2 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  {activities.map((activity) => (
+                    <div
+                      key={activity.value}
+                      className={`relative rounded-xl p-4 cursor-pointer transition-all ${
+                        selectedActivity === activity.value
+                          ? 'bg-primary/10 border-2 border-primary'
+                          : 'bg-gray-50 border-2 border-transparent hover:border-primary/30'
+                      }`}
+                      onClick={() => setSelectedActivity(activity.value)}
+                    >
+                      {selectedActivity === activity.value && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        </div>
+                      )}
+                      <div className="flex flex-col items-center gap-3">
+                        {activity.icon}
+                        <span className="text-sm font-medium text-center">{activity.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Symptoms */}
+            {currentStep === 3 && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  {symptoms.map((symptom, index) => (
+                    <div
+                      key={symptom.label}
+                      className={`relative rounded-xl p-4 cursor-pointer transition-all ${
+                        symptom.selected
+                          ? 'bg-primary/10 border-2 border-primary'
+                          : 'bg-gray-50 border-2 border-transparent hover:border-primary/30'
+                      }`}
+                      onClick={() => {
+                        const newSymptoms = [...symptoms];
+                        newSymptoms[index].selected = !newSymptoms[index].selected;
+                        setSymptoms(newSymptoms);
+                      }}
+                    >
+                      {symptom.selected && (
+                        <div className="absolute top-2 right-2">
+                          <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                            <Check className="w-3 h-3 text-white" />
+                          </div>
+                        </div>
+                      )}
+                      <span className="text-sm font-medium">{symptom.label}</span>
+                    </div>
+                  ))}
+                </div>
+                
+                {showSymptomInput ? (
+                  <div className="mt-4 space-y-2">
                     <input
                       type="text"
                       value={newSymptom}
                       onChange={(e) => setNewSymptom(e.target.value)}
                       placeholder="Enter symptom name"
-                      className="flex-1 px-3 py-2 border rounded-md"
+                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
-                    <Button
-                      onClick={() => {
-                        if (newSymptom.trim()) {
-                          setSymptoms([...symptoms, { label: newSymptom.trim(), selected: true }]);
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          if (newSymptom.trim()) {
+                            setSymptoms([...symptoms, { label: newSymptom.trim(), selected: true }]);
+                            setNewSymptom("");
+                            setShowSymptomInput(false);
+                          }
+                        }}
+                        className="flex-1"
+                      >
+                        Add Symptom
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
                           setNewSymptom("");
                           setShowSymptomInput(false);
-                        }
-                      }}
-                      size="sm"
-                    >
-                      Add
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setNewSymptom("");
-                        setShowSymptomInput(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full gap-1"
-                  onClick={() => setShowSymptomInput(true)}
-                >
-                  <Plus size={16} /> Add Custom Symptom
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Step 4: Medications */}
-          {currentStep === 4 && (
-            <div className="space-y-4">
-              {medications.map((med, index) => (
-                <div key={med.name} className="flex items-center justify-between p-2 border rounded-lg">
-                  <span className="font-medium">{med.name}</span>
-                  <Button
-                    variant={med.taken ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => {
-                      const newMeds = [...medications];
-                      newMeds[index].taken = !newMeds[index].taken;
-                      setMedications(newMeds);
-                    }}
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full gap-2"
+                    onClick={() => setShowSymptomInput(true)}
                   >
-                    {med.taken ? "Taken" : "Not Taken"}
+                    <Plus className="w-4 h-4" /> Add Custom Symptom
                   </Button>
-                </div>
-              ))}
-              
-              {showMedicationInput ? (
-                <div className="space-y-2">
-                  <div className="flex gap-2">
+                )}
+              </div>
+            )}
+
+            {/* Step 4: Medications - Updated UI with categories */}
+            {currentStep === 4 && (
+              <div className="space-y-6">
+                {/* Group medications by category */}
+                {Array.from(new Set(medications.map(med => med.category))).map(category => (
+                  <div key={category} className="space-y-2">
+                    <h3 className="font-medium text-sm text-gray-500">{category}</h3>
+                    <div className="space-y-2">
+                      {medications
+                        .filter(med => med.category === category)
+                        .map((med, index) => (
+                          <div
+                            key={med.name}
+                            className={`relative rounded-xl p-4 transition-all ${
+                              med.taken
+                                ? 'bg-primary/10 border-2 border-primary'
+                                : 'bg-gray-50 border-2 border-transparent'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="space-y-1">
+                                <span className="font-medium">{med.name}</span>
+                                {med.prescribed && (
+                                  <Badge variant="secondary" className="text-xs">Prescribed</Badge>
+                                )}
+                              </div>
+                              <Button
+                                variant={med.taken ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => {
+                                  const newMeds = [...medications];
+                                  const medIndex = medications.findIndex(m => m.name === med.name);
+                                  newMeds[medIndex].taken = !newMeds[medIndex].taken;
+                                  setMedications(newMeds);
+                                }}
+                              >
+                                {med.taken ? "✓ Taken" : "Mark as Taken"}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Add Custom Medication UI */}
+                {showMedicationInput ? (
+                  <div className="mt-4 space-y-2">
                     <input
                       type="text"
                       value={newMedication}
                       onChange={(e) => setNewMedication(e.target.value)}
                       placeholder="Enter medication name"
-                      className="flex-1 px-3 py-2 border rounded-md"
+                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
-                    <Button
-                      onClick={() => {
-                        if (newMedication.trim()) {
-                          setMedications([
-                            ...medications,
-                            { name: newMedication.trim(), taken: true, prescribed: false }
-                          ]);
+                    <Select defaultValue="Antiarrhythmic">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Antiarrhythmic">Antiarrhythmic</SelectItem>
+                        <SelectItem value="Beta Blocker">Beta Blocker</SelectItem>
+                        <SelectItem value="Heart Failure">Heart Failure</SelectItem>
+                        <SelectItem value="Diuretic">Diuretic</SelectItem>
+                        <SelectItem value="SGLT2">SGLT2 Inhibitor</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => {
+                          if (newMedication.trim()) {
+                            setMedications([
+                              ...medications,
+                              { 
+                                name: newMedication.trim(), 
+                                taken: true, 
+                                prescribed: false,
+                                category: "Other" // You might want to make this dynamic based on selection
+                              }
+                            ]);
+                            setNewMedication("");
+                            setShowMedicationInput(false);
+                          }
+                        }}
+                        className="flex-1"
+                      >
+                        Add Medication
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
                           setNewMedication("");
                           setShowMedicationInput(false);
-                        }
-                      }}
-                      size="sm"
-                    >
-                      Add
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setNewMedication("");
-                        setShowMedicationInput(false);
-                      }}
-                    >
-                      Cancel
-                    </Button>
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full gap-1"
-                  onClick={() => setShowMedicationInput(true)}
-                >
-                  <Plus size={16} /> Add Medication
-                </Button>
-              )}
-            </div>
-          )}
-
-          {/* Navigation Buttons */}
-          <div className="flex gap-2 mt-4">
-            {currentStep > 1 && (
-              <Button
-                variant="outline"
-                onClick={() => setCurrentStep(prev => prev - 1)}
-                className="flex-1"
-              >
-                Back
-              </Button>
-            )}
-            {currentStep < 4 ? (
-              <Button
-                onClick={() => setCurrentStep(prev => prev + 1)}
-                className="flex-1"
-              >
-                Next
-              </Button>
-            ) : (
-              <Button
-                onClick={submitDiary}
-                className="flex-1"
-              >
-                Save Entry
-              </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full gap-2"
+                    onClick={() => setShowMedicationInput(true)}
+                  >
+                    <Plus className="w-4 h-4" /> Add Medication
+                  </Button>
+                )}
+              </div>
             )}
           </div>
 
-          {/* Step Indicator */}
-          <div className="flex justify-center gap-2 mt-4">
-            {[1, 2, 3, 4].map((step) => (
-              <div
-                key={step}
-                className={`h-2 w-2 rounded-full ${
-                  step === currentStep ? 'bg-primary' : 'bg-gray-200'
-                }`}
-              />
-            ))}
+          {/* Fixed footer */}
+          <div className="flex-shrink-0 pt-6 border-t mt-6">
+            {/* Progress Steps */}
+            <div className="flex justify-between items-center px-2">
+              {[1, 2, 3, 4].map((step) => (
+                <div key={step} className="flex flex-col items-center gap-1">
+                  <div
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      step === currentStep
+                        ? 'bg-primary scale-125'
+                        : step < currentStep
+                        ? 'bg-primary/50'
+                        : 'bg-gray-200'
+                    }`}
+                  />
+                  <span className={`text-xs ${
+                    step === currentStep ? 'text-primary font-medium' : 'text-gray-400'
+                  }`}>
+                    Step {step}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex gap-3 mt-6">
+              {currentStep > 1 && (
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentStep(prev => prev - 1)}
+                  className="flex-1"
+                >
+                  Back
+                </Button>
+              )}
+              <Button
+                onClick={() => {
+                  if (currentStep < 4) {
+                    setCurrentStep(prev => prev + 1);
+                  } else {
+                    submitDiary();
+                  }
+                }}
+                className="flex-1"
+              >
+                {currentStep < 4 ? 'Continue' : 'Complete'}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
