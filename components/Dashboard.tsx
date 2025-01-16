@@ -258,29 +258,31 @@ export default function Dashboard() {
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
-      {/* Header - now transparent since we have the gradient background */}
-      <div className="p-6 pb-12">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-black mb-1">Your Overview</h1>
+      {/* Header - Updated layout */}
+      <div className="p-6">
+        {/* Logo centered, Avatar right */}
+        <div className="flex items-center relative mb-6">
+          <div className="w-full flex justify-center">
+            <Image 
+              src="/logo_green.png" 
+              alt="Logo" 
+              width={100} 
+              height={100} 
+              className="opacity-90"
+            />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="absolute right-0">
             <Avatar className="h-8 w-8">
               <AvatarImage alt="User avatar" />
               <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
           </div>
         </div>
-      </div>
-      {/* Centered Logo */}
-      <div className="flex justify-center -mt-12 mb-4">
-        <Image 
-          src="/logo_purple.png" 
-          alt="Logo" 
-          width={100} 
-          height={100} 
-          className="opacity-90"
-        />
+
+        {/* Centered Greeting */}
+        <div className="text-center mb-6">
+          <h1 className="text-3xl font-bold text-black">Hello {userData.name}.</h1>
+        </div>
       </div>
 
       {/* Main Content - Adjusted spacing */}

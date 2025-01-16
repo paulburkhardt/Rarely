@@ -221,28 +221,25 @@ export default function ChatPage() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
       {/* Header */}
       <div className="p-6 pb-12">
-        <div className="flex justify-between items-start mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-black mb-1">Chat Assistant</h1>
+        {/* Logo centered, Avatar right */}
+        <div className="flex items-center relative mb-6">
+          <div className="w-full flex justify-center">
+            <Image 
+              src="/logo_green.png" 
+              alt="Logo" 
+              width={100} 
+              height={100} 
+              className="opacity-90"
+            />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="absolute right-0">
             <Avatar className="h-8 w-8">
               <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData?.name?.slice(0, 2) || 'Me'}</AvatarFallback>
+              <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
             </Avatar>
           </div>
         </div>
-      </div>
-
-      {/* Centered Logo */}
-      <div className="flex justify-center -mt-12 mb-4">
-        <Image 
-          src="/logo_purple.png" 
-          alt="Logo" 
-          width={100} 
-          height={100} 
-          className="opacity-90"
-        />
+        <h1 className="text-3xl font-bold text-black mb-1">Chat Assistant</h1>
       </div>
 
       {/* Chat Messages */}
