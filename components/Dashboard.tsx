@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Area } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
 import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile } from 'lucide-react';
 import {
@@ -237,8 +237,7 @@ export default function Dashboard() {
       <div className="p-6 pb-12">
         <div className="flex justify-between items-start mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-black mb-1">Summary</h1>
-            <p className="text-sm text-black/60">Pinned</p>
+            <h1 className="text-3xl font-bold text-black mb-1">Your Overview</h1>
           </div>
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
@@ -248,9 +247,19 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+      {/* Centered Logo */}
+      <div className="flex justify-center -mt-12 mb-4">
+        <Image 
+          src="/logo_purple.png" 
+          alt="Logo" 
+          width={100} 
+          height={100} 
+          className="opacity-90"
+        />
+      </div>
 
-      {/* Main Content - Adjusted for better contrast against warm gradient */}
-      <div className="px-4 pb-24 space-y-6">
+      {/* Main Content - Adjusted spacing */}
+      <div className="px-4 pb-24 space-y-4">
         {/* Daily Overview Cards */}
         <div className="space-y-4">
           {/* Mental Wellbeing Card */}
@@ -294,7 +303,7 @@ export default function Dashboard() {
               </div>
 
               <Button 
-                className="w-full bg-[#3a2a76] hover:bg-[#6CD9CB] text-white font-medium h-12 rounded-xl"
+                className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium h-12 rounded-xl"
                 onClick={handleDiaryClick}
               >
                 {hasDiaryEntry ? "Update Check-in" : "Start Check-in"}
@@ -355,99 +364,136 @@ export default function Dashboard() {
         </div>
 
         {/* Activity Tracking */}
-        <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between mb-4">
+        <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-2">
-                <Heart className="w-5 h-5 text-[#3a2a76]" />
-                <span className="font-semibold">Activity</span>
+                <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                  <Activity className="w-5 h-5 text-[#3a2a76]" />
+                </div>
+                <span className="font-semibold text-lg">Activity</span>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-[#3a2a76]"
-                onClick={handleHealthSync}
-              >
-                <AppleIcon className="w-4 h-4 mr-1" />
-                {isHealthSynced ? "Synced" : "Sync Health"}
-              </Button>
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-[#3a2a76] font-medium"
+                  onClick={handleHealthSync}
+                >
+                  <AppleIcon className="w-4 h-4 mr-1.5" />
+                  {isHealthSynced ? "Connected" : "Connect"}
+                </Button>
+                <Select value={timeRange} onValueChange={(value: "today" | "week" | "month") => setTimeRange(value)}>
+                  <SelectTrigger className="bg-transparent border-none text-[#3a2a76] font-medium">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="today">Today</SelectItem>
+                    <SelectItem value="week">This Week</SelectItem>
+                    <SelectItem value="month">This Month</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
-            <div className="space-y-4">
-              <Select value={timeRange} onValueChange={(value: "today" | "week" | "month") => setTimeRange(value)}>
-                <SelectTrigger className="w-full mb-2">
-                  <SelectValue placeholder="Select time range" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="today">Today</SelectItem>
-                  <SelectItem value="week">This Week</SelectItem>
-                  <SelectItem value="month">This Month</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="h-[200px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={activityData[timeRange]} margin={{ top: 5, right: 5, bottom: 5, left: -40 }}>
+                  <defs>
+                    <linearGradient id="activityGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3a2a76" stopOpacity={0.2}/>
+                      <stop offset="95%" stopColor="#3a2a76" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    vertical={false} 
+                    stroke="#E5E5EA"
+                  />
+                  <XAxis 
+                    dataKey="time" 
+                    stroke="#8E8E93"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <YAxis 
+                    stroke="#8E8E93"
+                    domain={[0, 5]}
+                    ticks={[0, 1, 2, 3, 4, 5]}
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 11 }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '12px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                      padding: '8px 12px',
+                    }}
+                    labelStyle={{
+                      color: '#3A3A3C',
+                      fontWeight: '500',
+                      fontSize: '13px',
+                      marginBottom: '4px',
+                    }}
+                    itemStyle={{
+                      color: '#636366',
+                      fontSize: '12px',
+                      padding: '0',
+                    }}
+                    formatter={(value: number, name: string, props: any) => {
+                      const activityLabels = {
+                        1: 'Complete Rest',
+                        2: 'Daily Activities',
+                        3: 'Light Exercise',
+                        4: 'Moderate Exercise',
+                        5: 'Intense Exercise'
+                      };
+                      return [activityLabels[value as keyof typeof activityLabels], ''];
+                    }}
+                    labelFormatter={(label) => `${label}`}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="value"
+                    stroke="#3a2a76"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#activityGradient)"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="value" 
+                    stroke="#3a2a76" 
+                    strokeWidth={2}
+                    dot={{ 
+                      fill: '#FFFFFF',
+                      stroke: '#3a2a76',
+                      strokeWidth: 2,
+                      r: 4
+                    }}
+                    activeDot={{ 
+                      r: 6,
+                      stroke: '#3a2a76',
+                      strokeWidth: 2,
+                      fill: '#FFFFFF'
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
 
-              <div className="h-[200px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={activityData[timeRange]} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#8F8BAF" />
-                    <XAxis 
-                      dataKey="time" 
-                      stroke="black"
-                      fontSize={12}
-                      tick={{ fontSize: 10 }}
-                    />
-                    <YAxis 
-                      stroke="black"
-                      domain={[0, 5]}
-                      ticks={[0, 1, 2, 3, 4, 5]}
-                      fontSize={12}
-                      tick={{ fontSize: 10 }}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#fff',
-                        border: '1px solid black',
-                        borderRadius: '8px',
-                        padding: '8px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                        fontSize: '12px',
-                        minWidth: 'auto',
-                      }}
-                      labelStyle={{
-                        fontWeight: 'bold',
-                        marginBottom: '4px',
-                        fontSize: '12px',
-                      }}
-                      formatter={(value: number, name: string, props: any) => {
-                        const activityLabels = {
-                          1: 'Complete Rest',
-                          2: 'Daily Activities',
-                          3: 'Light Exercise',
-                          4: 'Moderate Exercise',
-                          5: 'Intense Exercise'
-                        };
-                        return [activityLabels[value as keyof typeof activityLabels], ''];
-                      }}
-                      labelFormatter={(label) => `${label}`}
-                      wrapperStyle={{
-                        zIndex: 1000,
-                        outline: 'none',
-                      }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="value" 
-                      stroke="black" 
-                      strokeWidth={2}
-                      dot={{ fill: 'black', strokeWidth: 2, r: 4 }}
-                      activeDot={{ 
-                        r: 6,
-                        stroke: 'black',
-                        strokeWidth: 2,
-                        fill: '#fff'
-                      }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-500">Average Activity Level</span>
+                <span className="font-medium">
+                  {Math.round(activityData[timeRange].reduce((acc, curr) => acc + curr.value, 0) / activityData[timeRange].length * 10) / 10}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -489,7 +535,7 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-500">Gene Therapy Trial XYZ-123</p>
                 </div>
               </div>
-              <Button size="sm" className="w-full bg-[#3a2a76]">
+              <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
                 View Details
               </Button>
             </CardContent>
@@ -576,6 +622,7 @@ export default function Dashboard() {
                   <div 
                     className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
                       mood === 1 ? 'scale-110' : 'opacity-50 hover:opacity-75'
+
                     }`}
                     onClick={() => setMood(1)}
                   >
