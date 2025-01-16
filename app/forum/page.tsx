@@ -11,6 +11,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { mockGroups, mockDiscussions, mockPrivateChats } from '@/data/mock-forum'
 import Image from 'next/image'
+import { useUser } from "@/contexts/UserContext"
 
 
 type Group = {
@@ -56,13 +57,10 @@ function formatDateTime(date: Date) {
   }
 }
 
-const userData = {
-  name: 'User'
-};
-
 function ForumContent() {
-  const searchParams = useSearchParams()
-  const router = useRouter()
+  const { userData } = useUser();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const activeTab = searchParams?.get('tab') || 'groups'
 
   const handleTabChange = (value: string) => {
@@ -73,7 +71,7 @@ function ForumContent() {
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
       
       {/* Header */}
-      <div className="p-6 pb-12">
+      <div className="p-6 pb-2">
         {/* Logo centered, Avatar right */}
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
@@ -88,12 +86,11 @@ function ForumContent() {
           <div className="absolute right-0">
             <Avatar className="h-8 w-8">
               <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
+              <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-black mb-1">Forum</h1>
-        <p className="text-gray-600">Connect with your community</p>
       </div>
 
       {/* Main Content - Adjusted spacing */}
@@ -247,6 +244,8 @@ function ForumContent() {
 
 // Main component wrapped in Suspense
 export default function ForumPage() {
+  const { userData } = useUser();
+  
   return (
     <Suspense fallback={
       <div className="min-h-[calc(100vh-5rem)]  p-2 md:p-8">

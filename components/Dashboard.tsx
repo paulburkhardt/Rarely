@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { useUser } from "@/contexts/UserContext"
 
 interface Activity {
   icon: React.ReactNode;
@@ -120,7 +121,8 @@ export default function Dashboard() {
       { time: 'Week 4', value: 2, activity: 'Daily Activities' },
     ],
   });
-  const [userData, setUserData] = useState<{name: string}>({ name: '' });
+
+  const { userData, setUserData } = useUser();
 
   const activities: Activity[] = [
     { icon: <Bed size={24} />, label: "Complete Rest", value: "rest" },
@@ -143,7 +145,7 @@ export default function Dashboard() {
       const parsedData = JSON.parse(storedData);
       setUserData({ name: parsedData.name || 'user' });
     }
-  }, []);
+  }, [setUserData]);
 
   const handleDiaryClick = () => {
     setShowDiaryModal(true);

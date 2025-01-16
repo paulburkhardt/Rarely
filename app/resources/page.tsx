@@ -6,16 +6,15 @@ import { MapPin, Phone, ExternalLink, BookOpen } from 'lucide-react'
 import { resources } from '@/data/mock-resources'
 import Image from "next/image"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-
-const userData = {
-  name: 'User'
-};
+import { useUser } from "@/contexts/UserContext"
 
 export default function ResourcesPage() {
+  const { userData } = useUser();
+  
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
       {/* Header */}
-      <div className="p-6 pb-12">
+      <div className="p-6 pb-2">
         {/* Logo centered, Avatar right */}
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
@@ -30,7 +29,7 @@ export default function ResourcesPage() {
           <div className="absolute right-0">
             <Avatar className="h-8 w-8">
               <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
+              <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
           </div>
         </div>

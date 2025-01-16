@@ -1,6 +1,7 @@
 import "@/styles/globals.css"
 import { Inter } from 'next/font/google'
 import { BottomNav } from "@/components/bottom-nav"
+import { UserProvider } from "@/contexts/UserContext"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,10 +18,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-white`}>
-        <div className="max-w-md mx-auto min-h-screen pb-20">
-          {children}
-          <BottomNav />
-        </div>
+        <UserProvider>
+          <div className="max-w-md mx-auto min-h-screen pb-20">
+            {children}
+            <BottomNav />
+          </div>
+        </UserProvider>
       </body>
     </html>
   )

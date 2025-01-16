@@ -12,6 +12,8 @@ import { studies } from './data'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Image from 'next/image'
+import { useUser } from "@/contexts/UserContext"
+
 
 type Study = {
   id: string
@@ -27,11 +29,10 @@ type Study = {
   hasApplied?: boolean
 }
 
-const userData = {
-  name: 'User'
-}
+
 
 function StudiesContent() {
+  const { userData } = useUser();
   const searchParams = useSearchParams()
   const router = useRouter()
   const activeTab = searchParams?.get('tab') ?? 'recruiting'
@@ -49,7 +50,7 @@ function StudiesContent() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
       {/* Header */}
-      <div className="p-6 pb-12">
+      <div className="p-6 pb-2">
         {/* Logo centered, Avatar right */}
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">

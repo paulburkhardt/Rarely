@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
+import { useUser } from "@/contexts/UserContext"
 
 const welcomeMessage = {
   id: 'welcome',
@@ -47,10 +48,6 @@ interface ChatMessage {
 
 type Message = ChatMessage | MessageSummary;
 
-const userData = {
-  name: 'User'
-};
-
 const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return bytes + ' B';
   else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
@@ -58,6 +55,7 @@ const formatFileSize = (bytes: number) => {
 };
 
 export default function ChatPage() {
+  const { userData } = useUser();
   const [messages, setMessages] = useState<Message[]>([welcomeMessage])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -220,7 +218,7 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
       {/* Header */}
-      <div className="p-6 pb-12">
+      <div className="p-6 pb-2">
         {/* Logo centered, Avatar right */}
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
@@ -235,7 +233,7 @@ export default function ChatPage() {
           <div className="absolute right-0">
             <Avatar className="h-8 w-8">
               <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
+              <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
           </div>
         </div>
