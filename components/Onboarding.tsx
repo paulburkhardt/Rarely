@@ -163,7 +163,7 @@ export function Onboarding() {
 
   return (
     <Dialog open={true}>
-      <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col [&>button]:hidden">
+      <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col [&>button]:hidden bg-gradient-to-b from-white to-gray-50/80 backdrop-blur-sm">
         <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
           {messages.map((message, index) => (
             <div
@@ -173,8 +173,8 @@ export function Onboarding() {
               <div
                 className={`rounded-2xl px-4 py-2 max-w-[80%] ${
                   message.type === 'answer'
-                    ? 'bg-[#E6E3FD] text-[#473F63]'
-                    : 'bg-[#DEEAE5] text-[#1E4D57]'
+                    ? 'bg-[#3a2a76]/10 text-[#3a2a76]'
+                    : 'bg-white shadow-sm text-gray-800'
                 }`}
               >
                 {message.content}
@@ -184,16 +184,16 @@ export function Onboarding() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t p-4 space-y-4">
+        <div className="border-t p-6 space-y-6">
           {step === 5 && (
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-3">
               {commonSymptoms.map(symptom => (
                 <div
                   key={symptom}
-                  className={`relative rounded-xl p-3 cursor-pointer transition-all ${
+                  className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
                     data.symptoms.includes(symptom)
-                      ? 'bg-primary/10 border-2 border-primary'
-                      : 'bg-gray-50 border-2 border-transparent hover:border-primary/30'
+                      ? 'bg-[#3a2a76]/10 border-2 border-[#3a2a76]'
+                      : 'bg-white/80 border-2 border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
                   }`}
                   onClick={() => {
                     setData(prev => ({
@@ -206,12 +206,16 @@ export function Onboarding() {
                 >
                   {data.symptoms.includes(symptom) && (
                     <div className="absolute top-2 right-2">
-                      <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                      <div className="w-5 h-5 bg-[#3a2a76] rounded-full flex items-center justify-center">
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     </div>
                   )}
-                  <span className="text-sm font-medium">{symptom}</span>
+                  <span className={`text-sm font-medium ${
+                    data.symptoms.includes(symptom) ? 'text-[#3a2a76]' : 'text-gray-600'
+                  }`}>
+                    {symptom}
+                  </span>
                 </div>
               ))}
             </div>
@@ -222,12 +226,22 @@ export function Onboarding() {
               <Button
                 variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
                 onClick={() => setCurrentMessage('Yes')}
+                className={`flex-1 h-12 text-base font-medium rounded-xl ${
+                  currentMessage.toLowerCase() === 'yes'
+                    ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
+                    : 'border-2 hover:bg-[#3a2a76]/10'
+                }`}
               >
                 Yes
               </Button>
               <Button
                 variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
                 onClick={() => setCurrentMessage('No')}
+                className={`flex-1 h-12 text-base font-medium rounded-xl ${
+                  currentMessage.toLowerCase() === 'no'
+                    ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
+                    : 'border-2 hover:bg-[#3a2a76]/10'
+                }`}
               >
                 No
               </Button>
@@ -239,13 +253,13 @@ export function Onboarding() {
               value={currentMessage}
               onChange={(e) => setCurrentMessage(e.target.value)}
               placeholder="Type your answer..."
-              className="flex-1"
+              className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
             />
           )}
 
           <Button
             onClick={step === 10 ? handleComplete : handleNext}
-            className="w-full bg-[#473F63] text-white"
+            className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
           >
             {step === 10 ? 'Complete Setup' : 'Continue'}
           </Button>
@@ -255,14 +269,19 @@ export function Onboarding() {
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((s) => (
               <div key={s} className="flex flex-col items-center gap-1">
                 <div
-                  className={`w-2 h-2 rounded-full transition-all ${
+                  className={`w-3 h-3 rounded-full transition-all ${
                     s === step
-                      ? 'bg-primary scale-125'
+                      ? 'bg-[#3a2a76] scale-125'
                       : s < step
-                      ? 'bg-primary/50'
+                      ? 'bg-[#3a2a76]/50'
                       : 'bg-gray-200'
                   }`}
                 />
+                <span className={`text-xs ${
+                  s === step ? 'text-[#3a2a76] font-medium' : 'text-gray-400'
+                }`}>
+                  {s}
+                </span>
               </div>
             ))}
           </div>

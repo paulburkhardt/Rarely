@@ -1,11 +1,11 @@
 "use client"
 
+import React, { useState, useEffect, cloneElement } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from 'lucide-react';
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { colors } from "@/styles/colors";
-import { useState, useEffect } from "react";
 import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useUser } from "@/contexts/UserContext"
 
 interface Activity {
-  icon: React.ReactNode;
+  icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
   label: string;
   value: string;
 }
@@ -641,11 +641,13 @@ export default function Dashboard() {
 
       <Dialog open={showDiaryModal} onOpenChange={(open) => {
         setShowDiaryModal(open);
-        if (!open) setCurrentStep(1); // Reset to first step when closing
+        if (!open) setCurrentStep(1);
       }}>
-        <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col">
+        <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col bg-gradient-to-b from-white to-gray-50/80 backdrop-blur-sm">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle>{getStepTitle(currentStep)}</DialogTitle>
+            <DialogTitle className="text-2xl font-semibold text-center">
+              {getStepTitle(currentStep)}
+            </DialogTitle>
           </DialogHeader>
           
           {/* Scrollable content area */}
@@ -653,35 +655,35 @@ export default function Dashboard() {
             {/* Step 1: Mood */}
             {currentStep === 1 && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center p-2">
-                  <div 
-                    className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
-                      mood === 1 ? 'scale-110' : 'opacity-50 hover:opacity-75'
-
-                    }`}
-                    onClick={() => setMood(1)}
-                  >
-                    <Frown className={`w-16 h-16 ${mood === 1 ? 'text-red-500' : 'text-gray-300'}`} />
-                    <span className="text-sm font-medium">Not Good</span>
-                  </div>
-                  <div 
-                    className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
-                      mood === 2 ? 'scale-110' : 'opacity-50 hover:opacity-75'
-                    }`}
-                    onClick={() => setMood(2)}
-                  >
-                    <Meh className={`w-16 h-16 ${mood === 2 ? 'text-yellow-500' : 'text-gray-300'}`} />
-                    <span className="text-sm font-medium">Okay</span>
-                  </div>
-                  <div 
-                    className={`flex flex-col items-center gap-2 cursor-pointer transition-all transform ${
-                      mood === 3 ? 'scale-110' : 'opacity-50 hover:opacity-75'
-                    }`}
-                    onClick={() => setMood(3)}
-                  >
-                    <Smile className={`w-16 h-16 ${mood === 3 ? 'text-green-500' : 'text-gray-300'}`} />
-                    <span className="text-sm font-medium">Good</span>
-                  </div>
+                <div className="flex justify-between items-center p-4">
+                  {[
+                    { icon: <Frown />, value: 1, label: "Not Good", color: "text-red-500" },
+                    { icon: <Meh />, value: 2, label: "Okay", color: "text-yellow-500" },
+                    { icon: <Smile />, value: 3, label: "Good", color: "text-green-500" }
+                  ].map((item) => (
+                    <div 
+                      key={item.value}
+                      className={`flex flex-col items-center gap-3 cursor-pointer transition-all transform ${
+                        mood === item.value 
+                          ? 'scale-110' 
+                          : 'opacity-50 hover:opacity-75 hover:scale-105'
+                      }`}
+                      onClick={() => setMood(item.value)}
+                    >
+                      <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${
+                        mood === item.value 
+                          ? `${item.color} bg-white shadow-lg` 
+                          : 'text-gray-300 bg-gray-50'
+                      }`}>
+                        {cloneElement(item.icon, { className: 'w-12 h-12' } as { className: string })}
+                      </div>
+                      <span className={`text-sm font-medium ${
+                        mood === item.value ? 'text-gray-900' : 'text-gray-500'
+                      }`}>
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
@@ -693,23 +695,41 @@ export default function Dashboard() {
                   {activities.map((activity) => (
                     <div
                       key={activity.value}
-                      className={`relative rounded-xl p-4 cursor-pointer transition-all ${
+                      className={`relative rounded-2xl p-6 cursor-pointer transition-all ${
                         selectedActivity === activity.value
-                          ? 'bg-primary/10 border-2 border-primary'
-                          : 'bg-gray-50 border-2 border-transparent hover:border-primary/30'
+                          ? 'bg-[#3a2a76]/10 border-2 border-[#3a2a76]'
+                          : 'bg-white/80 border-2 border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
                       }`}
                       onClick={() => setSelectedActivity(activity.value)}
                     >
                       {selectedActivity === activity.value && (
-                        <div className="absolute top-2 right-2">
-                          <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                        <div className="absolute top-3 right-3">
+                          <div className="w-5 h-5 bg-[#3a2a76] rounded-full flex items-center justify-center">
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         </div>
                       )}
                       <div className="flex flex-col items-center gap-3">
-                        {activity.icon}
-                        <span className="text-sm font-medium text-center">{activity.label}</span>
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                          selectedActivity === activity.value 
+                            ? 'bg-[#3a2a76]/20' 
+                            : 'bg-gray-100'
+                        }`}>
+                          {cloneElement(activity.icon, { 
+                            className: `w-6 h-6 ${
+                              selectedActivity === activity.value 
+                                ? 'text-[#3a2a76]' 
+                                : 'text-gray-500'
+                            }`
+                          })}
+                        </div>
+                        <span className={`text-sm font-medium text-center ${
+                          selectedActivity === activity.value 
+                            ? 'text-[#3a2a76]' 
+                            : 'text-gray-600'
+                        }`}>
+                          {activity.label}
+                        </span>
                       </div>
                     </div>
                   ))}
@@ -724,10 +744,10 @@ export default function Dashboard() {
                   {symptoms.map((symptom, index) => (
                     <div
                       key={symptom.label}
-                      className={`relative rounded-xl p-4 cursor-pointer transition-all ${
+                      className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
                         symptom.selected
-                          ? 'bg-primary/10 border-2 border-primary'
-                          : 'bg-gray-50 border-2 border-transparent hover:border-primary/30'
+                          ? 'bg-[#3a2a76]/10 border-2 border-[#3a2a76]'
+                          : 'bg-white/80 border-2 border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
                       }`}
                       onClick={() => {
                         const newSymptoms = [...symptoms];
@@ -737,24 +757,28 @@ export default function Dashboard() {
                     >
                       {symptom.selected && (
                         <div className="absolute top-2 right-2">
-                          <div className="w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                          <div className="w-5 h-5 bg-[#3a2a76] rounded-full flex items-center justify-center">
                             <Check className="w-3 h-3 text-white" />
                           </div>
                         </div>
                       )}
-                      <span className="text-sm font-medium">{symptom.label}</span>
+                      <span className={`text-sm font-medium ${
+                        symptom.selected ? 'text-[#3a2a76]' : 'text-gray-600'
+                      }`}>
+                        {symptom.label}
+                      </span>
                     </div>
                   ))}
                 </div>
                 
                 {showSymptomInput ? (
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-4 space-y-3">
                     <input
                       type="text"
                       value={newSymptom}
                       onChange={(e) => setNewSymptom(e.target.value)}
                       placeholder="Enter symptom name"
-                      className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full px-4 py-3 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
                     />
                     <div className="flex gap-2">
                       <Button
@@ -765,7 +789,7 @@ export default function Dashboard() {
                             setShowSymptomInput(false);
                           }
                         }}
-                        className="flex-1"
+                        className="flex-1 bg-[#3a2a76] hover:bg-[#a680db]"
                       >
                         Add Symptom
                       </Button>
@@ -775,6 +799,7 @@ export default function Dashboard() {
                           setNewSymptom("");
                           setShowSymptomInput(false);
                         }}
+                        className="border-2"
                       >
                         Cancel
                       </Button>
@@ -783,7 +808,7 @@ export default function Dashboard() {
                 ) : (
                   <Button 
                     variant="outline" 
-                    className="w-full gap-2"
+                    className="w-full gap-2 border-2 border-dashed"
                     onClick={() => setShowSymptomInput(true)}
                   >
                     <Plus className="w-4 h-4" /> Add Custom Symptom
@@ -905,23 +930,22 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Fixed footer */}
+          {/* Footer with updated styling */}
           <div className="flex-shrink-0 pt-6 border-t mt-6">
-            {/* Progress Steps */}
-            <div className="flex justify-between items-center px-2">
+            <div className="flex justify-between items-center px-2 mb-6">
               {[1, 2, 3, 4].map((step) => (
                 <div key={step} className="flex flex-col items-center gap-1">
                   <div
                     className={`w-3 h-3 rounded-full transition-all ${
                       step === currentStep
-                        ? 'bg-primary scale-125'
+                        ? 'bg-[#3a2a76] scale-125'
                         : step < currentStep
-                        ? 'bg-primary/50'
+                        ? 'bg-[#3a2a76]/50'
                         : 'bg-gray-200'
                     }`}
                   />
                   <span className={`text-xs ${
-                    step === currentStep ? 'text-primary font-medium' : 'text-gray-400'
+                    step === currentStep ? 'text-[#3a2a76] font-medium' : 'text-gray-400'
                   }`}>
                     Step {step}
                   </span>
@@ -929,13 +953,12 @@ export default function Dashboard() {
               ))}
             </div>
 
-            {/* Navigation Buttons */}
-            <div className="flex gap-3 mt-6">
+            <div className="flex gap-3">
               {currentStep > 1 && (
                 <Button
                   variant="outline"
                   onClick={() => setCurrentStep(prev => prev - 1)}
-                  className="flex-1"
+                  className="flex-1 border-2"
                 >
                   Back
                 </Button>
@@ -948,7 +971,7 @@ export default function Dashboard() {
                     submitDiary();
                   }
                 }}
-                className="flex-1"
+                className="flex-1 bg-[#3a2a76] hover:bg-[#a680db]"
               >
                 {currentStep < 4 ? 'Continue' : 'Complete'}
               </Button>
