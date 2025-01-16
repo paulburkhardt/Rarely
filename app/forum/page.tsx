@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronRight, MessageCircle, Users } from 'lucide-react'
+import { ChevronRight, MessageCircle, Users, Heart, User } from 'lucide-react'
 import Link from 'next/link'
 import { Badge } from "@/components/ui/badge"
 import { colors } from '@/styles/colors'
@@ -39,156 +39,197 @@ function formatTimeAgo(date: Date) {
   return `${Math.floor(diffInMinutes / 1440)}d`
 }
 
+function formatDateTime(date: Date) {
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+  
+  if (days === 0) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  } else if (days === 1) {
+    return 'Yesterday'
+  } else if (days < 7) {
+    return date.toLocaleDateString([], { weekday: 'long' })
+  } else {
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+  }
+}
+
+const userData = {
+  name: 'User'
+};
 
 function ForumContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const activeTab = searchParams.get('tab') || 'groups'
+  const activeTab = searchParams?.get('tab') || 'groups'
 
   const handleTabChange = (value: string) => {
     router.push(`/forum?tab=${value}`)
   }
 
   return (
-    <div className="min-h-[calc(100vh-5rem)] p-4 md:p-8">
-      <h1 className="text-2xl md:text-3xl font-bold text-[#473F63] mb-4">
-        Forum
-        <span className="block text-base font-normal text-[#1E4D57]/80 mt-1">
-          Connect with your community
-        </span>
-      </h1>
-      
-      <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
-        <TabsList className={`grid w-full grid-cols-2 rounded-xl p-1 ${
-          activeTab === 'private' ? 'bg-[#DEEAE5]' : 'bg-[#E6E3FD]'
-        }`}>
-          <TabsTrigger 
-            value="groups"
-            className="rounded-lg data-[state=active]:bg-[#473F63] data-[state=active]:text-white transition-all duration-200"
-          >
-            Groups
-          </TabsTrigger>
-          <TabsTrigger 
-            value="private"
-            className="rounded-lg data-[state=active]:bg-[#1E4D57] data-[state=active]:text-white transition-all duration-200"
-          >
-            Private Chats
-          </TabsTrigger>
-        </TabsList>
-
-
-          
-
-        <TabsContent value="groups" className="grid gap-2">
-          <div className="mt-4">
-            <h2 className="text-xl font-semibold text-[#473F63] mb-2">Trending Discussions</h2>
-            {mockDiscussions.map((discussion) => (
-              <Link key={discussion.id} href={`/forum/chat/discussion${discussion.id}`}>
-                <div className="flex items-center p-2 border-b border-gray-200">
-                  <Avatar className="w-10 h-10 mr-2 p-1">
-                    <AvatarImage 
-                      src={discussion.group.imageUrl} 
-                      alt={discussion.group.name}
-                      className="object-contain"
-                    />
-                    <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">
-                      {discussion.group.name.substring(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0 ml-2">
-                    <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
-                      {discussion.group.name}
-                    </h3>
-                    <p className="text-[#473F63]/90 text-sm mt-1">
-                      {discussion.title}
-                    </p>
-                    <Badge 
-                      variant="secondary" 
-                      className="mt-2 bg-[#E6E3FD]/50 text-[#473F63]"
-                    >
-                      {discussion.messageCount} messages
-                    </Badge>
-                  </div>
-                </div>
-              </Link>
-            ))}
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
+      {/* Header */}
+      <div className="p-6 pb-12">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-[#3a2a76] mb-1">Forum</h1>
+            <p className="text-[#1E4D57]/80">Connect with your community</p>
           </div>
-        <h2 className="text-xl font-semibold text-[#473F63] mb-2">Group Discussions</h2>
-          {mockGroups.map((group) => (
-            <Link key={group.id} href={`/forum/chat/${group.id}`}>
-              <div className="flex items-center p-2 border-b border-gray-200">
-                <Avatar className="w-10 h-10 mr-2 p-1">
-                  <AvatarImage 
-                    src={group.imageUrl} 
-                    alt={group.name}
-                    className="object-contain"
-                  />
-                  <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">
-                    {group.name.substring(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0 ml-2">
-                  <h3 className="text-[#473F63] font-medium text-lg group-hover:text-[#1E4D57] transition-colors">
-                    {group.name}
-                  </h3>
-                 {/*  <p className="text-[#473F63]/90 text-sm mt-1 line-clamp-2">
-                    {group.description}
-                  </p> */}
-                  <div className="flex items-center gap-2 mt-1 text-sm text-[#473F63]/80 group-hover:text-[#473F63]">
-                    <div className="flex items-center">
-                      <Users className="w-4 h-4 mr-1" />
-                      {group.memberCount} members
+          <Avatar className="h-8 w-8">
+            <AvatarImage alt="User avatar" />
+            <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
+          </Avatar>
+        </div>
+      </div>
+
+      {/* Main Content - Adjusted spacing */}
+      <div className="px-4 pb-24 space-y-4">
+        <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
+          <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-white/95 shadow-sm backdrop-blur-sm">
+            <TabsTrigger 
+              value="groups"
+              className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
+            >
+              Groups
+            </TabsTrigger>
+            <TabsTrigger 
+              value="private"
+              className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
+            >
+              Private Chats
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="groups" className="space-y-4">
+            {/* Trending Discussions */}
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold text-[#3a2a76] px-1">Trending Discussions</h2>
+              {mockDiscussions.map((discussion, index) => (
+                <div key={discussion.id}>
+                  <Link href={`/forum/chat/discussion${discussion.id}`}>
+                    <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
+                      <div className="p-4 flex items-start gap-3">
+                        <Avatar className="w-10 h-10 ring-2 ring-[#3a2a76]/10 ring-offset-2">
+                          <AvatarImage src={discussion.group.imageUrl} alt={discussion.group.name} className="object-cover" />
+                          <AvatarFallback className="bg-[#3a2a76] text-white">
+                            {discussion.group.name.substring(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-[#3a2a76]">{discussion.group.name}</h3>
+                          <p className="text-sm text-[#1E4D57]/80">{discussion.title}</p>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="text-xs text-[#1E4D57]/60">{formatDateTime(discussion.lastUpdated)}</span>
+                          {discussion.messageCount > 0 && (
+                            <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                              {discussion.messageCount}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                  {index < mockDiscussions.length - 1 && <hr className="border-gray-200 mx-4" />}
+                </div>
+              ))}
+            </div>
+
+            {/* Group Discussions */}
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold text-[#3a2a76] px-1">Group Discussions</h2>
+              {mockGroups.map((group, index) => (
+                <div key={group.id}>
+                  <Link href={`/forum/chat/${group.id}`}>
+                    <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
+                      <div className="p-4 flex items-start gap-3">
+                        <Avatar className="w-10 h-10 ring-2 ring-[#3a2a76]/10 ring-offset-2">
+                          <AvatarImage src={group.imageUrl} alt={group.name} className="object-cover" />
+                          <AvatarFallback className="bg-[#3a2a76] text-white">
+                            {group.name.substring(0, 2)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-[#3a2a76]">{group.name}</h3>
+                          <div className="flex items-center gap-2 mt-1 text-sm text-[#1E4D57]/80">
+                            <div className="flex items-center">
+                              <Users className="w-4 h-4 mr-1" />
+                              {group.memberCount} members
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                          <span className="text-xs text-[#1E4D57]/60">{formatDateTime(group.lastActivity)}</span>
+                          {group.unreadCount && group.unreadCount > 0 && (
+                            <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                              {group.unreadCount}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                  {index < mockGroups.length - 1 && <hr className="border-gray-200 mx-4" />}
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="private" className="space-y-2">
+            {mockPrivateChats.map((chat, index) => (
+              <div key={chat.id}>
+                <Link href={`/forum/chat/private${chat.id}`}>
+                  <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
+                    <div className="p-4 flex items-start gap-3">
+                      <Avatar className="w-10 h-10 ring-2 ring-[#1E4D57]/10 ring-offset-2">
+                        <AvatarImage src={chat.userImage} alt={chat.userName} className="object-cover" />
+                        <AvatarFallback className="bg-[#3a2a76] text-white">
+                          {chat.userName.substring(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1">
+                        <h3 className="font-medium text-[#3a2a76]">{chat.userName}</h3>
+                        <p className="text-sm text-[#1E4D57]/80 truncate mt-1">{chat.lastMessage}</p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <span className="text-xs text-[#1E4D57]/60">{formatDateTime(chat.lastMessageTime)}</span>
+                        {chat.unreadCount > 0 && (
+                          <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                            {chat.unreadCount}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <span className="ml-auto">Active {formatTimeAgo(group.lastActivity)}</span>
-                  </div>
-                </div>
+                  </Card>
+                </Link>
+                {index < mockPrivateChats.length - 1 && <hr className="border-gray-200 mx-4" />}
               </div>
-            </Link>
-          ))}
+            ))}
+          </TabsContent>
+        </Tabs>
+      </div>
 
-        </TabsContent>
-
-        <TabsContent value="private" className="grid gap-2">
-          {mockPrivateChats.map((chat) => (
-            <Link key={chat.id} href={`/forum/chat/private${chat.id}`}>
-              <div className="flex items-center p-2 border-b border-gray-200">
-                <Avatar className="w-10 h-10 mr-2 p-0.5">
-                  <AvatarImage 
-                    src={chat.userImage} 
-                    alt={chat.userName}
-                    className="object-contain"
-                  />
-                  <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">
-                    {chat.userName.substring(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0 ml-2">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-[#1E4D57] font-medium">
-                      {chat.userName}
-                    </h3>
-                    <span className="text-xs text-[#1E4D57]/80">
-                      {formatTimeAgo(chat.lastMessageTime)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-[#1E4D57]/90 truncate mt-1">
-                    {chat.lastMessage}
-                  </p>
-                </div>
-                {chat.unreadCount > 0 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="mt-2 bg-[#DEEAE5] text-[#1E4D57]">
-                    {chat.unreadCount}
-                  </Badge>
-                )}
-              </div>
-            </Link>
-          ))}
-        </TabsContent>
-      </Tabs>
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t">
+        <div className="flex justify-around items-center py-2">
+          <Link href="/" className="flex flex-col items-center p-2">
+            <Heart className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-400">Summary</span>
+          </Link>
+          <Link href="/sharing" className="flex flex-col items-center p-2">
+            <User className="w-6 h-6 text-gray-400" />
+            <span className="text-xs text-gray-400">Sharing</span>
+          </Link>
+          <Link href="/forum" className="flex flex-col items-center p-2">
+            <MessageCircle className="w-6 h-6 text-[#3a2a76]" />
+            <span className="text-xs text-[#3a2a76] font-medium">Forum</span>
+          </Link>
+        </div>
+      </div>
     </div>
-  )
+  );
 }
 
 

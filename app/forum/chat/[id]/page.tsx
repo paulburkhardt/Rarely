@@ -62,25 +62,23 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
       {/* Header */}
-      <div className="flex items-center gap-4 p-4 border-b">
-        <Link href="/forum" className="text-[#473F63]">
-          <ArrowLeft className="w-6 h-6" />
-        </Link>
-        <div className="flex items-center gap-3">
-          <Avatar>
-            <AvatarImage
-              src={chatData.imageUrl}
-              alt={chatData.name}
-              className="w-10 h-10"
-            />
+      <div className="p-6 pb-12">
+        <div className="flex justify-between items-start mb-6">
+          <div className="flex items-center gap-4">
+            <Link href="/forum" className="text-[#3a2a76]">
+              <ArrowLeft className="w-6 h-6" />
+            </Link>
+            <div>
+              <h1 className="text-3xl font-bold text-black mb-1">{chatData.name}</h1>
+              <p className="text-sm text-[#1E4D57]">{chatData.description}</p>
+            </div>
+          </div>
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={chatData.imageUrl} alt={chatData.name} />
             <AvatarFallback>{chatData.name.slice(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <div>
-            <h1 className="text-lg font-medium text-[#473F63]">{chatData.name}</h1>
-            <p className="text-sm text-[#1E4D57]">{chatData.description}</p>
-          </div>
         </div>
       </div>
 
@@ -89,77 +87,71 @@ export default function ChatPage() {
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`flex ${message.sender.id === 'currentUser' ? 'justify-end' : 'justify-start'}`}
+            className={`flex items-start gap-2 ${
+              message.sender.id === 'currentUser' ? 'justify-end' : 'justify-start'
+            }`}
           >
-            <div className={`flex items-end gap-2 max-w-[80%] ${
-              message.sender.id === 'currentUser' ? 'flex-row-reverse' : 'flex-row'
-            }`}>
-              {message.sender.id !== 'currentUser' && (
-                <Avatar>
-                  <AvatarImage
-                    src={message.sender.imageUrl}
-                    alt={message.sender.name}
-                    className="w-8 h-8"
-                  />
-                  <AvatarFallback>{message.sender.name.slice(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-              )}
-              <div className={`flex flex-col ${
-                message.sender.id === 'currentUser' ? 'items-end' : 'items-start'
-              }`}>
-                {message.sender.id !== 'currentUser' && (
-                  <p className="text-xs text-[#1E4D57] mb-1">{message.sender.name}</p>
-                )}
-                <div
-                  className={`rounded-2xl px-4 py-2 ${
-                    message.sender.id === 'currentUser'
-                      ? 'bg-[#E6E3FD] text-[#473F63]'
-                      : 'bg-[#DEEAE5] text-[#1E4D57]'
-                  }`}
-                >
-                  {message.content}
-                </div>
-                <span className="text-xs text-gray-500 mt-1">
-                  {new Date(message.timestamp).toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </span>
+            {message.sender.id !== 'currentUser' && (
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={message.sender.imageUrl} alt={message.sender.name} />
+                <AvatarFallback>{message.sender.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            )}
+            <div
+              className={`max-w-[80%] rounded-xl px-4 py-2.5 ${
+                message.sender.id === 'currentUser'
+                  ? 'bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76]'
+                  : 'bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76]'
+              }`}
+            >
+              {message.content}
+              <div className="text-xs text-gray-500 mt-1">
+                {new Date(message.timestamp).toLocaleTimeString([], { 
+                  hour: '2-digit', 
+                  minute: '2-digit' 
+                })}
               </div>
             </div>
+            {message.sender.id === 'currentUser' && (
+              <Avatar className="w-8 h-8">
+                <AvatarImage src={message.sender.imageUrl} alt={message.sender.name} />
+                <AvatarFallback>{message.sender.name.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+            )}
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSendMessage} className="border-t p-4 bg-white">
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-          >
-            <Paperclip className="w-5 h-5" />
-          </Button>
-          <Input
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            className="flex-1 bg-white border-[#E6E3FD] focus-visible:ring-[#473F63]"
-          />
-          <Button
-            type="submit"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            disabled={!newMessage.trim()}
-          >
-            <Send className="w-5 h-5" />
-          </Button>
+      <div className="px-4 pb-4">
+        <div className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl p-4">
+          <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-[#3a2a76]"
+            >
+              <Paperclip className="w-5 h-5" />
+            </Button>
+            <Input
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              placeholder="Type a message..."
+              className="flex-1 bg-transparent border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]"
+            />
+            <Button
+              type="submit"
+              size="sm"
+              className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+              disabled={!newMessage.trim()}
+            >
+              <Send className="w-5 h-5" />
+            </Button>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   )
 } 
