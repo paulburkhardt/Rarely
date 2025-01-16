@@ -1,9 +1,17 @@
 import "@/styles/globals.css"
-import { Inter } from 'next/font/google'
-import { BottomNav } from "@/components/bottom-nav"
 import { UserProvider } from "@/contexts/UserContext"
+import { BottomNav } from "@/components/bottom-nav"
+import { Inter, Outfit } from 'next/font/google'
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
+
+const outfit = Outfit({ 
+  subsets: ['latin'],
+  variable: '--font-outfit',
+})
 
 export const metadata = {
   title: "Rarely - Health Tracking App",
@@ -16,8 +24,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-white`}>
+    <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
+      <body className="bg-white font-sans">
         <UserProvider>
           <div className="max-w-md mx-auto min-h-screen pb-20">
             {children}

@@ -55,7 +55,11 @@ const config: Config = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+  		fontFamily: {
+  			sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+  			display: ['var(--font-outfit)', 'var(--font-inter)', 'system-ui', 'sans-serif']
+  		},
   	}
   },
   plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],

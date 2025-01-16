@@ -114,7 +114,7 @@ function ForumContent() {
           <TabsContent value="groups" className="space-y-4">
             {/* Trending Discussions */}
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-[#3a2a76] px-1">Trending Discussions</h2>
+              <h2 className="text-lg font-semibold text-black px-1">Trending Discussions</h2>
               {mockDiscussions.map((discussion, index) => (
                 <div key={discussion.id}>
                   <Link href={`/forum/chat/discussion${discussion.id}`}>
@@ -127,7 +127,7 @@ function ForumContent() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h3 className="font-medium text-[#3a2a76]">{discussion.group.name}</h3>
+                          <h3 className="font-medium text-black">{discussion.group.name}</h3>
                           <p className="text-sm text-[#1E4D57]/80">{discussion.title}</p>
                         </div>
                         <div className="flex flex-col items-end gap-2">
@@ -148,7 +148,7 @@ function ForumContent() {
 
             {/* Group Discussions */}
             <div className="space-y-2">
-              <h2 className="text-lg font-semibold text-[#3a2a76] px-1">Group Discussions</h2>
+              <h2 className="text-lg font-semibold text-black px-1">Group Discussions</h2>
               {mockGroups.map((group, index) => (
                 <div key={group.id}>
                   <Link href={`/forum/chat/${group.id}`}>
@@ -161,7 +161,7 @@ function ForumContent() {
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
-                          <h3 className="font-medium text-[#3a2a76]">{group.name}</h3>
+                          <h3 className="font-medium text-black">{group.name}</h3>
                           <div className="flex items-center gap-2 mt-1 text-sm text-[#1E4D57]/80">
                             <div className="flex items-center">
                               <Users className="w-4 h-4 mr-1" />
@@ -199,7 +199,7 @@ function ForumContent() {
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
-                        <h3 className="font-medium text-[#3a2a76]">{chat.userName}</h3>
+                        <h3 className="font-medium text-black">{chat.userName}</h3>
                         <p className="text-sm text-[#1E4D57]/80 truncate mt-1">{chat.lastMessage}</p>
                       </div>
                       <div className="flex flex-col items-end gap-2">

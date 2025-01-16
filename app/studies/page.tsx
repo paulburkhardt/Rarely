@@ -96,7 +96,7 @@ function StudiesContent() {
                 <CardContent className="p-4">
                   <div className="relative mb-3">
                     <div className="flex flex-col">
-                      <h2 className="text-xl font-semibold text-[#3a2a76]">
+                      <h2 className="text-xl font-semibold text-black">
                         {study.title}
                       </h2>
                       {study.id === '1' && (
@@ -106,12 +106,6 @@ function StudiesContent() {
                         </span>
                       )}
                     </div>
-                    <Badge 
-                      variant="secondary" 
-                      className="absolute top-0 right-0 bg-[#E3D7F4] text-[#3a2a76] font-medium"
-                    >
-                      {study.availableSpots} spots left
-                    </Badge>
                   </div>
 
                   <p className="text-gray-600 text-sm mb-4 line-clamp-2">
@@ -135,18 +129,22 @@ function StudiesContent() {
                     </div>
                   </div>
 
-                  {study.hasApplied ? (
-                    <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-center font-medium">
-                      Application Submitted
-                    </div>
-                  ) : (
-                    <Button 
-                      onClick={() => handleApply(study.id)}
-                      className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white transition-colors"
-                    >
-                      Apply Now
-                    </Button>
-                  )}
+                  <div className="relative">
+                    {study.hasApplied ? (
+                      <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-center font-medium">
+                        Application Submitted
+                      </div>
+                    ) : (
+                      <>
+                        <Button 
+                          onClick={() => handleApply(study.id)}
+                          className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white transition-colors"
+                        >
+                          Apply Now
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -157,7 +155,7 @@ function StudiesContent() {
               <Card key={study.id} className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center mb-3">
-                    <h2 className="text-xl font-semibold text-[#3a2a76]">
+                    <h2 className="text-xl font-semibold text-black">
                       {study.title}
                     </h2>
                     <Badge 

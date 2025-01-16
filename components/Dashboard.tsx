@@ -283,7 +283,7 @@ export default function Dashboard() {
 
         {/* Centered Greeting */}
         <div className="text-center mb-6">
-          <h1 className="text-3xl font-bold text-black">Hello {userData.name}.</h1>
+          <h1 className="text-2xl font-semibold text-black">Hello {userData.name}.</h1>
         </div>
       </div>
 
@@ -299,7 +299,7 @@ export default function Dashboard() {
                   <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
                     <Activity className="w-5 h-5 text-[#3a2a76]" />
                   </div>
-                  <span className="font-semibold text-lg">State of Mind</span>
+                  <span className="font-semibold text-base">State of Mind</span>
                 </div>
                 <span className="text-sm text-gray-400">
                   {new Date().toLocaleTimeString('en-US', { 
@@ -350,7 +350,7 @@ export default function Dashboard() {
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold">
+                  <h3 className="text-xl font-semibold">
                     {symptoms.filter(s => s.selected).length}
                   </h3>
                   <p className="text-xs text-gray-500">Symptoms</p>
@@ -530,7 +530,7 @@ export default function Dashboard() {
 
         {/* Upcoming */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold px-1">Upcoming</h2>
+          <h2 className="text-base font-semibold px-1">Upcoming</h2>
           
           {/* Next Appointment */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
@@ -579,7 +579,7 @@ export default function Dashboard() {
 
         {/* Community Section */}
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold px-1">Community</h2>
+          <h2 className="text-base font-semibold px-1">Community</h2>
           
           {/* Trending Discussion */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
@@ -604,7 +604,7 @@ export default function Dashboard() {
             <CardContent className="p-4">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-xl font-semibold">137</div>
+                  <div className="text-lg font-semibold">137</div>
                   <div className="text-xs text-gray-500">Active Users</div>
                 </div>
                 <div>
@@ -626,7 +626,7 @@ export default function Dashboard() {
         <div className="flex justify-around items-center py-2">
           <Link href="/" className="flex flex-col items-center p-2">
             <Heart className="w-6 h-6 text-[#3a2a76]" />
-            <span className="text-xs text-[#3a2a76] font-medium">Summary</span>
+            <span className="text-xs font-medium">Summary</span>
           </Link>
           <Link href="/sharing" className="flex flex-col items-center p-2">
             <User className="w-6 h-6 text-gray-400" />
@@ -645,7 +645,7 @@ export default function Dashboard() {
       }}>
         <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col bg-gradient-to-b from-white to-gray-50/80 backdrop-blur-sm">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="text-2xl font-semibold text-center">
+            <DialogTitle className="text-xl font-semibold text-center">
               {getStepTitle(currentStep)}
             </DialogTitle>
           </DialogHeader>
