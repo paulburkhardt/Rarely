@@ -32,7 +32,7 @@ function NavigationContent() {
 
   return (
     <div className={`fixed bottom-0 left-0 right-0 ${
-      isPrivateTab ? 'bg-[#DEEAE5]' : 'bg-[#E6E3FD]'
+      isPrivateTab ? 'bg-[#DEEAE5]' : 'bg-[#f8f8fa]'
     } border-t border-gray-200`}>
       <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
         <Link 
@@ -85,7 +85,7 @@ export function BottomNav() {
   return (
     <Suspense fallback={
       // You can provide a loading state here
-      <div className="fixed bottom-0 left-0 right-0 bg-[#E6E3FD] border-t border-gray-200">
+      <div className="fixed bottom-0 left-0 right-0 bg-[#f8f8fa] border-t border-gray-200">
         <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
           {/* Add loading skeleton or simplified version of your nav */}
         </div>
