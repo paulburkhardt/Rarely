@@ -11,7 +11,7 @@ import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Area } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
-import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile } from 'lucide-react';
+import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile, Download } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -229,6 +229,31 @@ export default function Dashboard() {
       case 4: return "Track your medications";
       default: return "";
     }
+  };
+
+  const generateICalEvent = (appointment: any) => {
+    const event = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'BEGIN:VEVENT',
+      `DTSTART:${new Date('2024-01-15T10:00:00').toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+      `DTEND:${new Date('2024-01-15T11:00:00').toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
+      'SUMMARY:Gene Therapy - Ph.2',
+      'DESCRIPTION:Your scheduled gene therapy appointment',
+      'LOCATION:Medical Center',
+      'END:VEVENT',
+      'END:VCALENDAR'
+    ].join('\r\n');
+
+    const blob = new Blob([event], { type: 'text/calendar;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'appointment.ics');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
   };
 
   return (
@@ -514,13 +539,17 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
                   </div>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-[#3a2a76] border-[#3a2a76]"
-                >
-                  Add to Calendar
-                </Button>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="text-[#007AFF] border-[#007AFF] hover:bg-[#007AFF]/10"
+                    onClick={() => generateICalEvent({})}
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    Add to Calendar
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -532,12 +561,14 @@ export default function Dashboard() {
                 <BookOpen className="w-5 h-5 text-[#6CD9CB]" />
                 <div className="flex-1">
                   <p className="font-medium">New Study Match</p>
-                  <p className="text-sm text-gray-500">Gene Therapy Trial XYZ-123</p>
+                  <p className="text-sm text-gray-500">Genetic Factors in ARVC</p>
                 </div>
               </div>
-              <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
-                View Details
-              </Button>
+              <Link href="/studies/apply/1">
+                <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
+                  View Details
+                </Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
@@ -569,16 +600,16 @@ export default function Dashboard() {
             <CardContent className="p-4">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-xl font-semibold">2,450</div>
+                  <div className="text-xl font-semibold">137</div>
                   <div className="text-xs text-gray-500">Active Users</div>
                 </div>
                 <div>
-                  <div className="text-xl font-semibold">156</div>
-                  <div className="text-xs text-gray-500">Therapies</div>
+                  <div className="text-xl font-semibold">15</div>
+                  <div className="text-xs text-gray-500">Therapies facilitated</div>
                 </div>
                 <div>
-                  <div className="text-xl font-semibold">8.2k</div>
-                  <div className="text-xs text-gray-500">Entries</div>
+                  <div className="text-xl font-semibold">34</div>
+                  <div className="text-xs text-gray-500">Jorunal Entries</div>
                 </div>
               </div>
             </CardContent>

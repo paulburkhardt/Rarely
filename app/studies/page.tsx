@@ -3,12 +3,14 @@
 import { Suspense } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Users } from 'lucide-react'
+import { MapPin, Calendar, Users, Check } from 'lucide-react'
 import { colors } from "@/styles/colors"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useSearchParams, useRouter } from 'next/navigation'
 import { toast } from "@/components/ui/use-toast"
 import { studies } from './data'
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 
 type Study = {
   id: string
@@ -23,57 +25,10 @@ type Study = {
   participants?: number
   hasApplied?: boolean
 }
-/* 
-const studies: Study[] = [
-  {
-    id: '1',
-    title: 'Genetic Factors in ARVC',
-    purpose: 'Investigating genetic mutations associated with arrhythmogenic right ventricular cardiomyopathy (ARVC)',
-    location: 'Johns Hopkins Hospital, Baltimore, MD',
-    startDate: new Date('2024-03-15'),
-    totalSpots: 100,
-    availableSpots: 37,
-    status: 'recruiting',
-    hasApplied: false
-  },
-  {
-    id: '2',
-    title: 'Novel Treatments for ACM',
-    purpose: 'Evaluating the efficacy of new medications in managing arrhythmogenic cardiomyopathy (ACM)',
-    location: 'Mayo Clinic, Rochester, MN',
-    startDate: new Date('2024-04-01'),
-    totalSpots: 200,
-    availableSpots: 85,
-    status: 'recruiting',
-    hasApplied: false
-  },
-  {
-    id: '3',
-    title: 'ACM and Exercise',
-    purpose: 'Assessing the impact of different exercise regimens on ACM progression',
-    location: 'Stanford University Medical Center, CA',
-    startDate: new Date('2024-05-10'),
-    totalSpots: 150,
-    availableSpots: 112,
-    status: 'running',
-    progress: 65,
-    participants: 150,
-    hasApplied: false
-  },
-  {
-    id: '4',
-    title: 'Long-term ACM Outcomes',
-    purpose: 'Studying long-term outcomes and quality of life in ACM patients',
-    location: 'Cleveland Clinic, OH',
-    startDate: new Date('2024-02-01'),
-    totalSpots: 300,
-    availableSpots: 0,
-    status: 'running',
-    progress: 45,
-    participants: 300,
-    hasApplied: false
-  }
-] */
+
+const userData = {
+  name: 'User'
+}
 
 function StudiesContent() {
   const searchParams = useSearchParams()
@@ -91,144 +46,149 @@ function StudiesContent() {
   const filteredStudies = studies.filter(study => study.status === activeTab)
 
   return (
-    <div className="min-h-[calc(100vh-5rem)]  p-4 md:p-8">
-      <h1 className={`text-2xl md:text-3xl font-bold ${
-        activeTab === 'running' ? 'text-[#1E4D57]' : 'text-[#473F63]'
-      } mb-6`}>
-        Research Studies
-        <span className="block text-base font-normal ${
-        activeTab === 'running' ? 'text-[#1E4D57]' : 'text-[#473F63]'
-      } mt-2">
-          Exploring Arrhythmogenic Cardiomyopathy
-        </span>
-      </h1>
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
+      {/* Header */}
+      <div className="p-6 pb-12">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-black mb-1">Research Studies</h1>
+            <p className="text-base text-gray-600">Exploring Arrhythmogenic Cardiomyopathy</p>
+          </div>
+          <Avatar className="h-8 w-8">
+            <AvatarImage alt="User avatar" />
+            <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
+          </Avatar>
+        </div>
+      </div>
 
-      <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
-        <TabsList className={`grid w-full grid-cols-2 rounded-xl p-1 ${
-          activeTab === 'running' ? 'bg-[#DEEAE5]' : 'bg-[#E6E3FD]'
-        }`}>
-          <TabsTrigger 
-            value="recruiting"
-            className="rounded-lg data-[state=active]:bg-[#473F63] data-[state=active]:text-white transition-all duration-200"
-          >
-            Recruiting
-          </TabsTrigger>
-          <TabsTrigger 
-            value="running"
-            className="rounded-lg data-[state=active]:bg-[#1E4D57] data-[state=active]:text-white transition-all duration-200"
-          >
-            Running
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="recruiting" className="space-y-4">
-          {filteredStudies.map((study) => (
-            <div 
-              key={study.id} 
-              className="border-b border-gray-300 pb-4"
+      {/* Main Content */}
+      <div className="px-4 pb-24 space-y-4">
+        <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
+          <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-white/95 shadow-sm backdrop-blur-sm">
+            <TabsTrigger 
+              value="recruiting"
+              className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
             >
-              <div className="relative mb-1">
-                <div className="flex flex-col">
-                  <h2 className="text-[#473F63] text-xl">
-                    {study.title}
-                  </h2>
-                  {study.id === '1' && (
-                    <span className="text-emerald-600 text-sm font-medium flex items-center gap-1 mt-1">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      Matches your profile
-                    </span>
+              Recruiting
+            </TabsTrigger>
+            <TabsTrigger 
+              value="running"
+              className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
+            >
+              Running
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="recruiting" className="space-y-4">
+            {filteredStudies.map((study) => (
+              <Card key={study.id} className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="relative mb-3">
+                    <div className="flex flex-col">
+                      <h2 className="text-xl font-semibold text-[#3a2a76]">
+                        {study.title}
+                      </h2>
+                      {study.id === '1' && (
+                        <span className="text-emerald-600 text-sm font-medium flex items-center gap-1 mt-1">
+                          <Check className="w-4 h-4" />
+                          Matches your profile
+                        </span>
+                      )}
+                    </div>
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute top-0 right-0 bg-[#E3D7F4] text-[#3a2a76] font-medium"
+                    >
+                      {study.availableSpots} spots left
+                    </Badge>
+                  </div>
+
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {study.purpose}
+                  </p>
+
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex items-center text-gray-500">
+                      <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="line-clamp-1">{study.location}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>Starts: {study.startDate.toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="font-medium">
+                        {study.availableSpots} of {study.totalSpots} spots remaining
+                      </span>
+                    </div>
+                  </div>
+
+                  {study.hasApplied ? (
+                    <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-center font-medium">
+                      Application Submitted
+                    </div>
+                  ) : (
+                    <Button 
+                      onClick={() => handleApply(study.id)}
+                      className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white transition-colors"
+                    >
+                      Apply Now
+                    </Button>
                   )}
-                </div>
-                <Badge 
-                  variant="secondary" 
-                  className="absolute top-0 right-0 bg-[#E6E3FD] text-[#473F63] font-medium"
-                >
-                  {study.availableSpots} spots left
-                </Badge>
-              </div>
-              <p className="text-[#473F63]/90 text-sm mb-2 line-clamp-2">
-                {study.purpose}
-              </p>
-              <div className="space-y-1 text-sm mb-4">
-                <div className="flex items-center text-[#473F63]/80">
-                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="line-clamp-1">{study.location}</span>
-                </div>
-                <div className="flex items-center text-[#473F63]/80">
-                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span>Starts: {study.startDate.toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center text-[#473F63]/80">
-                  <Users className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="font-medium">
-                    {study.availableSpots} of {study.totalSpots} spots remaining
-                  </span>
-                </div>
-              </div>
-              {study.hasApplied ? (
-                <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-center font-medium">
-                  Application Submitted
-                </div>
-              ) : (
-                <button 
-                  onClick={() => handleApply(study.id)}
-                  className="w-full bg-[#473F63] text-white px-4 py-2 rounded-lg hover:bg-[#473F63]/90 transition-colors"
-                >
-                  Apply Now
-                </button>
-              )}
-            </div>
-          ))}
-        </TabsContent>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
 
-        <TabsContent value="running" className="space-y-4">
-          {filteredStudies.map((study) => (
-            <div 
-              key={study.id} 
-              className="border-b border-gray-300 pb-4"
-            >
-              <div className="flex justify-between items-center mb-1">
-                <h2 className="text-[#1E4D57] text-xl">
-                  {study.title}
-                </h2>
-                <Badge 
-                  variant="secondary" 
-                  className="w-fit bg-[#DEEAE5] text-[#1E4D57] font-medium"
-                >
-                  {study.progress}% complete
-                </Badge>
-              </div>
-              <p className="text-[#1E4D57]/90 text-sm mb-2 line-clamp-2">
-                {study.purpose}
-              </p>
-              <div className="space-y-1 text-sm">
-                <div className="flex items-center text-[#1E4D57]/80">
-                  <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="line-clamp-1">{study.location}</span>
-                </div>
-                <div className="flex items-center text-[#1E4D57]/80">
-                  <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span>Started: {study.startDate.toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center text-[#1E4D57]/80">
-                  <Users className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="font-medium">
-                    {study.participants} participants enrolled
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                  <div 
-                    className="bg-[#1E4D57] h-2.5 rounded-full" 
-                    style={{ width: `${study.progress}%` }}
-                  ></div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="running" className="space-y-4">
+            {filteredStudies.map((study) => (
+              <Card key={study.id} className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-center mb-3">
+                    <h2 className="text-xl font-semibold text-[#3a2a76]">
+                      {study.title}
+                    </h2>
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-[#E3D7F4] text-[#3a2a76] font-medium"
+                    >
+                      {study.progress}% complete
+                    </Badge>
+                  </div>
+                  
+                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                    {study.purpose}
+                  </p>
+
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex items-center text-gray-500">
+                      <MapPin className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="line-clamp-1">{study.location}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <Calendar className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span>Started: {study.startDate.toLocaleDateString()}</span>
+                    </div>
+                    <div className="flex items-center text-gray-500">
+                      <Users className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <span className="font-medium">
+                        {study.participants} participants enrolled
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                      <div 
+                        className="bg-[#3a2a76] h-2.5 rounded-full" 
+                        style={{ width: `${study.progress}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }

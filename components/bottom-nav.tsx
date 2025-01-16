@@ -15,14 +15,13 @@ function NavigationContent() {
     return pathname === path
   }
 
-  const isPrivateTab = pathname === '/forum' && activeTab === 'private' || pathname === '/studies' && activeTab === 'running'
 
   const getLinkStyle = (path: string) => {
     return isActive(path) 
       ? { 
-          borderBottom: `2px solid ${isPrivateTab ? '#1E4D57' : '#473F63'}`,
+          borderBottom: '2px solid #473F63',
           marginBottom: '4px',
-          color: isPrivateTab ? '#1E4D57' : '#473F63'
+          color: '#473F63'
         }  
       : { 
           textDecoration: 'none',
@@ -31,9 +30,7 @@ function NavigationContent() {
   }
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 ${
-      isPrivateTab ? 'bg-[#DEEAE5]' : 'bg-[#f8f8fa]'
-    } border-t border-gray-200`}>
+    <div className="fixed bottom-0 left-0 right-0 bg-[#f8f8fa] border-t border-gray-200">
       <div className="flex justify-around items-center h-20 px-6 max-w-md mx-auto">
         <Link 
           href="/forum" 
