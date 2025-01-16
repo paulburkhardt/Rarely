@@ -1,19 +1,21 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Heart, Paperclip, Send, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Heart, Paperclip, Send, Trash2, X, MessageCircle, Grid } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useChat } from 'ai/react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const welcomeMessage = {
   id: 'welcome',
   role: 'assistant' as const,
-  content: 'Hi there! I\'m Dr. Joni, your ACM specialist. I\'m here to help answer your questions about Arrhythmogenic Cardiomyopathy and provide guidance. How can I assist you today?'
+  content: 'Hi there! I\'m Jona, your ACM assistant. I\'m here to help answer your questions about Arrhythmogenic Cardiomyopathy and provide guidance. How can I assist you today?'
 }
 
 interface UploadedFile {
@@ -44,6 +46,10 @@ interface ChatMessage {
 }
 
 type Message = ChatMessage | MessageSummary;
+
+const userData = {
+  name: 'User'
+};
 
 const formatFileSize = (bytes: number) => {
   if (bytes < 1024) return bytes + ' B';
@@ -211,75 +217,75 @@ export default function ChatPage() {
     setUploadedFiles(uploadedFiles.filter(file => file.name !== fileName));
   };
 
-  const renderMessage = (message: Message) => {
-    if ('isSummary' in message) {
-      return (
-        <div key={message.id} className="flex justify-center my-4">
-          <div className="bg-gray-100 rounded-lg p-3 text-sm text-gray-600 max-w-[80%]">
-            <div className="font-medium mb-1">Previous Conversation Summary:</div>
-            <div>{message.content}</div>
+  return (
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
+      {/* Header */}
+      <div className="p-6 pb-12">
+        <div className="flex justify-between items-start mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-black mb-1">Chat Assistant</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage alt="User avatar" />
+              <AvatarFallback>{userData?.name?.slice(0, 2) || 'Me'}</AvatarFallback>
+            </Avatar>
           </div>
         </div>
-      );
-    }
-
-    return (
-      <div
-        key={message.id}
-        className={`flex items-start gap-2 ${
-          message.role === 'user' ? 'justify-end' : 'justify-start'
-        }`}
-      >
-        {message.role === 'assistant' && (
-          <Avatar className="w-8 h-8">
-            <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
-            <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">J</AvatarFallback>
-          </Avatar>
-        )}
-        <div
-          className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-            message.role === 'user'
-              ? 'bg-[#E6E3FD] text-[#473F63]'
-              : 'bg-[#DEEAE5] text-[#1E4D57]'
-          }`}
-        >
-          <ReactMarkdown>{message.content}</ReactMarkdown>
-        </div>
-        {message.role === 'user' && (
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
-          </Avatar>
-        )}
       </div>
-    );
-  };
 
-  useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedACMChat');
-    if (!hasVisited) {
-      setShowWelcomeModal(true);
-      localStorage.setItem('hasVisitedACMChat', 'true');
-    }
-  }, []);
-
-  return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
-
-      <div className="flex justify-center items-center py-6">
+      {/* Centered Logo */}
+      <div className="flex justify-center -mt-12 mb-4">
         <Image 
           src="/logo_purple.png" 
           alt="Logo" 
-          width={100}
-          height={100}
-          priority
+          width={100} 
+          height={100} 
+          className="opacity-90"
         />
       </div>
 
+      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
-        {messages.map((message) => renderMessage(message))}
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex items-start gap-2 ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {message.role === 'assistant' && (
+              <Avatar className="w-8 h-8">
+                <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
+                <AvatarFallback className="bg-[#3a2a76] text-white">J</AvatarFallback>
+              </Avatar>
+            )}
+            <div
+              className={`max-w-[80%] rounded-xl px-4 py-2.5 ${
+                message.role === 'user'
+                  ? 'bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76]'
+                  : 'bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76]'
+              }`}
+            >
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                className="prose prose-sm max-w-none prose-p:leading-normal prose-pre:p-0"
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
+            {message.role === 'user' && (
+              <Avatar className="w-8 h-8">
+                <AvatarFallback className="bg-[#3a2a76] text-white">
+                  {userData?.name?.slice(0, 2) || 'Me'}
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-[#DEEAE5] text-[#1E4D57] rounded-2xl px-4 py-2">
+            <div className="bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76] rounded-xl px-4 py-2.5">
               Typing...
             </div>
           </div>
@@ -287,104 +293,109 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t p-4 bg-white">
-        {uploadedFiles.length > 0 && (
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="text-sm text-gray-500 px-2">
-              Documents to be used in next response:
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {uploadedFiles.map((file) => (
-                <div
-                  key={file.name}
-                  className="flex items-center gap-2 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm"
-                >
-                  <span>{file.name}</span>
-                  <span className="text-xs text-gray-500">
-                    ({formatFileSize(file.size)})
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => removeFile(file.name)}
-                    className="hover:text-red-500"
+      {/* Input Area - Adjust padding */}
+      <div className="px-4 pb-4">
+        <div className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl p-4">
+          {uploadedFiles.length > 0 && (
+            <div className="flex flex-col gap-2 mb-4">
+              <div className="text-sm text-gray-500 px-2">
+                Documents to be used in next response:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {uploadedFiles.map((file) => (
+                  <div
+                    key={file.name}
+                    className="flex items-center gap-2 bg-[#3a2a76]/10 text-[#3a2a76] px-3 py-1.5 rounded-full text-sm"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                    <span>{file.name}</span>
+                    <span className="text-xs text-gray-500">
+                      ({formatFileSize(file.size)})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(file.name)}
+                      className="hover:text-red-500"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
+
+          <div className="flex gap-2 overflow-x-auto pb-4 px-2">
+            {examplePrompts.map((prompt, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleExampleClick(prompt)}
+                className="flex-shrink-0 bg-[#3a2a76]/10 text-[#3a2a76] px-3 py-1.5 rounded-full text-sm hover:bg-[#3a2a76]/20 transition-colors"
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
-        )}
 
-        <div className="flex gap-2 overflow-x-auto pb-4 px-2">
-          {examplePrompts.map((prompt, index) => (
-            <button
-              key={index}
+          <form onSubmit={handleSubmit} className="flex items-center gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".pdf, image/*"
+              className="hidden"
+              multiple
+            />
+            <Button
               type="button"
-              onClick={() => handleExampleClick(prompt)}
-              className="flex-shrink-0 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm hover:bg-[#E6E3FD] transition-colors"
+              variant="ghost"
+              size="sm"
+              className="text-[#3a2a76]"
+              onClick={() => fileInputRef.current?.click()}
             >
-              {prompt}
-            </button>
-          ))}
+              <Paperclip className="w-5 h-5" />
+            </Button>
+            <Input
+              value={input}
+              onChange={handleInputChange}
+              placeholder="Ask anything..."
+              className="flex-1 bg-transparent border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]"
+            />
+            <Button
+              type="submit"
+              size="sm"
+              className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+              disabled={!input.trim() || isLoading}
+            >
+              <Send className="w-5 h-5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-[#3a2a76]"
+              onClick={handleReset}
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </form>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept=".pdf, image/*"
-            className="hidden"
-            multiple
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Paperclip className="w-5 h-5" />
-          </Button>
-          <Input
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Ask anything..."
-            className="flex-1 bg-white border-[#E6E3FD] focus-visible:ring-[#473F63]"
-          />
-          <Button
-            type="submit"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            disabled={!input.trim() || isLoading}
-          >
-            <Send className="w-5 h-5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            onClick={handleReset}
-          >
-            <Trash2 className="w-5 h-5" />
-          </Button>
-        </div>
-      </form>
+    
 
+      {/* Welcome Dialog - Updated styles */}
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="bg-white/95 backdrop-blur-sm rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-[#1E4D57]">Welcome to Your ACM Assistant</DialogTitle>
+            <DialogTitle className="text-[#3a2a76]">Welcome to Your ACM Assistant</DialogTitle>
             <DialogDescription className="space-y-4 pt-3">
-              <p>
+              <p className="text-gray-600">
                 I'm here to help you understand your medical documents and answer any questions about ACM.
               </p>
-              <div className="bg-[#F5F4FF] p-4 rounded-lg">
-                <h4 className="font-medium text-[#473F63] mb-2">💡 Pro Tip</h4>
-                <p className="text-sm text-[#473F63]">
+              <div className="bg-[#3a2a76]/10 p-4 rounded-xl">
+                <h4 className="font-medium text-[#3a2a76] mb-2">💡 Pro Tip</h4>
+                <p className="text-sm text-[#3a2a76]">
                   You can upload your doctor's letters or medical reports (PDF format) using the paperclip icon. 
                   This helps me provide more personalized answers about your specific situation.
                 </p>
@@ -397,7 +408,6 @@ export default function ChatPage() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-
     </div>
   )
 }
