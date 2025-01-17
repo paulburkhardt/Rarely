@@ -64,6 +64,15 @@ export default function ChatPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
+  useEffect(() => {
+    // Add a small delay to ensure the modal renders after component mount
+    const timer = setTimeout(() => {
+      setShowWelcomeModal(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }

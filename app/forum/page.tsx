@@ -1,45 +1,15 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense } from 'react'
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronRight, MessageCircle, Users, Heart, User } from 'lucide-react'
+import { MessageCircle, Users, Heart, User } from 'lucide-react'
 import Link from 'next/link'
-import { Badge } from "@/components/ui/badge"
-import { colors } from '@/styles/colors'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import { mockGroups, mockDiscussions, mockPrivateChats } from '@/data/mock-forum'
+import { mockData } from '@/data/mock-data'
 import Image from 'next/image'
 import { useUser } from "@/contexts/UserContext"
-
-
-type Group = {
-  id: string
-  name: string
-  description: string
-  imageUrl: string
-  lastActivity: Date
-  memberCount: number
-  unreadCount?: number
-}
-
-type Discussion = {
-  id: string
-  title: string
-  group: Group
-  messageCount: number
-  lastUpdated: Date
-}
-
-function formatTimeAgo(date: Date) {
-  const now = new Date()
-  const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
-  
-  if (diffInMinutes < 60) return `${diffInMinutes}m`
-  if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h`
-  return `${Math.floor(diffInMinutes / 1440)}d`
-}
 
 function formatDateTime(date: Date) {
   const now = new Date()
@@ -85,7 +55,7 @@ function ForumContent() {
           </div>
           <div className="absolute right-0">
             <Avatar className="h-8 w-8">
-              <AvatarImage alt="User avatar" />
+              <AvatarImage alt="User avatar" className="object-cover" />
               <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
             </Avatar>
           </div>
@@ -112,53 +82,46 @@ function ForumContent() {
           </TabsList>
 
           <TabsContent value="groups" className="space-y-4">
-            {/* Trending Discussions */}
+            {/* Trending Discussions - Now using first group */}
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-black px-1">Trending Discussions</h2>
-              {mockDiscussions.map((discussion, index) => (
-                <div key={discussion.id}>
-                  <Link href={`/forum/chat/discussion${discussion.id}`}>
-                    <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
-                      <div className="p-4 flex items-start gap-3">
-                        <Avatar className="w-10 h-10 ring-2 ring-[#3a2a76]/10 ring-offset-2">
-                          <AvatarImage src={discussion.group.imageUrl} alt={discussion.group.name} className="object-cover" />
-                          <AvatarFallback className="bg-[#3a2a76] text-white">
-                            {discussion.group.name.substring(0, 2)}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                          <h3 className="font-medium text-black">{discussion.group.name}</h3>
-                          <p className="text-sm text-[#1E4D57]/80">{discussion.title}</p>
+              <Link href={`/forum/chat/${mockData.groups[0].id}`}>
+                <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
+                  <div className="p-4 flex items-center gap-3">
+                    <Avatar className="w-11 h-11">
+                      <AvatarImage src={mockData.groups[0].imageUrl} alt={mockData.groups[0].name} className="object-cover" />
+                      <AvatarFallback>{mockData.groups[0].name.substring(0, 2)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <h3 className="font-medium text-black">{mockData.groups[0].name}</h3>
+                      <p className="text-sm text-[#1E4D57]/80">{mockData.groups[0].messages[0].content}</p>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-xs text-[#1E4D57]/60">
+                        {formatDateTime(mockData.groups[0].lastActivity)}
+                      </span>
+                      {(mockData.groups[0].unreadCount ?? 0) > 0 && (
+                        <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                          {mockData.groups[0].unreadCount}
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className="text-xs text-[#1E4D57]/60">{formatDateTime(discussion.lastUpdated)}</span>
-                          {discussion.messageCount > 0 && (
-                            <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
-                              {discussion.messageCount}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </Card>
-                  </Link>
-                  {index < mockDiscussions.length - 1 && <hr className="border-gray-200 mx-4" />}
-                </div>
-              ))}
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              </Link>
             </div>
 
-            {/* Group Discussions */}
+            {/* Group Discussions - Now showing remaining groups */}
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-black px-1">Group Discussions</h2>
-              {mockGroups.map((group, index) => (
+              {mockData.groups.slice(1).map((group, index) => (
                 <div key={group.id}>
                   <Link href={`/forum/chat/${group.id}`}>
                     <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
-                      <div className="p-4 flex items-start gap-3">
-                        <Avatar className="w-10 h-10 ring-2 ring-[#3a2a76]/10 ring-offset-2">
+                      <div className="p-4 flex items-center gap-3">
+                        <Avatar className="w-11 h-11">
                           <AvatarImage src={group.imageUrl} alt={group.name} className="object-cover" />
-                          <AvatarFallback className="bg-[#3a2a76] text-white">
-                            {group.name.substring(0, 2)}
-                          </AvatarFallback>
+                          <AvatarFallback>{group.name.substring(0, 2)}</AvatarFallback>
                         </Avatar>
                         <div className="flex-1">
                           <h3 className="font-medium text-black">{group.name}</h3>
@@ -170,7 +133,9 @@ function ForumContent() {
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-2">
-                          <span className="text-xs text-[#1E4D57]/60">{formatDateTime(group.lastActivity)}</span>
+                          <span className="text-xs text-[#1E4D57]/60">
+                            {formatDateTime(group.lastActivity)}
+                          </span>
                           {group.unreadCount && group.unreadCount > 0 && (
                             <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
                               {group.unreadCount}
@@ -180,30 +145,32 @@ function ForumContent() {
                       </div>
                     </Card>
                   </Link>
-                  {index < mockGroups.length - 1 && <hr className="border-gray-200 mx-4" />}
+                  {index < mockData.groups.length - 2 && <hr className="border-gray-200 mx-4" />}
                 </div>
               ))}
             </div>
           </TabsContent>
 
           <TabsContent value="private" className="space-y-2">
-            {mockPrivateChats.map((chat, index) => (
+            {mockData.privateChats.map((chat, index) => (
               <div key={chat.id}>
-                <Link href={`/forum/chat/private${chat.id}`}>
+                <Link href={`/forum/chat/${chat.id}`}>
                   <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
-                    <div className="p-4 flex items-start gap-3">
-                      <Avatar className="w-10 h-10 ring-2 ring-[#1E4D57]/10 ring-offset-2">
-                        <AvatarImage src={chat.userImage} alt={chat.userName} className="object-cover" />
-                        <AvatarFallback className="bg-[#3a2a76] text-white">
-                          {chat.userName.substring(0, 2)}
-                        </AvatarFallback>
+                    <div className="p-4 flex items-center gap-3">
+                      <Avatar className="w-11 h-11">
+                        <AvatarImage src={chat.user.imageUrl} alt={chat.user.name} className="object-cover" />
+                        <AvatarFallback>{chat.user.name.substring(0, 2)}</AvatarFallback>
                       </Avatar>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-black">{chat.userName}</h3>
-                        <p className="text-sm text-[#1E4D57]/80 truncate mt-1">{chat.lastMessage}</p>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-black">{chat.user.name}</h3>
+                        <p className="text-sm text-[#1E4D57]/80 truncate max-w-[200px] mt-1">
+                          {chat.lastMessage}
+                        </p>
                       </div>
                       <div className="flex flex-col items-end gap-2">
-                        <span className="text-xs text-[#1E4D57]/60">{formatDateTime(chat.lastMessageTime)}</span>
+                        <span className="text-xs text-[#1E4D57]/60">
+                          {formatDateTime(chat.lastMessageTime)}
+                        </span>
                         {chat.unreadCount > 0 && (
                           <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
                             {chat.unreadCount}
@@ -213,7 +180,7 @@ function ForumContent() {
                     </div>
                   </Card>
                 </Link>
-                {index < mockPrivateChats.length - 1 && <hr className="border-gray-200 mx-4" />}
+                {index < mockData.privateChats.length - 1 && <hr className="border-gray-200 mx-4" />}
               </div>
             ))}
           </TabsContent>
@@ -240,7 +207,6 @@ function ForumContent() {
     </div>
   );
 }
-
 
 // Main component wrapped in Suspense
 export default function ForumPage() {

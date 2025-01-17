@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, BookOpen, User, Brain, Info } from 'lucide-react'
+import { Bot, BookOpen, User, Brain, Info } from 'lucide-react'
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 import { Suspense } from 'react'
@@ -45,7 +45,7 @@ function NavigationContent() {
           className="flex flex-col items-center px-4 py-2 w-1/5"
           style={getLinkStyle('/chat')}
         >
-          <User className="w-6 h-6" style={{ opacity: isActive('/chat') ? 1 : 0.5 }} />
+          <Bot className="w-6 h-6" style={{ opacity: isActive('/chat') ? 1 : 0.5 }} />
           <span className="text-xs mt-1" style={{ opacity: isActive('/chat') ? 1 : 0.5 }}>Assistant</span>
         </Link>
         <Link 
@@ -53,7 +53,7 @@ function NavigationContent() {
           className="flex flex-col items-center px-4 py-2 w-1/5"
           style={getLinkStyle('/')}
         >
-          <Home className="w-6 h-6" style={{ opacity: isActive('/') ? 1 : 0.5 }} />
+          <User className="w-6 h-6" style={{ opacity: isActive('/') ? 1 : 0.5 }} />
           <span className="text-xs mt-1" style={{ opacity: isActive('/') ? 1 : 0.5 }}>You</span>
         </Link>
         <Link 
