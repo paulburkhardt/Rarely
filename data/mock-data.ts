@@ -40,7 +40,7 @@ export const mockData = {
       name: 'ACM Support Community',
       description: 'Share experiences and support for living with ACM/ARVC',
       imageUrl: '/icons/support_community.jpg',
-      memberCount: 76,
+      memberCount: 21,
       lastActivity: new Date(Date.now() - 1 * 60 * 60 * 1000),
       unreadCount: 3,
       messages: [
@@ -70,7 +70,7 @@ export const mockData = {
       name: 'Treatment & Medications',
       description: 'Discussions about ACM treatments, medications, and ICD management',
       imageUrl: '/icons/medication.jpeg',
-      memberCount: 89,
+      memberCount: 32,
       lastActivity: new Date(Date.now() - 12 * 60 * 60 * 1000),
       messages: [
         {
@@ -99,7 +99,7 @@ export const mockData = {
       name: 'Exercise & Lifestyle',
       description: 'Safe exercise guidelines and lifestyle modifications for ACM patients',
       imageUrl: '/icons/workout.jpg',
-      memberCount: 102,
+      memberCount: 41,
       lastActivity: new Date(Date.now() - 24 * 60 * 60 * 1000),
       unreadCount: 1,
       messages: [

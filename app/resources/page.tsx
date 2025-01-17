@@ -47,9 +47,6 @@ export default function ResourcesPage() {
             <div className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
-                    <BookOpen className="w-5 h-5 text-[#3a2a76]" />
-                  </div>
                   <h2 className="font-semibold text-lg">{resource.title}</h2>
                 </div>
                 <Badge 

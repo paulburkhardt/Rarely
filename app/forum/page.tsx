@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense } from 'react'
+import { Suspense, useState } from 'react'
 import { Card } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { MessageCircle, Users, Heart, User } from 'lucide-react'
@@ -32,9 +32,42 @@ function ForumContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeTab = searchParams?.get('tab') || 'groups'
+  
+  // Initialize state from localStorage
+  const [readGroups, setReadGroups] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('readGroups');
+      return new Set(saved ? JSON.parse(saved) : []);
+    }
+    return new Set();
+  });
+  
+  const [readChats, setReadChats] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('readChats');
+      return new Set(saved ? JSON.parse(saved) : []);
+    }
+    return new Set();
+  });
 
   const handleTabChange = (value: string) => {
     router.push(`/forum?tab=${value}`)
+  }
+
+  const handleChatClick = (chatId: string) => {
+    setReadChats(prev => {
+      const newSet = new Set([...prev, chatId]);
+      localStorage.setItem('readChats', JSON.stringify([...newSet]));
+      return newSet;
+    });
+  }
+
+  const handleGroupClick = (groupId: string) => {
+    setReadGroups(prev => {
+      const newSet = new Set([...prev, groupId]);
+      localStorage.setItem('readGroups', JSON.stringify([...newSet]));
+      return newSet;
+    });
   }
 
   return (
@@ -85,7 +118,10 @@ function ForumContent() {
             {/* Trending Discussions - Now using first group */}
             <div className="space-y-2">
               <h2 className="text-lg font-semibold text-black px-1">Trending Discussions</h2>
-              <Link href={`/forum/chat/${mockData.groups[0].id}`}>
+              <Link 
+                href={`/forum/chat/${mockData.groups[0].id}`} 
+                onClick={() => handleGroupClick(mockData.groups[0].id)}
+              >
                 <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
                   <div className="p-4 flex items-center gap-3">
                     <Avatar className="w-11 h-11">
@@ -100,8 +136,14 @@ function ForumContent() {
                       <span className="text-xs text-[#1E4D57]/60">
                         {formatDateTime(mockData.groups[0].lastActivity)}
                       </span>
-                      {(mockData.groups[0].unreadCount ?? 0) > 0 && (
-                        <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                      {(mockData.groups[0].unreadCount ?? 0) > 0 && !readGroups.has(mockData.groups[0].id) && (
+                        <div 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleGroupClick(mockData.groups[0].id);
+                          }}
+                          className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center cursor-pointer"
+                        >
                           {mockData.groups[0].unreadCount}
                         </div>
                       )}
@@ -116,7 +158,10 @@ function ForumContent() {
               <h2 className="text-lg font-semibold text-black px-1">Group Discussions</h2>
               {mockData.groups.slice(1).map((group, index) => (
                 <div key={group.id}>
-                  <Link href={`/forum/chat/${group.id}`}>
+                  <Link 
+                    href={`/forum/chat/${group.id}`}
+                    onClick={() => handleGroupClick(group.id)}
+                  >
                     <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
                       <div className="p-4 flex items-center gap-3">
                         <Avatar className="w-11 h-11">
@@ -136,8 +181,14 @@ function ForumContent() {
                           <span className="text-xs text-[#1E4D57]/60">
                             {formatDateTime(group.lastActivity)}
                           </span>
-                          {group.unreadCount && group.unreadCount > 0 && (
-                            <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                          {group.unreadCount && group.unreadCount > 0 && !readGroups.has(group.id) && (
+                            <div 
+                              onClick={(e) => {
+                                e.preventDefault();
+                                handleGroupClick(group.id);
+                              }}
+                              className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center cursor-pointer"
+                            >
                               {group.unreadCount}
                             </div>
                           )}
@@ -154,7 +205,10 @@ function ForumContent() {
           <TabsContent value="private" className="space-y-2">
             {mockData.privateChats.map((chat, index) => (
               <div key={chat.id}>
-                <Link href={`/forum/chat/${chat.id}`}>
+                <Link 
+                  href={`/forum/chat/${chat.id}`}
+                  onClick={() => handleChatClick(chat.id)}
+                >
                   <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl border-0">
                     <div className="p-4 flex items-center gap-3">
                       <Avatar className="w-11 h-11">
@@ -171,8 +225,14 @@ function ForumContent() {
                         <span className="text-xs text-[#1E4D57]/60">
                           {formatDateTime(chat.lastMessageTime)}
                         </span>
-                        {chat.unreadCount > 0 && (
-                          <div className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center">
+                        {chat.unreadCount > 0 && !readChats.has(chat.id) && (
+                          <div 
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleChatClick(chat.id);
+                            }}
+                            className="w-6 h-6 rounded-full bg-[#3a2a76] text-white text-xs flex items-center justify-center cursor-pointer"
+                          >
                             {chat.unreadCount}
                           </div>
                         )}
