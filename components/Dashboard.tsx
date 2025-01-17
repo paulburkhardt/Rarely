@@ -11,12 +11,14 @@ import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Area } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
-import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile, Download } from 'lucide-react';
+import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile, Download, Info } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
@@ -24,6 +26,8 @@ import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucid
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useUser } from "@/contexts/UserContext"
+import { mockData } from "@/data/mock-data";
+import { studies } from "@/app/studies/data";
 
 interface Activity {
   icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
@@ -299,7 +303,7 @@ export default function Dashboard() {
                   <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
                     <Activity className="w-5 h-5 text-[#3a2a76]" />
                   </div>
-                  <span className="font-semibold text-base">State of Mind</span>
+                  <span className="font-semibold text-base">Daily Diary</span>
                 </div>
                 <span className="text-sm text-gray-400">
                   {new Date().toLocaleTimeString('en-US', { 
@@ -313,20 +317,27 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-xl font-semibold mb-1">
-                    {hasDiaryEntry ? "A Slightly Pleasant Moment" : "How are you feeling?"}
+                    {hasDiaryEntry ? "A Slightly Pleasant Moment" : "Let's check in to get your daily data"}
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">Today's Entry</span>
-                    {hasDiaryEntry && <Badge variant="secondary">Updated</Badge>}
-                  </div>
+                  
+                    
+                    {hasDiaryEntry && <div className="flex items-center gap-2"><span className="text-sm text-gray-500">Today's Entry</span> 
+                    <Badge variant="secondary">Updated</Badge></div>}
+              
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-[#E8FAF7] flex items-center justify-center">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                  mood === 3 
+                    ? 'bg-green-100' 
+                    : mood === 2 
+                    ? 'bg-yellow-100' 
+                    : 'bg-red-100'
+                }`}>
                   {mood === 3 ? (
-                    <Smile className="w-6 h-6 text-[#7FE7D9]" />
+                    <Smile className="w-6 h-6 text-green-500" />
                   ) : mood === 2 ? (
-                    <Meh className="w-6 h-6 text-[#7FE7D9]" />
+                    <Meh className="w-6 h-6 text-yellow-500" />
                   ) : (
-                    <Frown className="w-6 h-6 text-[#7FE7D9]" />
+                    <Frown className="w-6 h-6 text-red-500" />
                   )}
                 </div>
               </div>
@@ -346,14 +357,14 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Heart className="w-5 h-5 text-[#6CD9CB]" />
+                  <Heart className="w-5 h-5 text-yellow-500" />
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">
+                  <h3 className="text-lg font-semibold">
                     {symptoms.filter(s => s.selected).length}
                   </h3>
-                  <p className="text-xs text-gray-500">Symptoms</p>
+                  <p className="text-xs text-gray-500 truncate">Symptoms</p>
                 </div>
               </div>
             </Card>
@@ -362,14 +373,14 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Pill className="w-5 h-5 text-[#6CD9CB]" />
+                  <Pill className="w-5 h-5 text-yellow-500" />
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold">
+                  <h3 className="text-lg font-semibold">
                     {medications.filter(m => m.taken).length}/{medications.length}
                   </h3>
-                  <p className="text-xs text-gray-500">Medications</p>
+                  <p className="text-xs text-gray-500 truncate">Medications</p>
                 </div>
               </div>
             </Card>
@@ -378,14 +389,14 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Activity className="w-5 h-5 text-[#6CD9CB]" />
+                  <Activity className="w-5 h-5 text-yellow-500" />
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
-                  <h3 className="text-2xl font-semibold">
+                  <h3 className="text-lg font-semibold truncate">
                     {selectedActivity ? activities.find(a => a.value === selectedActivity)?.label.split(' ')[0] : 'None'}
                   </h3>
-                  <p className="text-xs text-gray-500">Activity</p>
+                  <p className="text-xs text-gray-500 truncate">Activity</p>
                 </div>
               </div>
             </Card>
@@ -537,7 +548,7 @@ export default function Dashboard() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#6CD9CB]" />
+                  <Calendar className="w-5 h-5 text-yellow-500" />
                   <div>
                     <p className="font-medium">Gene Therapy - Ph.2</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
@@ -559,22 +570,49 @@ export default function Dashboard() {
           </Card>
 
           {/* Study Match */}
-          <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3 mb-3">
-                <BookOpen className="w-5 h-5 text-[#6CD9CB]" />
-                <div className="flex-1">
-                  <p className="font-medium">New Study Match</p>
-                  <p className="text-sm text-gray-500">Genetic Factors in ARVC</p>
+          {studies.find(study => study.matches) && (
+            <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <BookOpen className="w-5 h-5 text-yellow-500" />
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">New Study Match</p>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                            <Info className="w-4 h-4 text-[#3a2a76]" />
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px] top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
+                          <DialogHeader>
+                            <DialogTitle>{studies.find(study => study.matches)?.title}</DialogTitle>
+                            <DialogDescription>
+                              <div className="space-y-4">
+                                <p>{studies.find(study => study.matches)?.explanation}</p>
+                                <div className="pt-2 border-t">
+                                  <p className="text-sm font-medium text-gray-500">Technical Description:</p>
+                                  <p className="mt-1">{studies.find(study => study.matches)?.purpose}</p>
+                                </div>
+                              </div>
+                            </DialogDescription>
+                          </DialogHeader>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <p className="text-sm text-gray-500 line-clamp-1">
+                      {studies.find(study => study.matches)?.title}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <Link href="/studies/apply/1">
-                <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
-                  View Details
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
+                <Link href={`/studies/apply/${studies.find(study => study.matches)?.id}`}>
+                  <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
+                    Apply
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         {/* Community Section */}
@@ -583,16 +621,18 @@ export default function Dashboard() {
           
           {/* Trending Discussion */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
-            <Link href="/forum/chat/1" className="block p-4">
+            <Link href={`/forum/chat/${mockData.groups[0].id}`} className="block p-4">
               <div className="flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 text-[#6CD9CB] mt-0.5" />
+                <MessageCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-medium">New Treatment Breakthrough</h3>
-                    <Badge variant="secondary" className="text-xs">Trending</Badge>
+                    <h3 className="font-medium">{mockData.groups[0].name}</h3>
+                    <Badge variant="secondary" className="text-xs">
+                      {mockData.groups[0].unreadCount} new
+                    </Badge>
                   </div>
                   <p className="text-sm text-gray-500 line-clamp-2">
-                    Join 45 others discussing the latest research...
+                    Join {mockData.groups[0].memberCount} others discussing {mockData.groups[0].description.toLowerCase()}...
                   </p>
                 </div>
               </div>
@@ -604,15 +644,15 @@ export default function Dashboard() {
             <CardContent className="p-4">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
-                  <div className="text-lg font-semibold">137</div>
+                  <div className="text-lg font-semibold">43</div>
                   <div className="text-xs text-gray-500">Active Users</div>
                 </div>
                 <div>
-                  <div className="text-xl font-semibold">15</div>
+                  <div className="text-xl font-semibold">1</div>
                   <div className="text-xs text-gray-500">Therapies facilitated</div>
                 </div>
                 <div>
-                  <div className="text-xl font-semibold">34</div>
+                  <div className="text-xl font-semibold">7</div>
                   <div className="text-xs text-gray-500">Jorunal Entries</div>
                 </div>
               </div>

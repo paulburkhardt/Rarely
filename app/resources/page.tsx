@@ -64,13 +64,13 @@ export default function ResourcesPage() {
               <div className="space-y-2 text-sm">
                 {resource.location && (
                   <div className="flex items-center text-gray-500">
-                    <MapPin className="w-4 h-4 mr-2 flex-shrink-0 text-[#6CD9CB]" />
+                    <MapPin className="w-4 h-4 mr-2 flex-shrink-0 text-[#3a2a76]" />
                     <span>{resource.location}</span>
                   </div>
                 )}
                 {resource.contact && (
                   <div className="flex items-center text-gray-500">
-                    <Phone className="w-4 h-4 mr-2 flex-shrink-0 text-[#6CD9CB]" />
+                    <Phone className="w-4 h-4 mr-2 flex-shrink-0 text-[#3a2a76]" />
                     <span>{resource.contact}</span>
                   </div>
                 )}
@@ -79,7 +79,7 @@ export default function ResourcesPage() {
                     href={resource.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center text-[#3a2a76] hover:text-[#a680db] transition-colors"
+                    className="flex items-center text-[#3a2a76] hover:text-[#a680db] transition-colors underline"
                   >
                     <ExternalLink className="w-4 h-4 mr-2 flex-shrink-0" />
                     <span>Visit Website</span>
