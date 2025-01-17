@@ -5,14 +5,25 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Check } from "lucide-react"
+import { X } from "lucide-react"
+
+interface SymptomFrequency {
+  symptom: string;
+  frequency: 'Daily' | 'Weekly' | 'Monthly' | 'Rarely' | '';
+}
+
+interface MedicationFrequency {
+  medication: string;
+  frequency: 'Daily' | 'Weekly' | 'Monthly' | 'As needed' | '';
+}
 
 interface OnboardingData {
   name: string;
   dateOfBirth: string;
   diagnosisDate: string;
   geneticMutation?: string;
-  symptoms: string[];
-  medications: string[];
+  symptoms: SymptomFrequency[];
+  medications: MedicationFrequency[];
   hasICD: boolean;
   icdImplantDate?: string;
   exerciseRestrictions: string;
@@ -41,6 +52,19 @@ const commonMedications = [
   "Blood thinners"
 ];
 
+const geneticMutations = [
+  "DES",
+  "DSC2",
+  "DSG2",
+  "DSP",
+  "JUP",
+  "PKP2",
+  "TMEM43",
+  "PLN",
+  "I don't know",
+  "No known mutation"
+];
+
 export function Onboarding() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
@@ -67,7 +91,7 @@ export function Onboarding() {
     // Initial welcome message
     setMessages([{
       type: 'question',
-      content: "Hi! I'm here to help set up your ACM care profile. This will help us personalize your experience. Shall we begin?"
+      content: "Hi! I'm here to help set up your ACM care profile. This will help us personalize your experience. What's your name?"
     }]);
   }, []);
 
@@ -77,43 +101,50 @@ export function Onboarding() {
 
   const handleNext = () => {
     // Add the user's answer to messages
-    if (currentMessage || step === 5) { // Allow empty message for symptom step
+    if (currentMessage || step === 8) {
       setMessages(prev => [...prev, {
         type: 'answer',
-        content: step === 5 
-          ? `Selected symptoms: ${data.symptoms.join(', ')}`
+        content: step === 8 
+          ? formatSelectedSymptoms(data.symptoms)
           : currentMessage
       }]);
     }
 
     // Store the data based on current step
-    if (currentMessage || step === 5) {
+    if (currentMessage || step === 8) {
       switch (step) {
-        case 2:
+        case 1:
           setData(prev => ({ ...prev, name: currentMessage }));
+          break;
+        case 2:
+          setData(prev => ({ ...prev, dateOfBirth: currentMessage }));
           break;
         case 3:
           setData(prev => ({ ...prev, diagnosisDate: currentMessage }));
           break;
         case 4:
-          setData(prev => ({ ...prev, geneticMutation: currentMessage }));
+          setData(prev => ({ ...prev, hadCardiacArrest: currentMessage.toLowerCase() === 'yes' }));
+          break;
+        case 5:
+          setData(prev => ({ ...prev, diagnosisTimeframe: currentMessage }));
           break;
         case 6:
-          setData(prev => ({ ...prev, hasICD: currentMessage.toLowerCase().includes('yes') }));
+          setData(prev => ({ ...prev, hadHighIntensitySports: currentMessage.toLowerCase() === 'yes' }));
           break;
         case 7:
-          setData(prev => ({ ...prev, medications: currentMessage.split(',').map(m => m.trim()) }));
+          setData(prev => ({ ...prev, geneticMutation: currentMessage }));
           break;
         case 8:
-          setData(prev => ({ ...prev, exerciseRestrictions: currentMessage }));
+          // Symptoms are handled by the checkbox grid
           break;
         case 9:
-          // Parse emergency contact info
-          const [name, relationship, phone] = currentMessage.split(',').map(s => s.trim());
-          setData(prev => ({
-            ...prev,
-            emergencyContact: { name, relationship, phone }
-          }));
+          // Skip setting medications here since we're handling it in the UI
+          break;
+        case 10:
+          setData(prev => ({ ...prev, exerciseRestrictions: currentMessage }));
+          break;
+        case 11:
+          setData(prev => ({ ...prev, hasICD: currentMessage.toLowerCase() === 'yes' }));
           break;
       }
     }
@@ -132,23 +163,27 @@ export function Onboarding() {
   const getNextQuestion = (currentStep: number) => {
     switch (currentStep) {
       case 2:
-        return "What's your name?";
+        return "What's your birthday?";
       case 3:
-        return "When were you diagnosed with ACM?";
+        return "When did you first notice symptoms?";
       case 4:
-        return "Do you know which genetic mutation you have? (It's okay if you don't)";
+        return "Did you suffer a sudden cardiac death?";
       case 5:
-        return "Which symptoms do you experience? Select all that apply.";
+        return "How long did it take from first symptoms to diagnosis?";
       case 6:
-        return "Do you have an ICD (Implantable Cardioverter Defibrillator)?";
+        return "Where you doing high intensity sports before you were diagnosed?";
       case 7:
-        return "What medications are you currently taking?";
+        return "Do you know which genetic mutation you have? (It's okay if you don't)";
       case 8:
-        return "Do you have any exercise restrictions from your doctor?";
+        return "Which of these symptoms do you experience? How often?";
       case 9:
-        return "Let's add an emergency contact. Who should we contact in case of emergency?";
+        return "What medications are you currently taking?";
       case 10:
-        return "Thank you! Your profile is set up. Would you like to review your information?";
+          return "Do you have any exercise restrictions from your doctor?";
+      case 11:
+        return "Do you have an ICD (Implantable Cardioverter Defibrillator)?";
+      case 12:
+        return "Thank you! Your profile is set up.";
       default:
         return "";
     }
@@ -161,10 +196,31 @@ export function Onboarding() {
     window.location.href = '/';
   };
 
+  const formatSelectedSymptoms = (symptoms: SymptomFrequency[]) => {
+    if (symptoms.length === 0) return "No symptoms selected";
+    
+    const formattedSymptoms = symptoms.map(s => 
+      `${s.symptom} (${s.frequency})`
+    ).join(", ");
+    
+    return `Selected symptoms: ${formattedSymptoms}`;
+  };
+
+  const formatSelectedMedications = (medications: MedicationFrequency[]) => {
+    if (medications.length === 0) return "No medications selected";
+    
+    const formattedMedications = medications.map(m => 
+      `${m.medication} (${m.frequency})`
+    ).join(", ");
+    
+    return `Selected medications: ${formattedMedications}`;
+  };
+
   return (
     <Dialog open={true}>
-      <DialogContent className="sm:max-w-[600px] h-[80vh] flex flex-col [&>button]:hidden bg-gradient-to-b from-white to-gray-50/80 backdrop-blur-sm">
-        <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
+      <DialogContent className="h-screen w-screen max-w-none m-0 rounded-none flex flex-col [&>button]:hidden bg-white">
+        {/* Message history - scrollable */}
+        <div className="h-[60%] overflow-y-auto px-4 py-2 space-y-4">
           {messages.map((message, index) => (
             <div
               key={index}
@@ -184,106 +240,327 @@ export function Onboarding() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t p-6 space-y-6">
-          {step === 5 && (
-            <div className="grid grid-cols-2 gap-3">
-              {commonSymptoms.map(symptom => (
-                <div
-                  key={symptom}
-                  className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
-                    data.symptoms.includes(symptom)
-                      ? 'bg-[#3a2a76]/10 border-2 border-[#3a2a76]'
-                      : 'bg-white/80 border-2 border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
+        {/* Input and controls - fixed */}
+        <div className="h-[40%] border-t bg-white p-6 space-y-6">
+          <div className="space-y-6">
+            {step === 2 && (
+              <Input
+                type="date"
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+              />
+            )}
+
+            {(step === 4 || step === 6 || step === 11) && (
+              <div className="flex justify-center gap-4">
+                <Button
+                  variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
+                  onClick={() => setCurrentMessage('Yes')}
+                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
+                    currentMessage.toLowerCase() === 'yes'
+                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
+                      : 'border-2 hover:bg-[#3a2a76]/10'
                   }`}
-                  onClick={() => {
-                    setData(prev => ({
-                      ...prev,
-                      symptoms: prev.symptoms.includes(symptom)
-                        ? prev.symptoms.filter(s => s !== symptom)
-                        : [...prev.symptoms, symptom]
-                    }));
-                  }}
                 >
-                  {data.symptoms.includes(symptom) && (
-                    <div className="absolute top-2 right-2">
-                      <div className="w-5 h-5 bg-[#3a2a76] rounded-full flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
+                  Yes
+                </Button>
+                <Button
+                  variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
+                  onClick={() => setCurrentMessage('No')}
+                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
+                    currentMessage.toLowerCase() === 'no'
+                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
+                      : 'border-2 hover:bg-[#3a2a76]/10'
+                  }`}
+                >
+                  No
+                </Button>
+              </div>
+            )}
+
+            {step === 8 && (
+              <>
+        
+                <div className="flex justify-start w-full">
+                  <div className="rounded-2xl w-full bg-white shadow-sm">
+                    <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
+                      <div className="space-y-2">
+                        {commonSymptoms.map(symptom => {
+                          const symptomData = data.symptoms.find(s => s.symptom === symptom);
+                          const isSelected = !!symptomData;
+
+                          return (
+                            <div
+                              key={symptom}
+                              className={`relative rounded-xl p-3 transition-all ${
+                                isSelected
+                                  ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
+                                  : 'bg-white/80 border border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
+                              }`}
+                            >
+                              <div className="flex flex-col gap-2">
+                                <div 
+                                  className={`text-sm font-medium cursor-pointer ${
+                                    isSelected ? 'text-[#3a2a76]' : 'text-gray-600'
+                                  }`}
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      setData(prev => ({
+                                        ...prev,
+                                        symptoms: prev.symptoms.filter(s => s.symptom !== symptom)
+                                      }));
+                                    } else {
+                                      setData(prev => ({
+                                        ...prev,
+                                        symptoms: [...prev.symptoms, { symptom, frequency: '' }]
+                                      }));
+                                    }
+                                  }}
+                                >
+                                  {symptom}
+                                </div>
+                                
+                                {isSelected && (
+                                  <div className="flex items-center gap-2 w-full">
+                                    <Select
+                                      value={symptomData?.frequency || ''}
+                                      onValueChange={(value: '' | 'Daily' | 'Weekly' | 'Monthly' | 'Rarely') => {
+                                        if (value === '') {
+                                          setData(prev => ({
+                                            ...prev,
+                                            symptoms: prev.symptoms.filter(s => s.symptom !== symptom)
+                                          }));
+                                        } else {
+                                          setData(prev => ({
+                                            ...prev,
+                                            symptoms: prev.symptoms.map(s => 
+                                              s.symptom === symptom 
+                                                ? { ...s, frequency: value }
+                                                : s
+                                            )
+                                          }));
+                                        }
+                                      }}
+                                    >
+                                      <SelectTrigger className="h-9 flex-1 text-sm">
+                                        <SelectValue placeholder="How often?" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Daily">Daily</SelectItem>
+                                        <SelectItem value="Weekly">Weekly</SelectItem>
+                                        <SelectItem value="Monthly">Monthly</SelectItem>
+                                        <SelectItem value="Rarely">Rarely</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        
+                        <div className="relative rounded-xl p-3 border border-transparent">
+                          <div className="flex flex-col gap-2">
+                            <Input
+                              placeholder="Add other symptom..."
+                              value={currentMessage}
+                              onChange={(e) => setCurrentMessage(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && currentMessage && !data.symptoms.some(s => s.symptom === currentMessage)) {
+                                  setData(prev => ({
+                                    ...prev,
+                                    symptoms: [...prev.symptoms, { symptom: currentMessage, frequency: '' }]
+                                  }));
+                                  setCurrentMessage('');
+                                }
+                              }}
+                              className="w-full px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  )}
-                  <span className={`text-sm font-medium ${
-                    data.symptoms.includes(symptom) ? 'text-[#3a2a76]' : 'text-gray-600'
+                  </div>
+                </div>
+              </>
+            )}
+
+            {step === 9 && (
+              <>
+              
+
+                <div className="flex justify-start w-full">
+                  <div className="rounded-2xl w-full bg-white shadow-sm">
+                    <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
+                      <div className="space-y-2">
+                        {commonMedications.map(medication => {
+                          const medicationData = data.medications.find(m => m.medication === medication);
+                          const isSelected = !!medicationData;
+
+                          return (
+                            <div
+                              key={medication}
+                              className={`relative rounded-xl p-3 transition-all ${
+                                isSelected
+                                  ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
+                                  : 'bg-white/80 border border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
+                              }`}
+                            >
+                              <div className="flex flex-col gap-2">
+                                <div 
+                                  className={`text-sm font-medium cursor-pointer ${
+                                    isSelected ? 'text-[#3a2a76]' : 'text-gray-600'
+                                  }`}
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      setData(prev => ({
+                                        ...prev,
+                                        medications: prev.medications.filter(m => m.medication !== medication)
+                                      }));
+                                    } else {
+                                      setData(prev => ({
+                                        ...prev,
+                                        medications: [...prev.medications, { medication, frequency: '' }]
+                                      }));
+                                    }
+                                  }}
+                                >
+                                  {medication}
+                                </div>
+                                
+                                {isSelected && (
+                                  <div className="flex items-center gap-2 w-full">
+                                    <Select
+                                      value={medicationData?.frequency || ''}
+                                      onValueChange={(value: '' | 'Daily' | 'Weekly' | 'Monthly' | 'As needed') => {
+                                        if (value === '') {
+                                          setData(prev => ({
+                                            ...prev,
+                                            medications: prev.medications.filter(m => m.medication !== medication)
+                                          }));
+                                        } else {
+                                          setData(prev => ({
+                                            ...prev,
+                                            medications: prev.medications.map(m => 
+                                              m.medication === medication 
+                                                ? { ...m, frequency: value }
+                                                : m
+                                            )
+                                          }));
+                                        }
+                                      }}
+                                    >
+                                      <SelectTrigger className="h-9 flex-1 text-sm">
+                                        <SelectValue placeholder="How often?" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Daily">Daily</SelectItem>
+                                        <SelectItem value="Weekly">Weekly</SelectItem>
+                                        <SelectItem value="Monthly">Monthly</SelectItem>
+                                        <SelectItem value="As needed">As needed</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                        <div className="relative rounded-xl p-3 border border-transparent">
+                          <div className="flex flex-col gap-2">
+                            <Input
+                              placeholder="Add other medication..."
+                              value={currentMessage}
+                              onChange={(e) => setCurrentMessage(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && currentMessage && !data.medications.some(m => m.medication === currentMessage)) {
+                                  setData(prev => ({
+                                    ...prev,
+                                    medications: [...prev.medications, { medication: currentMessage, frequency: '' }]
+                                  }));
+                                  setCurrentMessage('');
+                                }
+                              }}
+                              className="w-full px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {step === 7 && (
+              <>
+               
+                
+                <div className="flex justify-start">
+                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white shadow-sm w-full">
+                    <Select
+                      value={currentMessage}
+                      onValueChange={(value) => setCurrentMessage(value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select your mutation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {geneticMutations.map(mutation => (
+                          <SelectItem 
+                            key={mutation} 
+                            value={mutation}
+                            className="cursor-pointer"
+                          >
+                            {mutation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {(step === 1 || step === 3 || step === 5 || step === 10) && (
+              <Input
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                placeholder="Type your answer..."
+                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+              />
+            )}
+          </div>
+
+          <div className="sticky bottom-0 pt-4 bg-white border-t">
+            <Button
+              onClick={step === 12 ? handleComplete : handleNext}
+              className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+            >
+              {step === 12 ? 'Complete Setup' : 'Continue'}
+            </Button>
+
+            <div className="flex justify-between items-center px-2 mt-4">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((s) => (
+                <div key={s} className="flex flex-col items-center gap-1">
+                  <div
+                    className={`w-3 h-3 rounded-full transition-all ${
+                      s === step
+                        ? 'bg-[#3a2a76] scale-125'
+                        : s < step
+                        ? 'bg-[#3a2a76]/50'
+                        : 'bg-gray-200'
+                    }`}
+                  />
+                  <span className={`text-xs ${
+                    s === step ? 'text-[#3a2a76] font-medium' : 'text-gray-400'
                   }`}>
-                    {symptom}
+                    {s}
                   </span>
                 </div>
               ))}
             </div>
-          )}
-
-          {step === 6 && (
-            <div className="flex justify-center gap-4">
-              <Button
-                variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                onClick={() => setCurrentMessage('Yes')}
-                className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                  currentMessage.toLowerCase() === 'yes'
-                    ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                    : 'border-2 hover:bg-[#3a2a76]/10'
-                }`}
-              >
-                Yes
-              </Button>
-              <Button
-                variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                onClick={() => setCurrentMessage('No')}
-                className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                  currentMessage.toLowerCase() === 'no'
-                    ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                    : 'border-2 hover:bg-[#3a2a76]/10'
-                }`}
-              >
-                No
-              </Button>
-            </div>
-          )}
-
-          {step !== 5 && step !== 6 && (
-            <Input
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              placeholder="Type your answer..."
-              className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-            />
-          )}
-
-          <Button
-            onClick={step === 10 ? handleComplete : handleNext}
-            className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
-          >
-            {step === 10 ? 'Complete Setup' : 'Continue'}
-          </Button>
-
-          {/* Progress indicator */}
-          <div className="flex justify-between items-center px-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((s) => (
-              <div key={s} className="flex flex-col items-center gap-1">
-                <div
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    s === step
-                      ? 'bg-[#3a2a76] scale-125'
-                      : s < step
-                      ? 'bg-[#3a2a76]/50'
-                      : 'bg-gray-200'
-                  }`}
-                />
-                <span className={`text-xs ${
-                  s === step ? 'text-[#3a2a76] font-medium' : 'text-gray-400'
-                }`}>
-                  {s}
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       </DialogContent>
