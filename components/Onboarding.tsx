@@ -65,23 +65,8 @@ const geneticMutations = [
   "No known mutation"
 ];
 
-enum OnboardingStep {
-  Name = 1,
-  Birthday,
-  Symptoms,
-  CardiacArrest,
-  DiagnosisTime,
-  Sports,
-  Mutation,
-  SymptomsList = 8,
-  MedicationsList = 9,
-  Exercise,
-  ICD,
-  Complete
-}
-
 export function Onboarding() {
-  const [step, setStep] = useState<OnboardingStep>(OnboardingStep.Name);
+  const [step, setStep] = useState(1);
   const [data, setData] = useState<OnboardingData>({
     name: '',
     dateOfBirth: '',
@@ -116,53 +101,52 @@ export function Onboarding() {
 
   const handleNext = () => {
     // Add the user's answer to messages
-    if (currentMessage || step === OnboardingStep.Complete) {
+    if (currentMessage || step === 8 || step === 9) {
       setMessages(prev => [...prev, {
         type: 'answer',
-        content: step === OnboardingStep.Complete 
+        content: step === 8 
           ? formatSelectedSymptoms(data.symptoms)
+          : step === 9
+          ? formatSelectedMedications(data.medications)
           : currentMessage
       }]);
     }
 
     // Store the data based on current step
-    if (currentMessage || step === OnboardingStep.Complete) {
+    if (currentMessage || step === 8 || step === 9) {
       switch (step) {
-        case OnboardingStep.Name:
+        case 1:
           setData(prev => ({ ...prev, name: currentMessage }));
           break;
-        case OnboardingStep.Birthday:
+        case 2:
           setData(prev => ({ ...prev, dateOfBirth: currentMessage }));
           break;
-        case OnboardingStep.Symptoms:
+        case 3:
+          setData(prev => ({ ...prev, diagnosisDate: currentMessage }));
+          break;
+        case 4:
           setData(prev => ({ ...prev, hadCardiacArrest: currentMessage.toLowerCase() === 'yes' }));
           break;
-        case OnboardingStep.CardiacArrest:
+        case 5:
           setData(prev => ({ ...prev, diagnosisTimeframe: currentMessage }));
           break;
-        case OnboardingStep.Sports:
+        case 6:
           setData(prev => ({ ...prev, hadHighIntensitySports: currentMessage.toLowerCase() === 'yes' }));
           break;
-        case OnboardingStep.Mutation:
+        case 7:
           setData(prev => ({ ...prev, geneticMutation: currentMessage }));
           break;
-        case OnboardingStep.SymptomsList:
+        case 8:
           // Symptoms are handled by the checkbox grid
           break;
-        case OnboardingStep.MedicationsList:
-          // Skip setting medications here since we're handling it in the UI
+        case 9:
+          // Medications are handled by the UI
           break;
-        case OnboardingStep.Exercise:
+        case 10:
           setData(prev => ({ ...prev, exerciseRestrictions: currentMessage }));
           break;
-        case OnboardingStep.ICD:
+        case 11:
           setData(prev => ({ ...prev, hasICD: currentMessage.toLowerCase() === 'yes' }));
-          break;
-        case OnboardingStep.Complete:
-          // Save data to localStorage or your backend
-          localStorage.setItem('onboardingComplete', 'true');
-          localStorage.setItem('patientData', JSON.stringify(data));
-          window.location.href = '/';
           break;
       }
     }
@@ -234,17 +218,6 @@ export function Onboarding() {
     return `Selected medications: ${formattedMedications}`;
   };
 
-  const getPlaceholderText = () => {
-    switch (step) {
-      case OnboardingStep.SymptomsList:
-        return "Add other symptom...";
-      case OnboardingStep.MedicationsList:
-        return "Add other medication...";
-      default:
-        return "Type your answer...";
-    }
-  };
-
   return (
     <Dialog open={true}>
       <DialogContent className="h-screen w-screen max-w-none m-0 rounded-none flex flex-col [&>button]:hidden bg-white">
@@ -270,19 +243,9 @@ export function Onboarding() {
         </div>
 
         {/* Input and controls - fixed */}
-        <div className="h-[40%] border-t bg-white p-6 space-y-6">
+        <div className="max-h-[40%] border-t bg-white p-6">
           <div className="space-y-6">
-            {step === OnboardingStep.Name && (
-              <Input
-                type="text"
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                placeholder="Type your answer..."
-                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-              />
-            )}
-
-            {step === OnboardingStep.Birthday && (
+            {step === 2 && (
               <Input
                 type="date"
                 value={currentMessage}
@@ -291,7 +254,7 @@ export function Onboarding() {
               />
             )}
 
-            {step === OnboardingStep.Symptoms && (
+            {(step === 4 || step === 6 || step === 11) && (
               <div className="flex justify-center gap-4">
                 <Button
                   variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
@@ -318,103 +281,14 @@ export function Onboarding() {
               </div>
             )}
 
-            {step === OnboardingStep.CardiacArrest && (
-              <div className="flex justify-center gap-4">
-                <Button
-                  variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('Yes')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'yes'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('No')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'no'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  No
-                </Button>
-              </div>
-            )}
-
-            {step === OnboardingStep.DiagnosisTime && (
-              <Input
-                type="text"
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                placeholder="Type your answer..."
-                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-              />
-            )}
-
-            {step === OnboardingStep.Sports && (
-              <div className="flex justify-center gap-4">
-                <Button
-                  variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('Yes')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'yes'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('No')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'no'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  No
-                </Button>
-              </div>
-            )}
-
-            {step === OnboardingStep.Mutation && (
-              <div className="flex justify-start">
-                <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white shadow-sm w-full">
-                  <Select
-                    value={currentMessage}
-                    onValueChange={(value) => setCurrentMessage(value)}
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select your mutation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {geneticMutations.map(mutation => (
-                        <SelectItem 
-                          key={mutation} 
-                          value={mutation}
-                          className="cursor-pointer"
-                        >
-                          {mutation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            )}
-
-            {step === OnboardingStep.SymptomsList && (
+            {step === 8 && (
               <>
+        
                 <div className="flex justify-start w-full">
                   <div className="rounded-2xl w-full bg-white shadow-sm">
                     <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
                       <div className="space-y-2">
-                        {commonSymptoms.map(symptom => {
+                        {[...commonSymptoms, ...data.symptoms.filter(s => !commonSymptoms.includes(s.symptom)).map(s => s.symptom)].map(symptom => {
                           const symptomData = data.symptoms.find(s => s.symptom === symptom);
                           const isSelected = !!symptomData;
 
@@ -453,7 +327,7 @@ export function Onboarding() {
                                   <div className="flex items-center gap-2 w-full">
                                     <Select
                                       value={symptomData?.frequency || ''}
-                                      onValueChange={(value) => {
+                                      onValueChange={(value: '' | 'Daily' | 'Weekly' | 'Monthly' | 'Rarely') => {
                                         if (value === '') {
                                           setData(prev => ({
                                             ...prev,
@@ -464,7 +338,7 @@ export function Onboarding() {
                                             ...prev,
                                             symptoms: prev.symptoms.map(s => 
                                               s.symptom === symptom 
-                                                ? { ...s, frequency: value as "" | "Daily" | "Weekly" | "Monthly" | "Rarely" }
+                                                ? { ...s, frequency: value }
                                                 : s
                                             )
                                           }));
@@ -489,52 +363,47 @@ export function Onboarding() {
                         })}
                         
                         <div className="relative rounded-xl p-3 border border-transparent">
-                          <div className="flex flex-col gap-2">
-                            <div className="flex gap-2">
-                              <Input
-                                placeholder={getPlaceholderText()}
-                                value={currentMessage}
-                                onChange={(e) => setCurrentMessage(e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' && currentMessage) {
-                                    if (step === OnboardingStep.SymptomsList && !data.symptoms.some(s => s.symptom === currentMessage)) {
-                                      setData((prev: OnboardingData) => ({
-                                        ...prev,
-                                        symptoms: [...prev.symptoms, { symptom: currentMessage, frequency: '' as const }]
-                                      }));
-                                    } else if (step === OnboardingStep.MedicationsList && !data.medications.some(m => m.medication === currentMessage)) {
-                                      setData((prev: OnboardingData) => ({
-                                        ...prev,
-                                        medications: [...prev.medications, { medication: currentMessage, frequency: '' as const }]
-                                      }));
-                                    }
-                                    setCurrentMessage('');
-                                  }
-                                }}
-                                className="w-full px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-                              />
-                              <Button
-                                onClick={() => {
-                                  if (currentMessage) {
-                                    if (step === OnboardingStep.SymptomsList && !data.symptoms.some(s => s.symptom === currentMessage)) {
-                                      setData((prev: OnboardingData) => ({
-                                        ...prev,
-                                        symptoms: [...prev.symptoms, { symptom: currentMessage, frequency: '' as const }]
-                                      }));
-                                    } else if (step === OnboardingStep.MedicationsList && !data.medications.some(m => m.medication === currentMessage)) {
-                                      setData((prev: OnboardingData) => ({
-                                        ...prev,
-                                        medications: [...prev.medications, { medication: currentMessage, frequency: '' as const }]
-                                      }));
-                                    }
-                                    setCurrentMessage('');
-                                  }
-                                }}
-                                className="px-4 h-9 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
-                              >
-                                Add
-                              </Button>
-                            </div>
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="Add other symptom..."
+                              value={currentMessage}
+                              onChange={(e) => setCurrentMessage(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && currentMessage.trim() && !data.symptoms.some(s => s.symptom.toLowerCase() === currentMessage.toLowerCase().trim())) {
+                                  setData(prev => ({
+                                    ...prev,
+                                    symptoms: [...prev.symptoms, { symptom: currentMessage.trim(), frequency: '' as const }]
+                                  }));
+                                  setCurrentMessage('');
+                                }
+                              }}
+                              className="flex-1 px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+                            />
+                            <Button
+                              onClick={() => {
+                                console.log('Add button clicked');
+                                console.log('Current message:', currentMessage);
+                                console.log('Current symptoms:', data.symptoms);
+                                
+                                if (currentMessage.trim() && !data.symptoms.some(s => s.symptom.toLowerCase() === currentMessage.toLowerCase().trim())) {
+                                  const newSymptom = { symptom: currentMessage.trim(), frequency: '' as const };
+                                  console.log('Adding new symptom:', newSymptom);
+                                  
+                                  setData(prev => {
+                                    const newData = {
+                                      ...prev,
+                                      symptoms: [...prev.symptoms, newSymptom]
+                                    };
+                                    console.log('New data:', newData);
+                                    return newData;
+                                  });
+                                  setCurrentMessage('');
+                                }
+                              }}
+                              className="h-9 px-3 bg-[#3a2a76] hover:bg-[#a680db] text-white"
+                            >
+                              Add
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -544,13 +413,15 @@ export function Onboarding() {
               </>
             )}
 
-            {step === OnboardingStep.MedicationsList && (
+            {step === 9 && (
               <>
+              
+
                 <div className="flex justify-start w-full">
                   <div className="rounded-2xl w-full bg-white shadow-sm">
                     <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
                       <div className="space-y-2">
-                        {commonMedications.map(medication => {
+                        {[...commonMedications, ...data.medications.filter(m => !commonMedications.includes(m.medication)).map(m => m.medication)].map(medication => {
                           const medicationData = data.medications.find(m => m.medication === medication);
                           const isSelected = !!medicationData;
 
@@ -624,22 +495,36 @@ export function Onboarding() {
                           );
                         })}
                         <div className="relative rounded-xl p-3 border border-transparent">
-                          <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
                             <Input
                               placeholder="Add other medication..."
                               value={currentMessage}
                               onChange={(e) => setCurrentMessage(e.target.value)}
                               onKeyDown={(e) => {
-                                if (e.key === 'Enter' && currentMessage && !data.medications.some(m => m.medication === currentMessage)) {
+                                if (e.key === 'Enter' && currentMessage.trim() && !data.medications.some(m => m.medication.toLowerCase() === currentMessage.toLowerCase().trim())) {
                                   setData(prev => ({
                                     ...prev,
-                                    medications: [...prev.medications, { medication: currentMessage, frequency: '' }]
+                                    medications: [...prev.medications, { medication: currentMessage.trim(), frequency: '' as const }]
                                   }));
                                   setCurrentMessage('');
                                 }
                               }}
-                              className="w-full px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+                              className="flex-1 px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
                             />
+                            <Button
+                              onClick={() => {
+                                if (currentMessage.trim() && !data.medications.some(m => m.medication.toLowerCase() === currentMessage.toLowerCase().trim())) {
+                                  setData(prev => ({
+                                    ...prev,
+                                    medications: [...prev.medications, { medication: currentMessage.trim(), frequency: '' as const }]
+                                  }));
+                                  setCurrentMessage('');
+                                }
+                              }}
+                              className="h-9 px-3 bg-[#3a2a76] hover:bg-[#a680db] text-white"
+                            >
+                              Add
+                            </Button>
                           </div>
                         </div>
                       </div>
@@ -649,52 +534,52 @@ export function Onboarding() {
               </>
             )}
 
-            {step === OnboardingStep.Exercise && (
+            {step === 7 && (
+              <>
+               
+                
+                <div className="flex justify-start">
+                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white shadow-sm w-full">
+                    <Select
+                      value={currentMessage}
+                      onValueChange={(value) => setCurrentMessage(value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select your mutation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {geneticMutations.map(mutation => (
+                          <SelectItem 
+                            key={mutation} 
+                            value={mutation}
+                            className="cursor-pointer"
+                          >
+                            {mutation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {(step === 1 || step === 3 || step === 5 || step === 10) && (
               <Input
-                type="text"
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 placeholder="Type your answer..."
                 className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
               />
             )}
-
-            {step === OnboardingStep.ICD && (
-              <div className="flex justify-center gap-4">
-                <Button
-                  variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('Yes')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'yes'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  Yes
-                </Button>
-                <Button
-                  variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('No')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'no'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  No
-                </Button>
-              </div>
-            )}
           </div>
-
-          
         </div>
         <div className="sticky bottom-0 pt-4 bg-white border-t">
             <Button
-              onClick={step === OnboardingStep.Complete ? handleComplete : handleNext}
+              onClick={step === 12 ? handleComplete : handleNext}
               className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
             >
-              {step === OnboardingStep.Complete ? 'Complete Setup' : 'Continue'}
+              {step === 12 ? 'Complete Setup' : 'Continue'}
             </Button>
 
             <div className="flex justify-between items-center px-2 mt-4">
