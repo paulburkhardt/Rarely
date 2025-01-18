@@ -272,7 +272,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
       {/* Header - Updated layout */}
       <div className="p-6">
         {/* Logo centered, Avatar right */}
@@ -367,7 +367,7 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Heart className="w-5 h-5 text-yellow-500" />
+                  <Heart className="w-5 h-5 text-[#3a2a76]" />
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
@@ -383,7 +383,7 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Pill className="w-5 h-5 text-yellow-500" />
+                  <Pill className="w-5 h-5 text-[#3a2a76]" />
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
@@ -399,7 +399,7 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Activity className="w-5 h-5 text-yellow-500" />
+                  <Activity className="w-5 h-5 text-[#3a2a76]" />
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
@@ -558,7 +558,7 @@ export default function Dashboard() {
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-yellow-500" />
+                  <Calendar className="w-5 h-5 text-[#3a2a76]" />
                   <div>
                     <p className="font-medium">Gene Therapy - Ph.2</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
@@ -584,7 +584,7 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
-                  <BookOpen className="w-5 h-5 text-yellow-500" />
+                  <BookOpen className="w-5 h-5 text-[#3a2a76]" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium">New Study Match</p>
@@ -630,7 +630,7 @@ export default function Dashboard() {
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
             <Link href={`/forum/chat/${mockData.groups[0].id}`} className="block p-4">
               <div className="flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+                <MessageCircle className="w-5 h-5 text-[#3a2a76] mt-0.5" />
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium">{mockData.groups[0].name}</h3>
@@ -722,7 +722,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-3 gap-4">
                   {[
                     { icon: <Frown />, value: 1, label: "Not Good", color: "bg-red-100", textColor: "text-red-500" },
-                    { icon: <Meh />, value: 2, label: "Okay", color: "bg-yellow-100", textColor: "text-yellow-500" },
+                    { icon: <Meh />, value: 2, label: "Okay", color: "bg-yellow-100", textColor: "text-[#3a2a76]" },
                     { icon: <Smile />, value: 3, label: "Good", color: "bg-green-100", textColor: "text-green-500" }
                   ].map((item) => (
                     <div 

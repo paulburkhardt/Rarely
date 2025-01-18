@@ -230,7 +230,7 @@ export function Onboarding() {
   return (
     <div className="min-h-screen ">
       <Dialog open={true}>
-        <DialogContent className="h-screen w-screen max-w-none m-0 bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa] rounded-none flex flex-col [&>button]:hidden bg-transparent">
+        <DialogContent className="h-screen w-screen max-w-none m-0 bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa] rounded-none flex flex-col [&>button]:hidden bg-transparent">
           {/* Message history - scrollable */}
           <div className="h-[60%] overflow-y-auto px-4 py-2 space-y-4">
             {messages.map((message, index) => (
