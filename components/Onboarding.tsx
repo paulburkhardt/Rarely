@@ -33,6 +33,7 @@ interface OnboardingData {
     relationship: string;
     phone: string;
   };
+  doctorLetter: string | null;
 }
 
 const commonSymptoms = [
@@ -80,7 +81,8 @@ export function Onboarding() {
       name: '',
       relationship: '',
       phone: ''
-    }
+    },
+    doctorLetter: null,
   });
 
   const [currentMessage, setCurrentMessage] = useState('');
@@ -91,7 +93,7 @@ export function Onboarding() {
     // Initial welcome message
     setMessages([{
       type: 'question',
-      content: "Hi! I'm here to help set up your ACM care profile. This will help us personalize your experience. What's your name?"
+      content: "Please upload your doctor's letter confirming your ACM diagnosis. This helps us verify your condition."
     }]);
   }, []);
 
@@ -101,51 +103,56 @@ export function Onboarding() {
 
   const handleNext = () => {
     // Add the user's answer to messages
-    if (currentMessage || step === 8 || step === 9) {
+    if (currentMessage || step === 9 || step === 10) {
       setMessages(prev => [...prev, {
         type: 'answer',
-        content: step === 8 
+        content: step === 9 
           ? formatSelectedSymptoms(data.symptoms)
-          : step === 9
+          : step === 10
           ? formatSelectedMedications(data.medications)
+          : step === 1
+          ? `Uploaded: ${currentMessage}`
           : currentMessage
       }]);
     }
 
     // Store the data based on current step
-    if (currentMessage || step === 8 || step === 9) {
+    if (currentMessage || step === 9 || step === 10) {
       switch (step) {
         case 1:
-          setData(prev => ({ ...prev, name: currentMessage }));
+          setData(prev => ({ ...prev, doctorLetter: currentMessage }));
           break;
         case 2:
-          setData(prev => ({ ...prev, dateOfBirth: currentMessage }));
+          setData(prev => ({ ...prev, name: currentMessage }));
           break;
         case 3:
-          setData(prev => ({ ...prev, diagnosisDate: currentMessage }));
+          setData(prev => ({ ...prev, dateOfBirth: currentMessage }));
           break;
         case 4:
-          setData(prev => ({ ...prev, hadCardiacArrest: currentMessage.toLowerCase() === 'yes' }));
+          setData(prev => ({ ...prev, diagnosisDate: currentMessage }));
           break;
         case 5:
-          setData(prev => ({ ...prev, diagnosisTimeframe: currentMessage }));
+          setData(prev => ({ ...prev, hadCardiacArrest: currentMessage.toLowerCase() === 'yes' }));
           break;
         case 6:
-          setData(prev => ({ ...prev, hadHighIntensitySports: currentMessage.toLowerCase() === 'yes' }));
+          setData(prev => ({ ...prev, diagnosisTimeframe: currentMessage }));
           break;
         case 7:
-          setData(prev => ({ ...prev, geneticMutation: currentMessage }));
+          setData(prev => ({ ...prev, hadHighIntensitySports: currentMessage.toLowerCase() === 'yes' }));
           break;
         case 8:
-          // Symptoms are handled by the checkbox grid
+          setData(prev => ({ ...prev, geneticMutation: currentMessage }));
           break;
         case 9:
-          // Medications are handled by the UI
+          setData(prev => ({ ...prev, symptoms: [...prev.symptoms, { symptom: currentMessage, frequency: '' }] }));
           break;
         case 10:
-          setData(prev => ({ ...prev, exerciseRestrictions: currentMessage }));
+          setData(prev => ({ ...prev, medications: [...prev.medications, { medication: currentMessage, frequency: '' }] }));
           break;
         case 11:
+          setData(prev => ({ ...prev, exerciseRestrictions: currentMessage }));
+          break;
+        case 12:
           setData(prev => ({ ...prev, hasICD: currentMessage.toLowerCase() === 'yes' }));
           break;
       }
@@ -165,26 +172,28 @@ export function Onboarding() {
   const getNextQuestion = (currentStep: number) => {
     switch (currentStep) {
       case 2:
-        return "What's your birthday?";
+        return "Hi! I'm here to help set up your ACM care profile. This will help us personalize your experience. What's your name?";
       case 3:
-        return "When did you first notice symptoms?";
+        return "What's your birthday?";
       case 4:
-        return "Did you suffer a sudden cardiac death?";
+        return "When did you first notice symptoms?";
       case 5:
-        return "How long did it take from first symptoms to diagnosis?";
+        return "Did you suffer a sudden cardiac death?";
       case 6:
-        return "Were you doing high intensity sports before you were diagnosed?";
+        return "How long did it take from first symptoms to diagnosis?";
       case 7:
-        return "Do you know which genetic mutation you have? (It's okay if you don't)";
+        return "Were you doing high intensity sports before you were diagnosed?";
       case 8:
-        return "Which of these symptoms do you experience? How often?";
+        return "Do you know which genetic mutation you have? (It's okay if you don't)";
       case 9:
-        return "What medications are you currently taking?";
+        return "Which of these symptoms do you experience? How often?";
       case 10:
-          return "Do you have any exercise restrictions from your doctor?";
+        return "What medications are you currently taking?";
       case 11:
-        return "Do you have an ICD (Implantable Cardioverter Defibrillator)?";
+        return "Do you have any exercise restrictions from your doctor?";
       case 12:
+        return "Do you have an ICD (Implantable Cardioverter Defibrillator)?";
+      case 13:
         return "Thank you! Your profile is set up.";
       default:
         return "";
@@ -245,7 +254,7 @@ export function Onboarding() {
         {/* Input and controls - fixed */}
         <div className="max-h-[40%] border-t bg-white p-6">
           <div className="space-y-6">
-            {step === 2 && (
+            {step === 3 && (
               <Input
                 type="date"
                 value={currentMessage}
@@ -254,7 +263,7 @@ export function Onboarding() {
               />
             )}
 
-            {(step === 4 || step === 6 || step === 11) && (
+            {(step === 5 || step === 7 || step === 12) && (
               <div className="flex justify-center gap-4">
                 <Button
                   variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
@@ -283,7 +292,45 @@ export function Onboarding() {
 
             {step === 8 && (
               <>
-        
+                <div className="flex justify-start">
+                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white shadow-sm w-full">
+                    <Select
+                      value={currentMessage}
+                      onValueChange={(value) => setCurrentMessage(value)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select your mutation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {geneticMutations.map(mutation => (
+                          <SelectItem 
+                            key={mutation} 
+                            value={mutation}
+                            className="cursor-pointer"
+                          >
+                            {mutation}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {(step === 2 || step === 4 || step === 6 || step === 11) && (
+              <Input
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                placeholder="Type your answer..."
+                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+              />
+            )}
+
+            {step === 9 && (
+              <>
+              
+
                 <div className="flex justify-start w-full">
                   <div className="rounded-2xl w-full bg-white shadow-sm">
                     <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
@@ -413,7 +460,7 @@ export function Onboarding() {
               </>
             )}
 
-            {step === 9 && (
+            {step === 10 && (
               <>
               
 
@@ -533,57 +580,85 @@ export function Onboarding() {
                 </div>
               </>
             )}
-
-            {step === 7 && (
-              <>
-               
-                
-                <div className="flex justify-start">
-                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white shadow-sm w-full">
-                    <Select
-                      value={currentMessage}
-                      onValueChange={(value) => setCurrentMessage(value)}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select your mutation" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {geneticMutations.map(mutation => (
-                          <SelectItem 
-                            key={mutation} 
-                            value={mutation}
-                            className="cursor-pointer"
-                          >
-                            {mutation}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {(step === 1 || step === 3 || step === 5 || step === 10) && (
-              <Input
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                placeholder="Type your answer..."
-                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-              />
-            )}
           </div>
         </div>
+        {step === 1 && (
+          <div className="flex justify-start w-full">
+            <div className="rounded-2xl w-full bg-white shadow-sm p-4">
+              <div className="border-2 border-dashed border-[#3a2a76]/30 rounded-xl p-8 text-center hover:border-[#3a2a76] transition-colors">
+                <input
+                  type="file"
+                  id="file-upload"
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      setCurrentMessage(e.target.files[0].name);
+                      setData(prev => ({
+                        ...prev,
+                        doctorLetter: e.target.files?.[0]?.name || ''
+                      }));
+                    }
+                  }}
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="cursor-pointer flex flex-col items-center gap-2"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                    {currentMessage ? (
+                      <Check className="w-6 h-6 text-[#3a2a76]" />
+                    ) : (
+                      <svg
+                        className="w-6 h-6 text-[#3a2a76]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  <span className="text-sm font-medium text-[#3a2a76]">
+                    {currentMessage || "Click to upload document"}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Supported formats: PDF, DOC, DOCX, JPG, PNG
+                  </span>
+                </label>
+              </div>
+              
+              <button
+                onClick={() => {
+                  setCurrentMessage('demo_letter.pdf');
+                  setData(prev => ({
+                    ...prev,
+                    doctorLetter: 'demo_letter.pdf'
+                  }));
+                }}
+                className="mt-4 text-sm text-[#3a2a76] hover:text-[#a680db] underline"
+              >
+                Skip for demo
+              </button>
+            </div>
+          </div>
+        )}
         <div className="sticky bottom-0 pt-4 bg-white border-t">
             <Button
-              onClick={step === 12 ? handleComplete : handleNext}
+              onClick={step === 13 ? handleComplete : handleNext}
               className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+              disabled={step === 1 && !currentMessage}
             >
-              {step === 12 ? 'Complete Setup' : 'Continue'}
+              {step === 13 ? 'Complete Setup' : 'Continue'}
             </Button>
 
             <div className="flex justify-between items-center px-2 mt-4">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((s) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((s) => (
                 <div key={s} className="flex flex-col items-center gap-1">
                   <div
                     className={`w-3 h-3 rounded-full transition-all ${
