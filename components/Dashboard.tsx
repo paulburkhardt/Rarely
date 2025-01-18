@@ -402,20 +402,20 @@ export default function Dashboard() {
         <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 ">
                 <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
                   <Activity className="w-5 h-5 text-[#3a2a76]" />
                 </div>
                 <span className="font-semibold text-lg">Activity</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1 ml-1">
                 <Button 
-                  variant="ghost" 
                   size="sm"
-                  className="text-[#3a2a76] font-medium"
+                  variant="ghost" 
+                  className={`text-[#3a2a76]  ${!isHealthSynced ? 'bg-gray-100' : 'bg-gray-200'} font-medium`}
                   onClick={handleHealthSync}
                 >
-                  <AppleIcon className="w-4 h-4 mr-1.5" />
+                  <AppleIcon className="w-4 h-4" />
                   {isHealthSynced ? "Connected" : "Connect"}
                 </Button>
                 <Select value={timeRange} onValueChange={(value: "today" | "week" | "month") => setTimeRange(value)}>
@@ -585,10 +585,7 @@ export default function Dashboard() {
                             <DialogDescription>
                               <div className="space-y-4">
                                 <p>{studies.find(study => study.matches)?.explanation}</p>
-                                <div className="pt-2 border-t">
-                                  <p className="text-sm font-medium text-gray-500">Technical Description:</p>
-                                  <p className="mt-1">{studies.find(study => study.matches)?.purpose}</p>
-                                </div>
+                               
                               </div>
                             </DialogDescription>
                           </DialogHeader>
@@ -612,7 +609,7 @@ export default function Dashboard() {
 
         {/* Community Section */}
         <div className="space-y-4">
-          <h2 className="text-base font-semibold px-1">Community</h2>
+          <h2 className="text-base font-semibold px-1">Trending</h2>
           
           {/* Trending Discussion */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
@@ -635,7 +632,10 @@ export default function Dashboard() {
           </Card>
 
           {/* Community Stats */}
+          <div className="space-y-4">
+          <h2 className="text-base font-semibold px-1">Community Stats</h2>
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
+
             <CardContent className="p-4">
               <div className="grid grid-cols-3 gap-4 text-center">
                 <div>
@@ -648,12 +648,13 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <div className="text-xl font-semibold">7</div>
-                  <div className="text-xs text-gray-500">Jorunal Entries</div>
+                  <div className="text-xs text-gray-500">Journal Entries</div>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+      </div>
       </div>
 
       {/* Bottom Navigation - Added slight blur effect */}

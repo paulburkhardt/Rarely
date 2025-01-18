@@ -19,6 +19,8 @@ export default function ChatPage() {
   
   const [messages, setMessages] = useState(chatData?.messages || [])
   const [newMessage, setNewMessage] = useState('')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const scrollToBottom = () => {
@@ -46,6 +48,34 @@ export default function ChatPage() {
 
     setMessages(prev => [...prev, newMsg])
     setNewMessage('')
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setSelectedFile(file)
+      // Mock message for file attachment
+      const newMsg = {
+        id: Date.now().toString(),
+        content: `📎 Attached file: ${file.name}`,
+        sender: {
+          id: 'currentUser',
+          name: userData?.name || 'user',
+          imageUrl: '/icons/avatar-current.svg'
+        },
+        timestamp: new Date(),
+        attachment: {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }
+      }
+      setMessages(prev => [...prev, newMsg])
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
   }
 
   if (!chatData) return <div>Chat not found</div>
@@ -150,11 +180,19 @@ export default function ChatPage() {
       <div className="px-4 pb-4">
         <div className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl p-4">
           <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="image/*,.pdf,.doc,.docx,.txt"
+            />
             <Button
               type="button"
               variant="ghost"
               size="sm"
               className="text-[#3a2a76]"
+              onClick={() => fileInputRef.current?.click()}
             >
               <Paperclip className="w-5 h-5" />
             </Button>

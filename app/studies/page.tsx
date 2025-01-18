@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MapPin, Calendar, Users, Check, BookOpen } from 'lucide-react'
@@ -12,25 +12,6 @@ import Image from 'next/image'
 import { useUser } from "@/contexts/UserContext"
 
 
-type Study = {
-  id: string
-  title: string
-  purpose: string
-  location: string
-  startDate: Date
-  endDate?: Date
-  totalSpots?: number
-  availableSpots?: number
-  status: 'recruiting' | 'running' | 'completed'
-  progress?: number
-  participants?: number
-  totalParticipants?: number
-  hasApplied?: boolean
-  matches?: boolean
-  explanation: string
-  outcome?: string
-}
-
 
 
 function StudiesContent() {
@@ -39,6 +20,33 @@ function StudiesContent() {
   const router = useRouter()
   const activeTab = searchParams?.get('tab') ?? 'recruiting'
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [appliedStudies, setAppliedStudies] = useState<Set<string>>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('appliedStudies')
+      return new Set(saved ? JSON.parse(saved) : [])
+    }
+    return new Set()
+  });
+
+  useEffect(() => {
+    localStorage.setItem('appliedStudies', JSON.stringify([...appliedStudies]))
+  }, [appliedStudies]);
+
+  useEffect(() => {
+    const justApplied = searchParams?.get('justApplied')
+    if (justApplied) {
+      setAppliedStudies(prev => new Set([...prev, justApplied]))
+      router.replace('/studies?tab=recruiting')
+    }
+  }, [searchParams, router]);
+
+  const studiesWithApplicationStatus = studies.map(study => ({
+    ...study,
+    hasApplied: appliedStudies.has(study.id)
+  }));
+
+  const runningStudies = studiesWithApplicationStatus.filter(study => study.status === 'running')
+  const completedStudies = studiesWithApplicationStatus.filter(study => study.status === 'completed')
 
   const handleTabChange = (value: string) => {
     router.push(`/studies?tab=${value}`)
@@ -47,9 +55,6 @@ function StudiesContent() {
   const handleApply = (studyId: string) => {
     router.push(`/studies/apply/${studyId}`)
   }
-
-  const runningStudies = studies.filter(study => study.status === 'running')
-  const completedStudies = studies.filter(study => study.status === 'completed')
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">
@@ -90,7 +95,7 @@ function StudiesContent() {
           </TabsList>
 
           <TabsContent value="recruiting" className="space-y-4">
-            {studies.filter(study => study.status === activeTab).map((study) => (
+            {studiesWithApplicationStatus.filter(study => study.status === activeTab).map((study) => (
               <Card key={study.id} className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden">
                 <CardContent className="p-4">
                   <div className="relative mb-3">

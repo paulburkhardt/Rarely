@@ -54,7 +54,14 @@ const formatFileSize = (bytes: number) => {
 
 export default function ChatPage() {
   const { userData } = useUser();
-  const [messages, setMessages] = useState<Message[]>([welcomeMessage])
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Initialize messages from localStorage if available, otherwise use welcomeMessage
+    if (typeof window !== 'undefined') {
+      const savedMessages = localStorage.getItem('chatMessages');
+      return savedMessages ? JSON.parse(savedMessages) : [welcomeMessage];
+    }
+    return [welcomeMessage];
+  });
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
@@ -63,12 +70,19 @@ export default function ChatPage() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
 
   useEffect(() => {
-    // Add a small delay to ensure the modal renders after component mount
-    const timer = setTimeout(() => {
-      setShowWelcomeModal(true);
-    }, 100);
+    // Check if this is the first visit
+    const hasVisited = localStorage.getItem('hasVisitedChat');
+    
+    if (!hasVisited) {
+      // Add a small delay to ensure the modal renders after component mount
+      const timer = setTimeout(() => {
+        setShowWelcomeModal(true);
+        // Set the flag in localStorage
+        localStorage.setItem('hasVisitedChat', 'true');
+      }, 100);
 
-    return () => clearTimeout(timer);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const scrollToBottom = () => {
@@ -126,12 +140,14 @@ export default function ChatPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (response.status === 429 && errorData.message) {
+        if (response.status === 429) {
           setMessages(messages => [...messages, {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: errorData.message
+            content: errorData.message || "You've reached the message limit for the demo. Unfortunately the api bill will drown us otherwise:("
           }]);
+          setIsLoading(false);
+          return;
         }
         throw new Error('Failed to fetch response');
       }
@@ -157,8 +173,9 @@ export default function ChatPage() {
   }
 
   const handleReset = () => {
-    setMessages([welcomeMessage])
-  }
+    setMessages([welcomeMessage]);
+    localStorage.removeItem('chatMessages');
+  };
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -221,6 +238,13 @@ export default function ChatPage() {
   const removeFile = (fileName: string) => {
     setUploadedFiles(uploadedFiles.filter(file => file.name !== fileName));
   };
+
+  // Add effect to save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
+    }
+  }, [messages]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa]">

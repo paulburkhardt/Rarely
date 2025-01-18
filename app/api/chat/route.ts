@@ -27,7 +27,7 @@ Provide a disclaimer for medical advice and recommend consulting a specialist.
 
 // Add rate limiting configuration
 const RATE_LIMIT = 5; // messages per minute
-const RATE_WINDOW = 60 * 1000; // 1 minute in milliseconds
+const RATE_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // Store request timestamps by IP
 const requestLog = new Map<string, number[]>();
@@ -102,7 +102,10 @@ export async function POST(req: Request) {
         output: { error: 'Rate limit exceeded' },
       });
       return NextResponse.json(
-        { error: 'Rate limit exceeded' },
+        { 
+          message: "You've reached the message limit for the demo. Unfortunately the API bill will drown us otherwise:(",
+          error: 'Rate limit exceeded' 
+        },
         { status: 429 }
       );
     }
