@@ -45,6 +45,10 @@ interface Medication {
   taken: boolean;
   prescribed: boolean;
   category: string;
+  dosage: {
+    value: number;
+    unit: string;
+  };
 }
 
 interface ActivityDataPoint {
@@ -72,26 +76,26 @@ export default function Dashboard() {
   ]);
   const [medications, setMedications] = useState<Medication[]>([
     // Antiarrhythmic drugs
-    { name: "Sotalol", taken: false, prescribed: true, category: "Antiarrhythmic" },
-    { name: "Amiodarone", taken: false, prescribed: false, category: "Antiarrhythmic" },
-    { name: "Flecainide", taken: false, prescribed: false, category: "Antiarrhythmic" },
+    { name: "Sotalol", taken: false, prescribed: true, category: "Antiarrhythmic", dosage: { value: 80, unit: "mg" } },
+    { name: "Amiodarone", taken: false, prescribed: false, category: "Antiarrhythmic", dosage: { value: 200, unit: "mg" } },
+    { name: "Flecainide", taken: false, prescribed: false, category: "Antiarrhythmic", dosage: { value: 100, unit: "mg" } },
     
     // Beta blockers
-    { name: "Bisoprolol", taken: false, prescribed: true, category: "Beta Blocker" },
-    { name: "Metoprolol", taken: false, prescribed: false, category: "Beta Blocker" },
+    { name: "Bisoprolol", taken: false, prescribed: true, category: "Beta Blocker", dosage: { value: 20, unit: "mg" } },
+    { name: "Metoprolol", taken: false, prescribed: false, category: "Beta Blocker", dosage: { value: 50, unit: "mg" } },
     
     // Heart failure drugs
-    { name: "ACE Inhibitor", taken: false, prescribed: true, category: "Heart Failure" },
-    { name: "Entresto (Sacubitril/Valsartan)", taken: false, prescribed: true, category: "Heart Failure" },
-    { name: "Eplerenon", taken: false, prescribed: false, category: "Heart Failure" },
-    { name: "Finerenon", taken: false, prescribed: false, category: "Heart Failure" },
+    { name: "ACE Inhibitor", taken: false, prescribed: true, category: "Heart Failure", dosage: { value: 10, unit: "mg" } },
+    { name: "Entresto (Sacubitril/Valsartan)", taken: false, prescribed: true, category: "Heart Failure", dosage: { value: 20, unit: "mg" } },
+    { name: "Eplerenon", taken: false, prescribed: false, category: "Heart Failure", dosage: { value: 10, unit: "mg" } },
+    { name: "Finerenon", taken: false, prescribed: false, category: "Heart Failure", dosage: { value: 10, unit: "mg" } },
     
     // Diuretics
-    { name: "Furosemide", taken: false, prescribed: false, category: "Diuretic" },
-    { name: "Torasemide", taken: false, prescribed: false, category: "Diuretic" },
+    { name: "Furosemide", taken: false, prescribed: false, category: "Diuretic", dosage: { value: 20, unit: "mg" } },
+    { name: "Torasemide", taken: false, prescribed: false, category: "Diuretic", dosage: { value: 20, unit: "mg" } },
     
     // SGLT2 Inhibitors
-    { name: "SGLT2 Inhibitor", taken: false, prescribed: false, category: "SGLT2" },
+    { name: "SGLT2 Inhibitor", taken: false, prescribed: false, category: "SGLT2", dosage: { value: 10, unit: "mg" } },
   ]);
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [newSymptom, setNewSymptom] = useState<string>("");
@@ -230,7 +234,7 @@ export default function Dashboard() {
   const getStepTitle = (step: number) => {
     switch (step) {
       case 1: return "How are you feeling today?";
-      case 2: return "What activities did you do?";
+      case 2: return "How active were you today?";
       case 3: return "Any symptoms today?";
       case 4: return "Track your medications";
       default: return "";
@@ -679,11 +683,24 @@ export default function Dashboard() {
         setShowDiaryModal(open);
         if (!open) setCurrentStep(1);
       }}>
-        <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col bg-gradient-to-b from-white to-gray-50/80 backdrop-blur-sm">
-          <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="text-xl font-semibold text-center">
-              {getStepTitle(currentStep)}
-            </DialogTitle>
+        <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-sm rounded-3xl border-0">
+          <DialogHeader className="flex-shrink-0 space-y-4 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-[#3a2a76]" />
+              </div>
+              <DialogTitle className="text-xl font-semibold text-gray-900">
+                {getStepTitle(currentStep)}
+              </DialogTitle>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="relative h-1 bg-gray-100 rounded-full overflow-hidden">
+              <div 
+                className="absolute top-0 left-0 h-full bg-[#3a2a76] transition-all duration-300 ease-out"
+                style={{ width: `${(currentStep / 4) * 100}%` }}
+              />
+            </div>
           </DialogHeader>
           
           {/* Scrollable content area */}
@@ -691,27 +708,27 @@ export default function Dashboard() {
             {/* Step 1: Mood */}
             {currentStep === 1 && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center p-4">
+                <div className="grid grid-cols-3 gap-4">
                   {[
-                    { icon: <Frown />, value: 1, label: "Not Good", color: "text-red-500" },
-                    { icon: <Meh />, value: 2, label: "Okay", color: "text-yellow-500" },
-                    { icon: <Smile />, value: 3, label: "Good", color: "text-green-500" }
+                    { icon: <Frown />, value: 1, label: "Not Good", color: "bg-red-100", textColor: "text-red-500" },
+                    { icon: <Meh />, value: 2, label: "Okay", color: "bg-yellow-100", textColor: "text-yellow-500" },
+                    { icon: <Smile />, value: 3, label: "Good", color: "bg-green-100", textColor: "text-green-500" }
                   ].map((item) => (
                     <div 
                       key={item.value}
-                      className={`flex flex-col items-center gap-3 cursor-pointer transition-all transform ${
-                        mood === item.value 
-                          ? 'scale-110' 
-                          : 'opacity-50 hover:opacity-75 hover:scale-105'
+                      className={`flex flex-col items-center gap-3 cursor-pointer transition-all ${
+                        mood === item.value ? 'scale-105' : 'opacity-70 hover:opacity-100'
                       }`}
                       onClick={() => setMood(item.value)}
                     >
-                      <div className={`w-20 h-20 rounded-2xl flex items-center justify-center ${
+                      <div className={`w-full aspect-square rounded-2xl flex items-center justify-center ${
                         mood === item.value 
-                          ? `${item.color} bg-white shadow-lg` 
-                          : 'text-gray-300 bg-gray-50'
+                          ? `${item.color}` 
+                          : 'bg-white/95 border border-gray-100'
                       }`}>
-                        {cloneElement(item.icon, { className: 'w-12 h-12' } as { className: string })}
+                        {cloneElement(item.icon, { 
+                          className: `w-8 h-8 ${mood === item.value ? item.textColor : 'text-gray-400'}`
+                        })}
                       </div>
                       <span className={`text-sm font-medium ${
                         mood === item.value ? 'text-gray-900' : 'text-gray-500'
@@ -731,10 +748,10 @@ export default function Dashboard() {
                   {activities.map((activity) => (
                     <div
                       key={activity.value}
-                      className={`relative rounded-2xl p-6 cursor-pointer transition-all ${
+                      className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
                         selectedActivity === activity.value
-                          ? 'bg-[#3a2a76]/10 border-2 border-[#3a2a76]'
-                          : 'bg-white/80 border-2 border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
+                          ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
+                          : 'bg-white/95 border border-gray-100 hover:border-[#3a2a76]/30'
                       }`}
                       onClick={() => setSelectedActivity(activity.value)}
                     >
@@ -749,13 +766,13 @@ export default function Dashboard() {
                         <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                           selectedActivity === activity.value 
                             ? 'bg-[#3a2a76]/20' 
-                            : 'bg-gray-100'
+                            : 'bg-gray-50'
                         }`}>
                           {cloneElement(activity.icon, { 
                             className: `w-6 h-6 ${
                               selectedActivity === activity.value 
                                 ? 'text-[#3a2a76]' 
-                                : 'text-gray-500'
+                                : 'text-gray-400'
                             }`
                           })}
                         </div>
@@ -780,10 +797,10 @@ export default function Dashboard() {
                   {symptoms.map((symptom, index) => (
                     <div
                       key={symptom.label}
-                      className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
+                      className={`relative rounded-xl p-4 cursor-pointer transition-all ${
                         symptom.selected
-                          ? 'bg-[#3a2a76]/10 border-2 border-[#3a2a76]'
-                          : 'bg-white/80 border-2 border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
+                          ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
+                          : 'bg-white/95 border border-gray-100 hover:border-[#3a2a76]/30'
                       }`}
                       onClick={() => {
                         const newSymptoms = [...symptoms];
@@ -853,10 +870,9 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* Step 4: Medications - Updated UI with categories */}
+            {/* Step 4: Medications */}
             {currentStep === 4 && (
               <div className="space-y-6">
-                {/* Group medications by category */}
                 {Array.from(new Set(medications.map(med => med.category))).map(category => (
                   <div key={category} className="space-y-2">
                     <h3 className="font-medium text-sm text-gray-500">{category}</h3>
@@ -866,32 +882,89 @@ export default function Dashboard() {
                         .map((med, index) => (
                           <div
                             key={med.name}
-                            className={`relative rounded-xl p-4 transition-all ${
+                            onClick={() => {
+                              const newMeds = [...medications];
+                              const medIndex = medications.findIndex(m => m.name === med.name);
+                              newMeds[medIndex].taken = !newMeds[medIndex].taken;
+                              setMedications(newMeds);
+                            }}
+                            className={`relative rounded-xl p-4 transition-all cursor-pointer ${
                               med.taken
-                                ? 'bg-primary/10 border-2 border-primary'
-                                : 'bg-gray-50 border-2 border-transparent'
+                                ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
+                                : 'bg-white/95 border border-gray-100 hover:border-[#3a2a76]/30'
                             }`}
                           >
                             <div className="flex items-center justify-between">
-                              <div className="space-y-1">
+                              <div className="flex flex-col">
                                 <span className="font-medium">{med.name}</span>
+                                {med.dosage && (
+                                  <span className="text-sm text-gray-500">
+                                    {med.dosage.value} {med.dosage.unit}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2">
                                 {med.prescribed && (
                                   <Badge variant="secondary" className="text-xs">Prescribed</Badge>
                                 )}
+                                <div
+                                  onClick={() => {
+                                    const newMeds = [...medications];
+                                    const medIndex = medications.findIndex(m => m.name === med.name);
+                                    newMeds[medIndex].taken = !newMeds[medIndex].taken;
+                                    setMedications(newMeds);
+                                  }}
+                                  className={`w-5 h-5 rounded-full flex items-center justify-center border cursor-pointer ${
+                                    med.taken 
+                                      ? 'bg-[#3a2a76] border-[#3a2a76]' 
+                                      : 'border-gray-300'
+                                  }`}
+                                >
+                                  {med.taken && <Check className="w-3 h-3 text-white" />}
+                                </div>
                               </div>
-                              <Button
-                                variant={med.taken ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => {
-                                  const newMeds = [...medications];
-                                  const medIndex = medications.findIndex(m => m.name === med.name);
-                                  newMeds[medIndex].taken = !newMeds[medIndex].taken;
-                                  setMedications(newMeds);
-                                }}
-                              >
-                                {med.taken ? "✓ Taken" : "Mark as Taken"}
-                              </Button>
                             </div>
+                            {med.taken && (
+                              <div className="mt-3 flex items-center gap-2">
+                                <input
+                                  type="number"
+                                  value={med.dosage?.value || ""}
+                                  onChange={(e) => {
+                                    const newMeds = [...medications];
+                                    const medIndex = medications.findIndex(m => m.name === med.name);
+                                    newMeds[medIndex].dosage = {
+                                      value: Number(e.target.value) || 0,
+                                      unit: med.dosage?.unit || 'mg'
+                                    };
+                                    setMedications(newMeds);
+                                  }}
+                                  className="w-20 px-2 py-1 rounded-md border text-sm"
+                                  placeholder="Dosage"
+                                />
+                                <Select
+                                  value={med.dosage?.unit || "mg"}
+                                  onValueChange={(value) => {
+                                    const newMeds = [...medications];
+                                    const medIndex = medications.findIndex(m => m.name === med.name);
+                                    newMeds[medIndex].dosage = {
+                                      value: med.dosage?.value || 0,
+                                      unit: value
+                                    };
+                                    setMedications(newMeds);
+                                  }}
+                                >
+                                  <SelectTrigger className="w-20 bg-white">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent className="bg-white">
+                                    <SelectItem value="mg">mg</SelectItem>
+                                    <SelectItem value="g">g</SelectItem>
+                                    <SelectItem value="ml">ml</SelectItem>
+                                    <SelectItem value="mcg">mcg</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            )}
                           </div>
                         ))}
                     </div>
@@ -908,19 +981,24 @@ export default function Dashboard() {
                       placeholder="Enter medication name"
                       className="w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50"
                     />
-                    <Select defaultValue="Antiarrhythmic">
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Antiarrhythmic">Antiarrhythmic</SelectItem>
-                        <SelectItem value="Beta Blocker">Beta Blocker</SelectItem>
-                        <SelectItem value="Heart Failure">Heart Failure</SelectItem>
-                        <SelectItem value="Diuretic">Diuretic</SelectItem>
-                        <SelectItem value="SGLT2">SGLT2 Inhibitor</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        placeholder="Dosage"
+                        className="flex-1 px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      />
+                      <Select defaultValue="mg">
+                        <SelectTrigger className="w-24">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="mg">mg</SelectItem>
+                          <SelectItem value="g">g</SelectItem>
+                          <SelectItem value="ml">ml</SelectItem>
+                          <SelectItem value="mcg">mcg</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="flex gap-2">
                       <Button
                         onClick={() => {
@@ -931,7 +1009,8 @@ export default function Dashboard() {
                                 name: newMedication.trim(), 
                                 taken: true, 
                                 prescribed: false,
-                                category: "Other" // You might want to make this dynamic based on selection
+                                category: "Other",
+                                dosage: { value: 0, unit: 'mg' }
                               }
                             ]);
                             setNewMedication("");
@@ -966,35 +1045,14 @@ export default function Dashboard() {
             )}
           </div>
 
-          {/* Footer with updated styling */}
-          <div className="flex-shrink-0 pt-6 border-t mt-6">
-            <div className="flex justify-between items-center px-2 mb-6">
-              {[1, 2, 3, 4].map((step) => (
-                <div key={step} className="flex flex-col items-center gap-1">
-                  <div
-                    className={`w-3 h-3 rounded-full transition-all ${
-                      step === currentStep
-                        ? 'bg-[#3a2a76] scale-125'
-                        : step < currentStep
-                        ? 'bg-[#3a2a76]/50'
-                        : 'bg-gray-200'
-                    }`}
-                  />
-                  <span className={`text-xs ${
-                    step === currentStep ? 'text-[#3a2a76] font-medium' : 'text-gray-400'
-                  }`}>
-                    Step {step}
-                  </span>
-                </div>
-              ))}
-            </div>
-
+          {/* Footer */}
+          <div className="flex-shrink-0 pt-6 border-t border-gray-100 mt-6">
             <div className="flex gap-3">
               {currentStep > 1 && (
                 <Button
                   variant="outline"
                   onClick={() => setCurrentStep(prev => prev - 1)}
-                  className="flex-1 border-2"
+                  className="flex-1 border"
                 >
                   Back
                 </Button>
