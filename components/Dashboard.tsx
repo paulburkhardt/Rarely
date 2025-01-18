@@ -722,7 +722,7 @@ export default function Dashboard() {
                 <div className="grid grid-cols-3 gap-4">
                   {[
                     { icon: <Frown />, value: 1, label: "Not Good", color: "bg-red-100", textColor: "text-red-500" },
-                    { icon: <Meh />, value: 2, label: "Okay", color: "bg-yellow-100", textColor: "text-[#3a2a76]" },
+                    { icon: <Meh />, value: 2, label: "Okay", color: "bg-yellow-100", textColor: "text-yellow-500" },
                     { icon: <Smile />, value: 3, label: "Good", color: "bg-green-100", textColor: "text-green-500" }
                   ].map((item) => (
                     <div 
