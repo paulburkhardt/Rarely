@@ -228,77 +228,77 @@ export function Onboarding() {
   };
 
   return (
-    <Dialog open={true}>
-      <DialogContent className="h-screen w-screen max-w-none m-0 rounded-none flex flex-col [&>button]:hidden bg-white">
-        {/* Message history - scrollable */}
-        <div className="h-[60%] overflow-y-auto px-4 py-2 space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${message.type === 'answer' ? 'justify-end' : 'justify-start'}`}
-            >
+    <div className="min-h-screen ">
+      <Dialog open={true}>
+        <DialogContent className="h-screen w-screen max-w-none m-0 bg-gradient-to-b from-[#E3D7F4] via-[#F7EED5] to-[#f8f8fa] rounded-none flex flex-col [&>button]:hidden bg-transparent">
+          {/* Message history - scrollable */}
+          <div className="h-[60%] overflow-y-auto px-4 py-2 space-y-4">
+            {messages.map((message, index) => (
               <div
-                className={`rounded-2xl px-4 py-2 max-w-[80%] ${
-                  message.type === 'answer'
-                    ? 'bg-[#3a2a76]/10 text-[#3a2a76]'
-                    : 'bg-white shadow-sm text-gray-800'
-                }`}
+                key={index}
+                className={`flex ${message.type === 'answer' ? 'justify-end' : 'justify-start'}`}
               >
-                {message.content}
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input and controls - fixed */}
-        <div className="max-h-[40%] border-t bg-white p-6">
-          <div className="space-y-6">
-            {step === 3 && (
-              <Input
-                type="date"
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-              />
-            )}
-
-            {(step === 5 || step === 7 || step === 12) && (
-              <div className="flex justify-center gap-4">
-                <Button
-                  variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('Yes')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'yes'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
+                <div
+                  className={`rounded-2xl px-4 py-2 max-w-[80%] ${
+                    message.type === 'answer'
+                      ? 'bg-[#3a2a76]/10 text-[#3a2a76]'
+                      : 'bg-white/50 backdrop-blur-sm text-gray-800'
                   }`}
                 >
-                  Yes
-                </Button>
-                <Button
-                  variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                  onClick={() => setCurrentMessage('No')}
-                  className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                    currentMessage.toLowerCase() === 'no'
-                      ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                      : 'border-2 hover:bg-[#3a2a76]/10'
-                  }`}
-                >
-                  No
-                </Button>
+                  {message.content}
+                </div>
               </div>
-            )}
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
 
-            {step === 8 && (
-              <>
+          {/* Input and controls - fixed */}
+          <div className={`max-h-[40%] ${step !== 13 ? 'border-t border-[#3a2a76]/20' : ''} bg-transparent p-6`}>
+            <div className="space-y-6">
+              {step === 3 && (
+                <Input
+                  type="date"
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  className="w-full px-4 py-3 h-12 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50"
+                />
+              )}
+
+              {(step === 5 || step === 7 || step === 12) && (
+                <div className="flex justify-center gap-4">
+                  <Button
+                    variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
+                    onClick={() => setCurrentMessage('Yes')}
+                    className={`flex-1 h-12 text-base font-medium rounded-xl ${
+                      currentMessage.toLowerCase() === 'yes'
+                        ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
+                        : 'bg-white hover:bg-[#3a2a76]/10 text-[#3a2a76]'
+                    }`}
+                  >
+                    Yes
+                  </Button>
+                  <Button
+                    variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
+                    onClick={() => setCurrentMessage('No')}
+                    className={`flex-1 h-12 text-base font-medium rounded-xl ${
+                      currentMessage.toLowerCase() === 'no'
+                        ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
+                        : 'bg-white hover:bg-[#3a2a76]/10 text-[#3a2a76]'
+                    }`}
+                  >
+                    No
+                  </Button>
+                </div>
+              )}
+
+              {step === 8 && (
                 <div className="flex justify-start">
-                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white shadow-sm w-full">
+                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white backdrop-blur-[2px] w-full">
                     <Select
                       value={currentMessage}
                       onValueChange={(value) => setCurrentMessage(value)}
                     >
-                      <SelectTrigger className="w-full">
+                      <SelectTrigger className="w-full border-0 bg-white focus:ring-0">
                         <SelectValue placeholder="Select your mutation" />
                       </SelectTrigger>
                       <SelectContent>
@@ -315,37 +315,40 @@ export function Onboarding() {
                     </Select>
                   </div>
                 </div>
-              </>
-            )}
+              )}
 
-            {(step === 2 || step === 4 || step === 6 || step === 11) && (
-              <Input
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                placeholder="Type your answer..."
-                className="w-full px-4 py-3 h-12 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-              />
-            )}
+              {(step === 2 || step === 4 || step === 6 || step === 11) && (
+                <Input
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  placeholder="Type your answer..."
+                  className="w-full px-4 py-3 h-12 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50"
+                />
+              )}
 
-            {step === 9 && (
-              <>
-              
-
+              {(step === 9 || step === 10) && (
                 <div className="flex justify-start w-full">
-                  <div className="rounded-2xl w-full bg-white shadow-sm">
-                    <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
+                  <div className="rounded-2xl w-full bg-transparent">
+                    <div className="max-h-[25vh] overflow-y-auto">
                       <div className="space-y-2">
-                        {[...commonSymptoms, ...data.symptoms.filter(s => !commonSymptoms.includes(s.symptom)).map(s => s.symptom)].map(symptom => {
-                          const symptomData = data.symptoms.find(s => s.symptom === symptom);
-                          const isSelected = !!symptomData;
+                        {[...(step === 9 ? commonSymptoms : commonMedications), 
+                          ...(step === 9 
+                            ? data.symptoms.filter(s => !commonSymptoms.includes(s.symptom)).map(s => s.symptom)
+                            : data.medications.filter(m => !commonMedications.includes(m.medication)).map(m => m.medication)
+                          )].map(item => {
+                          const isSymptom = step === 9;
+                          const itemData = isSymptom 
+                            ? data.symptoms.find(s => s.symptom === item)
+                            : data.medications.find(m => m.medication === item);
+                          const isSelected = !!itemData;
 
                           return (
                             <div
-                              key={symptom}
+                              key={item}
                               className={`relative rounded-xl p-3 transition-all ${
                                 isSelected
-                                  ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
-                                  : 'bg-white/80 border border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
+                                  ? 'bg-[#3a2a76]/10 border '
+                                  : 'bg-white/95 border border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
                               }`}
                             >
                               <div className="flex flex-col gap-2">
@@ -354,52 +357,81 @@ export function Onboarding() {
                                     isSelected ? 'text-[#3a2a76]' : 'text-gray-600'
                                   }`}
                                   onClick={() => {
-                                    if (isSelected) {
-                                      setData(prev => ({
-                                        ...prev,
-                                        symptoms: prev.symptoms.filter(s => s.symptom !== symptom)
-                                      }));
+                                    if (isSymptom) {
+                                      if (isSelected) {
+                                        setData(prev => ({
+                                          ...prev,
+                                          symptoms: prev.symptoms.filter(s => s.symptom !== item)
+                                        }));
+                                      } else {
+                                        setData(prev => ({
+                                          ...prev,
+                                          symptoms: [...prev.symptoms, { symptom: item, frequency: '' }]
+                                        }));
+                                      }
                                     } else {
-                                      setData(prev => ({
-                                        ...prev,
-                                        symptoms: [...prev.symptoms, { symptom, frequency: '' }]
-                                      }));
+                                      if (isSelected) {
+                                        setData(prev => ({
+                                          ...prev,
+                                          medications: prev.medications.filter(m => m.medication !== item)
+                                        }));
+                                      } else {
+                                        setData(prev => ({
+                                          ...prev,
+                                          medications: [...prev.medications, { medication: item, frequency: '' }]
+                                        }));
+                                      }
                                     }
                                   }}
                                 >
-                                  {symptom}
+                                  {item}
                                 </div>
                                 
                                 {isSelected && (
                                   <div className="flex items-center gap-2 w-full">
                                     <Select
-                                      value={symptomData?.frequency || ''}
-                                      onValueChange={(value: '' | 'Daily' | 'Weekly' | 'Monthly' | 'Rarely') => {
-                                        if (value === '') {
+                                      value={itemData?.frequency || ''}
+                                      onValueChange={(value: any) => {
+                                        if (isSymptom) {
                                           setData(prev => ({
                                             ...prev,
-                                            symptoms: prev.symptoms.filter(s => s.symptom !== symptom)
+                                            symptoms: prev.symptoms.map(s => 
+                                              s.symptom === item 
+                                                ? { ...s, frequency: value }
+                                                : s
+                                            )
                                           }));
                                         } else {
                                           setData(prev => ({
                                             ...prev,
-                                            symptoms: prev.symptoms.map(s => 
-                                              s.symptom === symptom 
-                                                ? { ...s, frequency: value }
-                                                : s
+                                            medications: prev.medications.map(m => 
+                                              m.medication === item 
+                                                ? { ...m, frequency: value }
+                                                : m
                                             )
                                           }));
                                         }
                                       }}
                                     >
-                                      <SelectTrigger className="h-9 flex-1 text-sm">
+                                      <SelectTrigger className="h-9 flex-1 text-sm border-0 bg-white/50">
                                         <SelectValue placeholder="How often?" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        <SelectItem value="Daily">Daily</SelectItem>
-                                        <SelectItem value="Weekly">Weekly</SelectItem>
-                                        <SelectItem value="Monthly">Monthly</SelectItem>
-                                        <SelectItem value="Rarely">Rarely</SelectItem>
+                                        {isSymptom ? (
+                                          <>
+                                            <SelectItem value="Daily">Daily</SelectItem>
+                                            <SelectItem value="Weekly">Weekly</SelectItem>
+                                            <SelectItem value="Monthly">Monthly</SelectItem>
+                                            <SelectItem value="Rarely">Rarely</SelectItem>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <SelectItem value="Daily">Daily</SelectItem>
+                                            <SelectItem value="Weekly">Weekly</SelectItem>
+                                            <SelectItem value="Monthly">Monthly</SelectItem>
+                                            <SelectItem value="As needed">As needed</SelectItem>
+                                          </>
+                                        )}
                                       </SelectContent>
                                     </Select>
                                   </div>
@@ -412,38 +444,25 @@ export function Onboarding() {
                         <div className="relative rounded-xl p-3 border border-transparent">
                           <div className="flex gap-2">
                             <Input
-                              placeholder="Add other symptom..."
+                              placeholder={`Add other ${step === 9 ? 'symptom' : 'medication'}...`}
                               value={currentMessage}
                               onChange={(e) => setCurrentMessage(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' && currentMessage.trim() && !data.symptoms.some(s => s.symptom.toLowerCase() === currentMessage.toLowerCase().trim())) {
-                                  setData(prev => ({
-                                    ...prev,
-                                    symptoms: [...prev.symptoms, { symptom: currentMessage.trim(), frequency: '' as const }]
-                                  }));
-                                  setCurrentMessage('');
-                                }
-                              }}
-                              className="flex-1 px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
+                              className="flex-1 px-4 py-3 h-9 rounded-xl border-0 bg-white focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50"
                             />
                             <Button
                               onClick={() => {
-                                console.log('Add button clicked');
-                                console.log('Current message:', currentMessage);
-                                console.log('Current symptoms:', data.symptoms);
-                                
-                                if (currentMessage.trim() && !data.symptoms.some(s => s.symptom.toLowerCase() === currentMessage.toLowerCase().trim())) {
-                                  const newSymptom = { symptom: currentMessage.trim(), frequency: '' as const };
-                                  console.log('Adding new symptom:', newSymptom);
-                                  
-                                  setData(prev => {
-                                    const newData = {
+                                if (currentMessage.trim()) {
+                                  if (step === 9) {
+                                    setData(prev => ({
                                       ...prev,
-                                      symptoms: [...prev.symptoms, newSymptom]
-                                    };
-                                    console.log('New data:', newData);
-                                    return newData;
-                                  });
+                                      symptoms: [...prev.symptoms, { symptom: currentMessage.trim(), frequency: '' }]
+                                    }));
+                                  } else {
+                                    setData(prev => ({
+                                      ...prev,
+                                      medications: [...prev.medications, { medication: currentMessage.trim(), frequency: '' }]
+                                    }));
+                                  }
                                   setCurrentMessage('');
                                 }
                               }}
@@ -457,198 +476,76 @@ export function Onboarding() {
                     </div>
                   </div>
                 </div>
-              </>
-            )}
-
-            {step === 10 && (
-              <>
-              
-
-                <div className="flex justify-start w-full">
-                  <div className="rounded-2xl w-full bg-white shadow-sm">
-                    <div className="max-h-[300px] overflow-y-auto p-3 pb-20">
-                      <div className="space-y-2">
-                        {[...commonMedications, ...data.medications.filter(m => !commonMedications.includes(m.medication)).map(m => m.medication)].map(medication => {
-                          const medicationData = data.medications.find(m => m.medication === medication);
-                          const isSelected = !!medicationData;
-
-                          return (
-                            <div
-                              key={medication}
-                              className={`relative rounded-xl p-3 transition-all ${
-                                isSelected
-                                  ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
-                                  : 'bg-white/80 border border-transparent hover:border-[#3a2a76]/30 hover:bg-white'
-                              }`}
-                            >
-                              <div className="flex flex-col gap-2">
-                                <div 
-                                  className={`text-sm font-medium cursor-pointer ${
-                                    isSelected ? 'text-[#3a2a76]' : 'text-gray-600'
-                                  }`}
-                                  onClick={() => {
-                                    if (isSelected) {
-                                      setData(prev => ({
-                                        ...prev,
-                                        medications: prev.medications.filter(m => m.medication !== medication)
-                                      }));
-                                    } else {
-                                      setData(prev => ({
-                                        ...prev,
-                                        medications: [...prev.medications, { medication, frequency: '' }]
-                                      }));
-                                    }
-                                  }}
-                                >
-                                  {medication}
-                                </div>
-                                
-                                {isSelected && (
-                                  <div className="flex items-center gap-2 w-full">
-                                    <Select
-                                      value={medicationData?.frequency || ''}
-                                      onValueChange={(value: '' | 'Daily' | 'Weekly' | 'Monthly' | 'As needed') => {
-                                        if (value === '') {
-                                          setData(prev => ({
-                                            ...prev,
-                                            medications: prev.medications.filter(m => m.medication !== medication)
-                                          }));
-                                        } else {
-                                          setData(prev => ({
-                                            ...prev,
-                                            medications: prev.medications.map(m => 
-                                              m.medication === medication 
-                                                ? { ...m, frequency: value }
-                                                : m
-                                            )
-                                          }));
-                                        }
-                                      }}
-                                    >
-                                      <SelectTrigger className="h-9 flex-1 text-sm">
-                                        <SelectValue placeholder="How often?" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="Daily">Daily</SelectItem>
-                                        <SelectItem value="Weekly">Weekly</SelectItem>
-                                        <SelectItem value="Monthly">Monthly</SelectItem>
-                                        <SelectItem value="As needed">As needed</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                        <div className="relative rounded-xl p-3 border border-transparent">
-                          <div className="flex gap-2">
-                            <Input
-                              placeholder="Add other medication..."
-                              value={currentMessage}
-                              onChange={(e) => setCurrentMessage(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' && currentMessage.trim() && !data.medications.some(m => m.medication.toLowerCase() === currentMessage.toLowerCase().trim())) {
-                                  setData(prev => ({
-                                    ...prev,
-                                    medications: [...prev.medications, { medication: currentMessage.trim(), frequency: '' as const }]
-                                  }));
-                                  setCurrentMessage('');
-                                }
-                              }}
-                              className="flex-1 px-4 py-3 h-9 rounded-xl border-2 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 focus:border-[#3a2a76]"
-                            />
-                            <Button
-                              onClick={() => {
-                                if (currentMessage.trim() && !data.medications.some(m => m.medication.toLowerCase() === currentMessage.toLowerCase().trim())) {
-                                  setData(prev => ({
-                                    ...prev,
-                                    medications: [...prev.medications, { medication: currentMessage.trim(), frequency: '' as const }]
-                                  }));
-                                  setCurrentMessage('');
-                                }
-                              }}
-                              className="h-9 px-3 bg-[#3a2a76] hover:bg-[#a680db] text-white"
-                            >
-                              Add
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-        {step === 1 && (
-          <div className="flex justify-start w-full">
-            <div className="rounded-2xl w-full bg-white shadow-sm p-4">
-              <div className="border-2 border-dashed border-[#3a2a76]/30 rounded-xl p-8 text-center hover:border-[#3a2a76] transition-colors">
-                <input
-                  type="file"
-                  id="file-upload"
-                  className="hidden"
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                      setCurrentMessage(e.target.files[0].name);
-                      setData(prev => ({
-                        ...prev,
-                        doctorLetter: e.target.files?.[0]?.name || ''
-                      }));
-                    }
-                  }}
-                />
-                <label
-                  htmlFor="file-upload"
-                  className="cursor-pointer flex flex-col items-center gap-2"
-                >
-                  <div className="w-12 h-12 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
-                    {currentMessage ? (
-                      <Check className="w-6 h-6 text-[#3a2a76]" />
-                    ) : (
-                      <svg
-                        className="w-6 h-6 text-[#3a2a76]"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    )}
-                  </div>
-                  <span className="text-sm font-medium text-[#3a2a76]">
-                    {currentMessage || "Click to upload document"}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    Supported formats: PDF, DOC, DOCX, JPG, PNG
-                  </span>
-                </label>
-              </div>
-              
-              <button
-                onClick={() => {
-                  setCurrentMessage('demo_letter.pdf');
-                  setData(prev => ({
-                    ...prev,
-                    doctorLetter: 'demo_letter.pdf'
-                  }));
-                }}
-                className="mt-4 text-sm text-[#3a2a76] hover:text-[#a680db] underline"
-              >
-                Skip for demo
-              </button>
+              )}
             </div>
           </div>
-        )}
-        <div className="sticky bottom-0 pt-4 bg-white border-t">
+          {step === 1 && (
+            <div className="flex justify-start w-full">
+              <div className="rounded-2xl w-full bg-white shadow-sm p-4">
+                <div className="border-2 border-dashed border-[#3a2a76]/30 rounded-xl p-8 text-center hover:border-[#3a2a76] transition-colors">
+                  <input
+                    type="file"
+                    id="file-upload"
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={(e) => {
+                      if (e.target.files?.[0]) {
+                        setCurrentMessage(e.target.files[0].name);
+                        setData(prev => ({
+                          ...prev,
+                          doctorLetter: e.target.files?.[0]?.name || ''
+                        }));
+                      }
+                    }}
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="cursor-pointer flex flex-col items-center gap-2"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                      {currentMessage ? (
+                        <Check className="w-6 h-6 text-[#3a2a76]" />
+                      ) : (
+                        <svg
+                          className="w-6 h-6 text-[#3a2a76]"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-[#3a2a76]">
+                      {currentMessage || "Click to upload document"}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      Supported formats: PDF, DOC, DOCX, JPG, PNG
+                    </span>
+                  </label>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    setCurrentMessage('demo_letter.pdf');
+                    setData(prev => ({
+                      ...prev,
+                      doctorLetter: 'demo_letter.pdf'
+                    }));
+                  }}
+                  className="mt-4 text-sm text-[#3a2a76] hover:text-[#a680db] underline"
+                >
+                  Skip for demo
+                </button>
+              </div>
+            </div>
+          )}
+          <div className={`sticky bottom-0 pt-4 bg-transparent ${step !== 13 ? 'border-t border-[#3a2a76]/20' : ''}`}>
             <Button
               onClick={step === 13 ? handleComplete : handleNext}
               className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
@@ -666,7 +563,7 @@ export function Onboarding() {
                         ? 'bg-[#3a2a76] scale-125'
                         : s < step
                         ? 'bg-[#3a2a76]/50'
-                        : 'bg-gray-200'
+                        : 'bg-gray-200/50'
                     }`}
                   />
                   <span className={`text-xs ${
@@ -678,7 +575,8 @@ export function Onboarding() {
               ))}
             </div>
           </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 } 
