@@ -129,6 +129,7 @@ export default function Dashboard() {
       { time: 'Week 4', value: 2, activity: 'Daily Activities' },
     ],
   });
+  const [streakCount, setStreakCount] = useState<number>(7);
 
   const { userData, setUserData } = useUser();
 
@@ -225,6 +226,10 @@ export default function Dashboard() {
   };
 
   const submitDiary = () => {
+    if (!hasDiaryEntry) {
+      setStreakCount(prev => prev + 1);
+    }
+    
     setHasDiaryEntry(true);
     sessionStorage.setItem("hasDiaryEntry", "true");
     setShowDiaryModal(false);
@@ -281,7 +286,13 @@ export default function Dashboard() {
               className="opacity-90"
             />
           </div>
-         
+          {/* Updated streak counter */}
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-semibold">{streakCount}</span>
+              <span className="text-orange-500">🔥</span>
+            </div>
+          </div>
         </div>
 
         {/* Centered Greeting */}
