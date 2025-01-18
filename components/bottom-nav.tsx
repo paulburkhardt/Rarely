@@ -2,17 +2,18 @@
 
 import { Bot, BookOpen, User, Brain, Info } from 'lucide-react'
 import Link from "next/link"
-import { usePathname, useSearchParams } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { Suspense } from 'react'
 
 // Create a separate component for the navigation content
 function NavigationContent() {
   const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const activeTab = searchParams.get('tab')
 
   const isActive = (path: string) => {
-    return pathname === path
+    if (path === '/') {
+      return pathname === path
+    }
+    return pathname.startsWith(path)
   }
 
 
