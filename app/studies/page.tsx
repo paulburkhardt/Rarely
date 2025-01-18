@@ -1,26 +1,15 @@
 'use client'
 
 import { Suspense, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Calendar, Users, Check, BookOpen, Info } from 'lucide-react'
-import { colors } from "@/styles/colors"
+import { MapPin, Calendar, Users, Check, BookOpen } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useSearchParams, useRouter } from 'next/navigation'
-import { toast } from "@/components/ui/use-toast"
 import { studies } from './data'
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import Image from 'next/image'
 import { useUser } from "@/contexts/UserContext"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 
 type Study = {
@@ -77,12 +66,7 @@ function StudiesContent() {
               className="opacity-90"
             />
           </div>
-          <div className="absolute right-0">
-            <Avatar className="h-8 w-8">
-              <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData?.name?.slice(0, 2)}</AvatarFallback>
-            </Avatar>
-          </div>
+         
         </div>
         <h1 className="text-3xl font-bold text-black mb-1">Studies</h1>
       </div>

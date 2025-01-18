@@ -173,7 +173,7 @@ export function Onboarding() {
       case 5:
         return "How long did it take from first symptoms to diagnosis?";
       case 6:
-        return "Where you doing high intensity sports before you were diagnosed?";
+        return "Were you doing high intensity sports before you were diagnosed?";
       case 7:
         return "Do you know which genetic mutation you have? (It's okay if you don't)";
       case 8:

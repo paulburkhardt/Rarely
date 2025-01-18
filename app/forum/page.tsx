@@ -86,12 +86,7 @@ function ForumContent() {
               className="opacity-90"
             />
           </div>
-          <div className="absolute right-0">
-            <Avatar className="h-8 w-8">
-              <AvatarImage alt="User avatar" className="object-cover" />
-              <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
-            </Avatar>
-          </div>
+          
         </div>
         <h1 className="text-3xl font-bold text-black mb-1">Forum</h1>
       </div>

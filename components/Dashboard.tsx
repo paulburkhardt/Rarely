@@ -277,12 +277,7 @@ export default function Dashboard() {
               className="opacity-90"
             />
           </div>
-          <div className="absolute right-0">
-            <Avatar className="h-8 w-8">
-              <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
-            </Avatar>
-          </div>
+         
         </div>
 
         {/* Centered Greeting */}

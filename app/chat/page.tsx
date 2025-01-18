@@ -1,12 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Heart, Paperclip, Send, Trash2, X, MessageCircle, Grid } from 'lucide-react'
+import { Paperclip, Send, Trash2, X } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useChat } from 'ai/react'
 import Image from 'next/image'
-import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import ReactMarkdown from 'react-markdown'
@@ -238,12 +236,6 @@ export default function ChatPage() {
               height={100} 
               className="opacity-90"
             />
-          </div>
-          <div className="absolute right-0">
-            <Avatar className="h-8 w-8">
-              <AvatarImage alt="User avatar" />
-              <AvatarFallback>{userData.name.slice(0, 2)}</AvatarFallback>
-            </Avatar>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-black mb-1">Chat Assistant</h1>
