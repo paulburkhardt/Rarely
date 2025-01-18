@@ -919,12 +919,6 @@ export default function Dashboard() {
                                   <Badge variant="secondary" className="text-xs">Prescribed</Badge>
                                 )}
                                 <div
-                                  onClick={() => {
-                                    const newMeds = [...medications];
-                                    const medIndex = medications.findIndex(m => m.name === med.name);
-                                    newMeds[medIndex].taken = !newMeds[medIndex].taken;
-                                    setMedications(newMeds);
-                                  }}
                                   className={`w-5 h-5 rounded-full flex items-center justify-center border cursor-pointer ${
                                     med.taken 
                                       ? 'bg-[#3a2a76] border-[#3a2a76]' 
@@ -936,7 +930,7 @@ export default function Dashboard() {
                               </div>
                             </div>
                             {med.taken && (
-                              <div className="mt-3 flex items-center gap-2">
+                              <div className="mt-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                                 <input
                                   type="number"
                                   value={med.dosage?.value || ""}
