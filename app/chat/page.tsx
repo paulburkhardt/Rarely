@@ -264,9 +264,21 @@ export default function ChatPage() {
 
   // Add this useEffect to check for speech recognition support
   useEffect(() => {
-    const supported = 'webkitSpeechRecognition' in window || 'SpeechRecognition' in window
-    setSpeechSupported(supported)
-  }, [])
+    const checkSupport = async () => {
+      try {
+        // Check if browser supports getUserMedia
+        const hasMediaSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        // Check if browser supports necessary APIs
+        const hasRequiredAPIs = 'MediaRecorder' in window;
+        
+        setSpeechSupported(hasMediaSupport && hasRequiredAPIs);
+      } catch (error) {
+        setSpeechSupported(false);
+      }
+    };
+    
+    checkSupport();
+  }, []);
 
   // Add speech recognition function
   const toggleListening = async () => {
@@ -285,7 +297,10 @@ export default function ChatPage() {
       // Start recording
       try {
         const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(newStream);
+        const recorder = new MediaRecorder(newStream, {
+          mimeType: 'audio/mp4',  // Safari mobile supports mp4
+          audioBitsPerSecond: 128000
+        });
         const audioChunks: BlobPart[] = [];
 
         recorder.ondataavailable = (event) => {
@@ -293,7 +308,7 @@ export default function ChatPage() {
         };
 
         recorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
           
           // Clean up
           newStream.getTracks().forEach(track => track.stop());
@@ -301,7 +316,7 @@ export default function ChatPage() {
           setMediaRecorder(null);
           
           const formData = new FormData();
-          formData.append('file', audioBlob, 'recording.webm');
+          formData.append('file', audioBlob, 'recording.m4a');
 
           try {
             const response = await fetch('/api/transcribe', {
