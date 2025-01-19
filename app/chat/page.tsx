@@ -269,61 +269,9 @@ export default function ChatPage() {
   }, [])
 
   // Add speech recognition function
-  const startListening = async () => {
-    setIsListening(true);
-    
-    try {
-      const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(newStream);
-      const audioChunks: BlobPart[] = [];
-
-      recorder.ondataavailable = (event) => {
-        audioChunks.push(event.data);
-      };
-
-      recorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        
-        // Clean up
-        newStream.getTracks().forEach(track => track.stop());
-        setStream(null);
-        setMediaRecorder(null);
-        
-        const formData = new FormData();
-        formData.append('file', audioBlob, 'recording.webm');
-
-        try {
-          const response = await fetch('/api/transcribe', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error('Transcription failed');
-          }
-
-          const { text } = await response.json();
-          setInput(text);
-        } catch (error) {
-          console.error('Transcription error:', error);
-        } finally {
-          setIsListening(false);
-        }
-      };
-
-      setStream(newStream);
-      setMediaRecorder(recorder);
-      recorder.start();
-
-    } catch (error) {
-      console.error('Recording error:', error);
-      setIsListening(false);
-    }
-  };
-
-  useEffect(() => {
-    // Cleanup function
-    return () => {
+  const toggleListening = async () => {
+    if (isListening) {
+      // Stop recording
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
         mediaRecorder.stop();
       }
@@ -333,19 +281,57 @@ export default function ChatPage() {
       setIsListening(false);
       setMediaRecorder(null);
       setStream(null);
-    };
-  }, [mediaRecorder, stream]);
+    } else {
+      // Start recording
+      try {
+        const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(newStream);
+        const audioChunks: BlobPart[] = [];
 
-  const stopListening = () => {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      mediaRecorder.stop();
+        recorder.ondataavailable = (event) => {
+          audioChunks.push(event.data);
+        };
+
+        recorder.onstop = async () => {
+          const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+          
+          // Clean up
+          newStream.getTracks().forEach(track => track.stop());
+          setStream(null);
+          setMediaRecorder(null);
+          
+          const formData = new FormData();
+          formData.append('file', audioBlob, 'recording.webm');
+
+          try {
+            const response = await fetch('/api/transcribe', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (!response.ok) {
+              throw new Error('Transcription failed');
+            }
+
+            const { text } = await response.json();
+            setInput(text);
+          } catch (error) {
+            console.error('Transcription error:', error);
+          } finally {
+            setIsListening(false);
+          }
+        };
+
+        setStream(newStream);
+        setMediaRecorder(recorder);
+        setIsListening(true);
+        recorder.start();
+
+      } catch (error) {
+        console.error('Recording error:', error);
+        setIsListening(false);
+      }
     }
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-    }
-    setIsListening(false);
-    setMediaRecorder(null);
-    setStream(null);
   };
 
   return (
@@ -483,10 +469,7 @@ export default function ChatPage() {
                 variant="ghost"
                 size="sm"
                 className="text-[#3a2a76]"
-                onMouseDown={startListening}
-                onMouseUp={stopListening}
-                onMouseLeave={stopListening}
-                disabled={isListening}
+                onClick={toggleListening}
               >
                 {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
               </Button>
