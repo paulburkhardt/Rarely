@@ -79,7 +79,7 @@ function StudiesContent() {
       {/* Main Content */}
       <div className="px-4 pb-24 space-y-4">
         <Tabs value={activeTab} className="space-y-4" onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-2 rounded-xl p-1 bg-white/95 shadow-sm backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-3 rounded-xl p-1 bg-white/95 shadow-sm backdrop-blur-sm">
             <TabsTrigger 
               value="recruiting"
               className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
@@ -91,6 +91,12 @@ function StudiesContent() {
               className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
             >
               Running
+            </TabsTrigger>
+            <TabsTrigger 
+              value="completed"
+              className="rounded-lg data-[state=active]:bg-[#3a2a76] data-[state=active]:text-white transition-all duration-200"
+            >
+              Completed
             </TabsTrigger>
           </TabsList>
 
@@ -177,7 +183,6 @@ function StudiesContent() {
           </TabsContent>
 
           <TabsContent value="running" className="space-y-4">
-            {/* Active Running Studies */}
             {runningStudies.map((study) => (
               <Card key={study.id} className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden">
                 <CardContent className="p-4">
@@ -234,17 +239,9 @@ function StudiesContent() {
                 </CardContent>
               </Card>
             ))}
+          </TabsContent>
 
-            {/* Divider for Completed Studies */}
-            {completedStudies.length > 0 && (
-              <div className="flex items-center gap-2 mt-6 mb-2">
-                <div className="h-px flex-1 bg-gray-200" />
-                <span className="text-sm text-gray-500 font-medium">Completed Studies</span>
-                <div className="h-px flex-1 bg-gray-200" />
-              </div>
-            )}
-
-            {/* Completed Studies */}
+          <TabsContent value="completed" className="space-y-4">
             {completedStudies.map((study) => (
               <Card key={study.id} className="bg-white/90 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden border-gray-100">
                 <CardContent className="p-4">

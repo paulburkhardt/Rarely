@@ -57,6 +57,10 @@ interface ActivityDataPoint {
   activity: string;
 }
 
+
+
+
+// ... rest of existing code ...
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [hasDiaryEntry, setHasDiaryEntry] = useState<boolean>(false);
@@ -130,6 +134,7 @@ export default function Dashboard() {
     ],
   });
   const [streakCount, setStreakCount] = useState<number>(7);
+  const [syncedProviders, setSyncedProviders] = useState<HealthProvider[]>([]);
 
   const { userData, setUserData } = useUser();
 
@@ -190,40 +195,115 @@ export default function Dashboard() {
     };
   });
 
-  // Add this mock data for synced state
-  const syncedActivityData = {
-    today: [
-      { time: '9AM', value: 2, activity: 'Daily Activities' },
-      { time: '11AM', value: 3, activity: 'Light Exercise' },
-      { time: '1PM', value: 2, activity: 'Daily Activities' },
-      { time: '3PM', value: 4, activity: 'Moderate Exercise' },
-      { time: '5PM', value: 5, activity: 'Intense Exercise' },
-      { time: '7PM', value: 2, activity: 'Daily Activities' },
-      { time: '9PM', value: 1, activity: 'Complete Rest' },
-    ],
-    week: [
-      { time: 'Mon', value: 3, activity: 'Light Exercise' },
-      { time: 'Tue', value: 4, activity: 'Moderate Exercise' },
-      { time: 'Wed', value: 5, activity: 'Intense Exercise' },
-      { time: 'Thu', value: 3, activity: 'Light Exercise' },
-      { time: 'Fri', value: 4, activity: 'Moderate Exercise' },
-      { time: 'Sat', value: 2, activity: 'Daily Activities' },
-      { time: 'Sun', value: 3, activity: 'Light Exercise' },
-    ],
-    month: [
-      { time: 'Week 1', value: 3, activity: 'Light Exercise' },
-      { time: 'Week 2', value: 4, activity: 'Moderate Exercise' },
-      { time: 'Week 3', value: 5, activity: 'Intense Exercise' },
-      { time: 'Week 4', value: 3, activity: 'Light Exercise' },
-    ],
+  // Add these mock data sets
+  const mockHealthData = {
+    apple: {
+      today: [
+        { time: '9AM', value: 2, activity: 'Daily Activities' },
+        { time: '11AM', value: 3, activity: 'Light Exercise' },
+        { time: '1PM', value: 2, activity: 'Daily Activities' },
+        { time: '3PM', value: 4, activity: 'Moderate Exercise' },
+        { time: '5PM', value: 5, activity: 'Intense Exercise' },
+        { time: '7PM', value: 2, activity: 'Daily Activities' },
+        { time: '9PM', value: 1, activity: 'Complete Rest' },
+      ],
+      week: [
+        { time: 'Mon', value: 3, activity: 'Light Exercise' },
+        { time: 'Tue', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Wed', value: 5, activity: 'Intense Exercise' },
+        { time: 'Thu', value: 3, activity: 'Light Exercise' },
+        { time: 'Fri', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Sat', value: 2, activity: 'Daily Activities' },
+        { time: 'Sun', value: 3, activity: 'Light Exercise' },
+      ],
+      month: [
+        { time: 'Week 1', value: 3, activity: 'Light Exercise' },
+        { time: 'Week 2', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Week 3', value: 5, activity: 'Intense Exercise' },
+        { time: 'Week 4', value: 3, activity: 'Light Exercise' },
+      ],
+    },
+    whoop: {
+      today: [
+        { time: '9AM', value: 3, activity: 'Light Exercise' },
+        { time: '11AM', value: 4, activity: 'Moderate Exercise' },
+        { time: '1PM', value: 3, activity: 'Light Exercise' },
+        { time: '3PM', value: 5, activity: 'Intense Exercise' },
+        { time: '5PM', value: 4, activity: 'Moderate Exercise' },
+        { time: '7PM', value: 3, activity: 'Light Exercise' },
+        { time: '9PM', value: 1, activity: 'Complete Rest' },
+      ],
+      week: [
+        { time: 'Mon', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Tue', value: 5, activity: 'Intense Exercise' },
+        { time: 'Wed', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Thu', value: 3, activity: 'Light Exercise' },
+        { time: 'Fri', value: 5, activity: 'Intense Exercise' },
+        { time: 'Sat', value: 3, activity: 'Light Exercise' },
+        { time: 'Sun', value: 2, activity: 'Daily Activities' },
+      ],
+      month: [
+        { time: 'Week 1', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Week 2', value: 5, activity: 'Intense Exercise' },
+        { time: 'Week 3', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Week 4', value: 3, activity: 'Light Exercise' },
+      ],
+    },
+    oura: {
+      today: [
+        { time: '9AM', value: 1, activity: 'Complete Rest' },
+        { time: '11AM', value: 2, activity: 'Daily Activities' },
+        { time: '1PM', value: 4, activity: 'Moderate Exercise' },
+        { time: '3PM', value: 3, activity: 'Light Exercise' },
+        { time: '5PM', value: 2, activity: 'Daily Activities' },
+        { time: '7PM', value: 3, activity: 'Light Exercise' },
+        { time: '9PM', value: 1, activity: 'Complete Rest' },
+      ],
+      week: [
+        { time: 'Mon', value: 2, activity: 'Daily Activities' },
+        { time: 'Tue', value: 3, activity: 'Light Exercise' },
+        { time: 'Wed', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Thu', value: 5, activity: 'Intense Exercise' },
+        { time: 'Fri', value: 3, activity: 'Light Exercise' },
+        { time: 'Sat', value: 2, activity: 'Daily Activities' },
+        { time: 'Sun', value: 4, activity: 'Moderate Exercise' },
+      ],
+      month: [
+        { time: 'Week 1', value: 2, activity: 'Daily Activities' },
+        { time: 'Week 2', value: 3, activity: 'Light Exercise' },
+        { time: 'Week 3', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Week 4', value: 5, activity: 'Intense Exercise' },
+      ],
+    },
+    fitbit: {
+      today: [
+        { time: '9AM', value: 2, activity: 'Daily Activities' },
+        { time: '11AM', value: 3, activity: 'Light Exercise' },
+        { time: '1PM', value: 5, activity: 'Intense Exercise' },
+        { time: '3PM', value: 4, activity: 'Moderate Exercise' },
+        { time: '5PM', value: 3, activity: 'Light Exercise' },
+        { time: '7PM', value: 2, activity: 'Daily Activities' },
+        { time: '9PM', value: 1, activity: 'Complete Rest' },
+      ],
+      week: [
+        { time: 'Mon', value: 3, activity: 'Light Exercise' },
+        { time: 'Tue', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Wed', value: 5, activity: 'Intense Exercise' },
+        { time: 'Thu', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Fri', value: 3, activity: 'Light Exercise' },
+        { time: 'Sat', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Sun', value: 3, activity: 'Light Exercise' },
+      ],
+      month: [
+        { time: 'Week 1', value: 3, activity: 'Light Exercise' },
+        { time: 'Week 2', value: 4, activity: 'Moderate Exercise' },
+        { time: 'Week 3', value: 5, activity: 'Intense Exercise' },
+        { time: 'Week 4', value: 4, activity: 'Moderate Exercise' },
+      ],
+    },
   };
 
-  const handleHealthSync = () => {
-    setIsHealthSynced(true);
-    // Update the activity data with synced data
-    setActivityData(syncedActivityData);
-    // In a real app, this would trigger the Apple Health API integration
-  };
+
 
   const submitDiary = () => {
     if (!hasDiaryEntry) {
@@ -270,6 +350,19 @@ export default function Dashboard() {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
+
+  // Update the type (should be near the top with other interfaces)
+  type HealthProvider = 'apple' | 'whoop' | 'oura' | 'fitbit';
+
+
+  // Update handleHealthSync function
+  const handleHealthSync = (provider: HealthProvider) => {
+    setIsHealthSynced(true);
+    setSyncedProviders(prev => [...prev, provider]);
+    setActivityData(mockHealthData[provider]);
+  };
+
+  const matchingStudy = studies.find(study => study.id === "NCT00083395");
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
@@ -423,27 +516,16 @@ export default function Dashboard() {
                 </div>
                 <span className="font-semibold text-lg">Activity</span>
               </div>
-              <div className="flex items-center gap-1 ml-1">
-                <Button 
-                  size="sm"
-                  variant="ghost" 
-                  className={`text-[#3a2a76]  ${!isHealthSynced ? 'bg-gray-100' : 'bg-gray-200'} font-medium`}
-                  onClick={handleHealthSync}
-                >
-                  <AppleIcon className="w-4 h-4" />
-                  {isHealthSynced ? "Connected" : "Connect"}
-                </Button>
-                <Select value={timeRange} onValueChange={(value: "today" | "week" | "month") => setTimeRange(value)}>
-                  <SelectTrigger className="bg-transparent border-none text-[#3a2a76] font-medium">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <Select value={timeRange} onValueChange={(value: "today" | "week" | "month") => setTimeRange(value)}>
+                <SelectTrigger className="bg-transparent border-none text-[#3a2a76] font-medium">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="week">This Week</SelectItem>
+                  <SelectItem value="month">This Month</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="h-[200px] w-full">
@@ -545,6 +627,65 @@ export default function Dashboard() {
                   {Math.round(activityData[timeRange].reduce((acc, curr) => acc + curr.value, 0) / activityData[timeRange].length * 10) / 10}
                 </span>
               </div>
+              
+              {/* Health Tracking Integration */}
+              <div className="mt-4 flex items-center gap-3">
+                <span className="text-sm text-gray-500">Sync with:</span>
+                <div className="flex gap-2">
+                  <div className="flex flex-col items-center">
+                    <Button 
+                      size="sm"
+                      variant="ghost" 
+                      className={`px-2 py-1 ${syncedProviders.includes('apple') ? 'bg-gray-100' : 'bg-gray-50'}`}
+                      onClick={() => !syncedProviders.includes('apple') && handleHealthSync('apple')}
+                    >
+                      <Image src="/health.webp" alt="Apple" width={14} height={14} />
+                    </Button>
+                    {syncedProviders.includes('apple') && (
+                      <span className="text-[10px] text-gray-600 mt-1">Synced</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Button 
+                      size="sm"
+                      variant="ghost" 
+                      className={`px-2 py-1 ${syncedProviders.includes('whoop') ? 'bg-gray-100' : 'bg-gray-50'}`}
+                      onClick={() => !syncedProviders.includes('whoop') && handleHealthSync('whoop')}
+                    >
+                      <Image src="/whoop.png" alt="Whoop" width={14} height={14} />
+                    </Button>
+                    {syncedProviders.includes('whoop') && (
+                      <span className="text-[10px] text-gray-600 mt-1">Synced</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Button 
+                      size="sm"
+                      variant="ghost" 
+                      className={`px-2 py-1 ${syncedProviders.includes('oura') ? 'bg-gray-100' : 'bg-gray-50'}`}
+                      onClick={() => !syncedProviders.includes('oura') && handleHealthSync('oura')}
+                    >
+                      <Image src="/oura.png" alt="Oura" width={14} height={14} />
+                    </Button>
+                    {syncedProviders.includes('oura') && (
+                      <span className="text-[10px] text-gray-600 mt-1">Synced</span>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <Button 
+                      size="sm"
+                      variant="ghost" 
+                      className={`px-2 py-1 ${syncedProviders.includes('fitbit') ? 'bg-gray-100' : 'bg-gray-50'}`}
+                      onClick={() => !syncedProviders.includes('fitbit') && handleHealthSync('fitbit')}
+                    >
+                      <Image src="/fitbit.png" alt="Fitbit" width={14} height={14} />
+                    </Button>
+                    {syncedProviders.includes('fitbit') && (
+                      <span className="text-[10px] text-gray-600 mt-1">Synced</span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -556,11 +697,12 @@ export default function Dashboard() {
           {/* Next Appointment */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
             <CardContent className="p-4">
+              <div className="text-sm font-medium text-gray-500 mb-3">Upcoming Appointment</div>
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-[#3a2a76]" />
                   <div>
-                    <p className="font-medium">Gene Therapy - Ph.2</p>
+                    <p className="font-medium">Isoproterenol Challenge - ARVC Detection</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
                   </div>
                 </div>
@@ -569,7 +711,11 @@ export default function Dashboard() {
                     variant="outline" 
                     size="sm"
                     className="text-[#007AFF] border-[#007AFF] hover:bg-[#007AFF]/10"
-                    onClick={() => generateICalEvent({})}
+                    onClick={() => generateICalEvent({
+                      title: "Isoproterenol Challenge - ARVC Detection",
+                      studyId: "NCT00083395",
+                      location: "Bethesda, Maryland, United States"
+                    })}
                   >
                     <Download className="w-4 h-4 mr-1" />
                     Add to Calendar
@@ -580,7 +726,7 @@ export default function Dashboard() {
           </Card>
 
           {/* Study Match */}
-          {studies.find(study => study.matches) && (
+          {matchingStudy && (
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-center gap-3 mb-3">
@@ -596,11 +742,10 @@ export default function Dashboard() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px] top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%]">
                           <DialogHeader>
-                            <DialogTitle>{studies.find(study => study.matches)?.title}</DialogTitle>
+                            <DialogTitle>{matchingStudy.title}</DialogTitle>
                             <DialogDescription>
                               <div className="space-y-4">
-                                <p>{studies.find(study => study.matches)?.explanation}</p>
-                               
+                                <p>{matchingStudy.explanation}</p>
                               </div>
                             </DialogDescription>
                           </DialogHeader>
@@ -608,11 +753,11 @@ export default function Dashboard() {
                       </Dialog>
                     </div>
                     <p className="text-sm text-gray-500 line-clamp-1">
-                      {studies.find(study => study.matches)?.title}
+                      {matchingStudy.title}
                     </p>
                   </div>
                 </div>
-                <Link href={`/studies/apply/${studies.find(study => study.matches)?.id}`}>
+                <Link href={`/studies/apply/${matchingStudy.id}`}>
                   <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
                     Apply
                   </Button>
