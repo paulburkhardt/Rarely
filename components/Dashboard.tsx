@@ -38,6 +38,7 @@ interface Activity {
 interface Symptom {
   label: string;
   selected: boolean;
+  severity: number;
 }
 
 interface Medication {
@@ -45,7 +46,10 @@ interface Medication {
   taken: boolean;
   prescribed: boolean;
   category: string;
-  dosage?: { value: number; unit: string };
+  dosage: {
+    value: number;
+    unit: string;
+  };
 }
 
 interface ActivityDataPoint {
@@ -54,37 +58,26 @@ interface ActivityDataPoint {
   activity: string;
 }
 
-// Add new interface for diary entry
-interface DiaryEntry {
-  mood: number;
-  selectedActivity: string | null;
-  symptoms: Array<{ label: string; selected: boolean }>;
-  medications: Array<{
-    name: string;
-    taken: boolean;
-    prescribed: boolean;
-    category: string;
-    dosage?: { value: number; unit: string };
-  }>;
-  timestamp: string;
-}
 
+
+
+// ... rest of existing code ...
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [hasDiaryEntry, setHasDiaryEntry] = useState<boolean>(false);
   const [isHealthSynced, setIsHealthSynced] = useState<boolean>(false);
   const [showDiaryModal, setShowDiaryModal] = useState(false);
   const [mood, setMood] = useState<number>(2);
-  const [selectedActivity, setSelectedActivity] = useState<string | null>("");
+  const [selectedActivity, setSelectedActivity] = useState<string>("");
   const [symptoms, setSymptoms] = useState<Symptom[]>([
-    { label: "Palpitations", selected: false },
-    { label: "Extra Heartbeats", selected: false },
-    { label: "Rapid Heartbeat", selected: false },
-    { label: "Shortness of Breath", selected: false },
-    { label: "Chest Pain/Discomfort", selected: false },
-    { label: "Dizziness", selected: false },
-    { label: "Loss of Consciousness", selected: false },
-    { label: "Fatigue", selected: false },
+    { label: "Palpitations", selected: false, severity: 0 },
+    { label: "Extra Heartbeats", selected: false, severity: 0 },
+    { label: "Rapid Heartbeat", selected: false, severity: 0 },
+    { label: "Shortness of Breath", selected: false, severity: 0 },
+    { label: "Chest Pain/Discomfort", selected: false, severity: 0 },
+    { label: "Dizziness", selected: false, severity: 0 },
+    { label: "Loss of Consciousness", selected: false, severity: 0 },
+    { label: "Fatigue", selected: false, severity: 0 },
   ]);
   const [medications, setMedications] = useState<Medication[]>([
     // Antiarrhythmic drugs
@@ -325,7 +318,8 @@ export default function Dashboard() {
     },
   };
 
-  // Update submitDiary function
+
+
   const submitDiary = () => {
     if (!hasDiaryEntry) {
       setStreakCount(prev => prev + 1);
@@ -334,87 +328,17 @@ export default function Dashboard() {
     setHasDiaryEntry(true);
     sessionStorage.setItem("hasDiaryEntry", "true");
     localStorage.setItem("streakCount", String(streakCount + 1));
-    
-    // Create new diary entry
-    const newDiaryEntry: DiaryEntry = {
+    setShowDiaryModal(false);
+    // Save diary data
+    const diaryData = {
       mood,
       selectedActivity,
       symptoms,
       medications,
       timestamp: new Date().toISOString(),
     };
-
-    // Get existing entries or initialize empty array
-    const existingEntries = localStorage.getItem("diaryEntries");
-    const diaryEntries: DiaryEntry[] = existingEntries 
-      ? JSON.parse(existingEntries) 
-      : [];
-
-    // Add new entry
-    diaryEntries.push(newDiaryEntry);
-
-    // Save updated entries
-    localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
-    localStorage.setItem("lastDiaryEntry", JSON.stringify(newDiaryEntry));
-
-    setShowDiaryModal(false);
+    localStorage.setItem("lastDiaryEntry", JSON.stringify(diaryData));
   };
-
-  // Add useEffect to load diary entries
-  useEffect(() => {
-    // Load diary entries
-    const savedEntries = localStorage.getItem("diaryEntries");
-    if (savedEntries) {
-      const entries: DiaryEntry[] = JSON.parse(savedEntries);
-      
-      // Check if there's an entry for today
-      const today = new Date().toISOString().split('T')[0];
-      const hasTodayEntry = entries.some(entry => 
-        entry.timestamp.split('T')[0] === today
-      );
-      
-      if (hasTodayEntry) {
-        setHasDiaryEntry(true);
-        sessionStorage.setItem("hasDiaryEntry", "true");
-      }
-
-      // Load last entry data if it exists
-      const lastEntry = entries[entries.length - 1];
-      if (lastEntry) {
-        setMood(lastEntry.mood);
-        setSelectedActivity(lastEntry.selectedActivity);
-        setSymptoms(lastEntry.symptoms);
-        setMedications(lastEntry.medications);
-      }
-    }
-  }, []);
-
-  // Update the midnight check useEffect
-  useEffect(() => {
-    const checkNewDay = () => {
-      const lastEntry = localStorage.getItem("lastDiaryEntry");
-      if (lastEntry) {
-        const lastEntryDate = new Date(JSON.parse(lastEntry).timestamp);
-        const today = new Date();
-        if (lastEntryDate.getDate() !== today.getDate() || 
-            lastEntryDate.getMonth() !== today.getMonth() || 
-            lastEntryDate.getFullYear() !== today.getFullYear()) {
-          setHasDiaryEntry(false);
-          sessionStorage.removeItem("hasDiaryEntry");
-          // Reset current form state
-          setMood(0);
-          setSelectedActivity(null);
-          setSymptoms(symptoms.map(s => ({ ...s, selected: false })));
-          setMedications(medications.map(m => ({ ...m, taken: false })));
-        }
-      }
-    };
-
-    checkNewDay();
-    const interval = setInterval(checkNewDay, 1000 * 60); // Check every minute
-
-    return () => clearInterval(interval);
-  }, [symptoms, medications]); // Add dependencies
 
   const getStepTitle = (step: number) => {
     switch (step) {
@@ -476,6 +400,26 @@ export default function Dashboard() {
     if (savedStreakCount) {
       setStreakCount(parseInt(savedStreakCount));
     }
+  }, []);
+
+  // Add useEffect to handle diary reset at midnight
+  useEffect(() => {
+    const checkNewDay = () => {
+      const lastEntry = localStorage.getItem("lastDiaryEntry");
+      if (lastEntry) {
+        const lastEntryDate = new Date(JSON.parse(lastEntry).timestamp);
+        const today = new Date();
+        if (lastEntryDate.getDate() !== today.getDate()) {
+          setHasDiaryEntry(false);
+          sessionStorage.removeItem("hasDiaryEntry");
+        }
+      }
+    };
+
+    checkNewDay();
+    const interval = setInterval(checkNewDay, 1000 * 60); // Check every minute
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -1067,29 +1011,60 @@ export default function Dashboard() {
                   {symptoms.map((symptom, index) => (
                     <div
                       key={symptom.label}
-                      className={`relative rounded-xl p-4 cursor-pointer transition-all ${
+                      className={`relative rounded-xl p-4 transition-all ${
                         symptom.selected
                           ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
                           : 'bg-white/95 border border-gray-100 hover:border-[#3a2a76]/30'
                       }`}
-                      onClick={() => {
-                        const newSymptoms = [...symptoms];
-                        newSymptoms[index].selected = !newSymptoms[index].selected;
-                        setSymptoms(newSymptoms);
-                      }}
                     >
+                      <div 
+                        className="flex items-start justify-between mb-2 cursor-pointer"
+                        onClick={() => {
+                          const newSymptoms = [...symptoms];
+                          newSymptoms[index].selected = !newSymptoms[index].selected;
+                          if (!newSymptoms[index].selected) {
+                            newSymptoms[index].severity = 0;
+                          }
+                          setSymptoms(newSymptoms);
+                        }}
+                      >
+                        <span className={`text-sm font-medium ${
+                          symptom.selected ? 'text-[#3a2a76]' : 'text-gray-600'
+                        }`}>
+                          {symptom.label}
+                        </span>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center border ${
+                          symptom.selected 
+                            ? 'bg-[#3a2a76] border-[#3a2a76]' 
+                            : 'border-gray-300'
+                        }`}>
+                          {symptom.selected && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                      </div>
+
                       {symptom.selected && (
-                        <div className="absolute top-2 right-2">
-                          <div className="w-5 h-5 bg-[#3a2a76] rounded-full flex items-center justify-center">
-                            <Check className="w-3 h-3 text-white" />
+                        <div className="mt-4 space-y-2">
+                          <div className="flex justify-between text-xs text-gray-500">
+                            <span>Mild</span>
+                            <span>Severe</span>
+                          </div>
+                          <Slider
+                            defaultValue={[symptom.severity]}
+                            value={[symptom.severity]}
+                            min={0}
+                            max={10}
+                            step={1}
+                            onValueChange={(value) => {
+                              const newSymptoms = [...symptoms];
+                              newSymptoms[index].severity = value[0];
+                              setSymptoms(newSymptoms);
+                            }}
+                          />
+                          <div className="text-center text-sm font-medium text-[#3a2a76]">
+                            {symptom.severity}/10
                           </div>
                         </div>
                       )}
-                      <span className={`text-sm font-medium ${
-                        symptom.selected ? 'text-[#3a2a76]' : 'text-gray-600'
-                      }`}>
-                        {symptom.label}
-                      </span>
                     </div>
                   ))}
                 </div>
@@ -1107,7 +1082,11 @@ export default function Dashboard() {
                       <Button
                         onClick={() => {
                           if (newSymptom.trim()) {
-                            setSymptoms([...symptoms, { label: newSymptom.trim(), selected: true }]);
+                            setSymptoms([...symptoms, { 
+                              label: newSymptom.trim(), 
+                              selected: true,
+                              severity: 0 
+                            }]);
                             setNewSymptom("");
                             setShowSymptomInput(false);
                           }
@@ -1335,15 +1314,18 @@ export default function Dashboard() {
               </Button>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+    </DialogContent>
+  </Dialog>
 
-      <style jsx global>{`
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-        }
-      `}</style>
-    </div>
-  );
+  <style jsx global>{`
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+  `}</style>
+
+</div>
+  )
 }
+
+
 
