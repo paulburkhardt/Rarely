@@ -45,10 +45,7 @@ interface Medication {
   taken: boolean;
   prescribed: boolean;
   category: string;
-  dosage: {
-    value: number;
-    unit: string;
-  };
+  dosage?: { value: number; unit: string };
 }
 
 interface ActivityDataPoint {
@@ -57,17 +54,28 @@ interface ActivityDataPoint {
   activity: string;
 }
 
+// Add new interface for diary entry
+interface DiaryEntry {
+  mood: number;
+  selectedActivity: string | null;
+  symptoms: Array<{ label: string; selected: boolean }>;
+  medications: Array<{
+    name: string;
+    taken: boolean;
+    prescribed: boolean;
+    category: string;
+    dosage?: { value: number; unit: string };
+  }>;
+  timestamp: string;
+}
 
-
-
-// ... rest of existing code ...
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [hasDiaryEntry, setHasDiaryEntry] = useState<boolean>(false);
   const [isHealthSynced, setIsHealthSynced] = useState<boolean>(false);
   const [showDiaryModal, setShowDiaryModal] = useState(false);
   const [mood, setMood] = useState<number>(2);
-  const [selectedActivity, setSelectedActivity] = useState<string>("");
+  const [selectedActivity, setSelectedActivity] = useState<string | null>("");
   const [symptoms, setSymptoms] = useState<Symptom[]>([
     { label: "Palpitations", selected: false },
     { label: "Extra Heartbeats", selected: false },
@@ -147,9 +155,23 @@ export default function Dashboard() {
   ];
 
   useEffect(() => {
+    // Load diary entry status
     const diaryEntryStatus = sessionStorage.getItem("hasDiaryEntry");
     if (diaryEntryStatus === "true") {
       setHasDiaryEntry(true);
+    }
+
+    // Load synced providers
+    const savedSyncedProviders = localStorage.getItem("syncedProviders");
+    if (savedSyncedProviders) {
+      setSyncedProviders(JSON.parse(savedSyncedProviders));
+      setIsHealthSynced(true);
+    }
+
+    // Load activity data
+    const savedActivityData = localStorage.getItem("activityData");
+    if (savedActivityData) {
+      setActivityData(JSON.parse(savedActivityData));
     }
   }, []);
 
@@ -303,8 +325,7 @@ export default function Dashboard() {
     },
   };
 
-
-
+  // Update submitDiary function
   const submitDiary = () => {
     if (!hasDiaryEntry) {
       setStreakCount(prev => prev + 1);
@@ -312,9 +333,88 @@ export default function Dashboard() {
     
     setHasDiaryEntry(true);
     sessionStorage.setItem("hasDiaryEntry", "true");
+    localStorage.setItem("streakCount", String(streakCount + 1));
+    
+    // Create new diary entry
+    const newDiaryEntry: DiaryEntry = {
+      mood,
+      selectedActivity,
+      symptoms,
+      medications,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Get existing entries or initialize empty array
+    const existingEntries = localStorage.getItem("diaryEntries");
+    const diaryEntries: DiaryEntry[] = existingEntries 
+      ? JSON.parse(existingEntries) 
+      : [];
+
+    // Add new entry
+    diaryEntries.push(newDiaryEntry);
+
+    // Save updated entries
+    localStorage.setItem("diaryEntries", JSON.stringify(diaryEntries));
+    localStorage.setItem("lastDiaryEntry", JSON.stringify(newDiaryEntry));
+
     setShowDiaryModal(false);
-    // Here you would typically save the diary entry to your backend
   };
+
+  // Add useEffect to load diary entries
+  useEffect(() => {
+    // Load diary entries
+    const savedEntries = localStorage.getItem("diaryEntries");
+    if (savedEntries) {
+      const entries: DiaryEntry[] = JSON.parse(savedEntries);
+      
+      // Check if there's an entry for today
+      const today = new Date().toISOString().split('T')[0];
+      const hasTodayEntry = entries.some(entry => 
+        entry.timestamp.split('T')[0] === today
+      );
+      
+      if (hasTodayEntry) {
+        setHasDiaryEntry(true);
+        sessionStorage.setItem("hasDiaryEntry", "true");
+      }
+
+      // Load last entry data if it exists
+      const lastEntry = entries[entries.length - 1];
+      if (lastEntry) {
+        setMood(lastEntry.mood);
+        setSelectedActivity(lastEntry.selectedActivity);
+        setSymptoms(lastEntry.symptoms);
+        setMedications(lastEntry.medications);
+      }
+    }
+  }, []);
+
+  // Update the midnight check useEffect
+  useEffect(() => {
+    const checkNewDay = () => {
+      const lastEntry = localStorage.getItem("lastDiaryEntry");
+      if (lastEntry) {
+        const lastEntryDate = new Date(JSON.parse(lastEntry).timestamp);
+        const today = new Date();
+        if (lastEntryDate.getDate() !== today.getDate() || 
+            lastEntryDate.getMonth() !== today.getMonth() || 
+            lastEntryDate.getFullYear() !== today.getFullYear()) {
+          setHasDiaryEntry(false);
+          sessionStorage.removeItem("hasDiaryEntry");
+          // Reset current form state
+          setMood(0);
+          setSelectedActivity(null);
+          setSymptoms(symptoms.map(s => ({ ...s, selected: false })));
+          setMedications(medications.map(m => ({ ...m, taken: false })));
+        }
+      }
+    };
+
+    checkNewDay();
+    const interval = setInterval(checkNewDay, 1000 * 60); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [symptoms, medications]); // Add dependencies
 
   const getStepTitle = (step: number) => {
     switch (step) {
@@ -357,12 +457,26 @@ export default function Dashboard() {
 
   // Update handleHealthSync function
   const handleHealthSync = (provider: HealthProvider) => {
+    const newSyncedProviders = [...syncedProviders, provider];
     setIsHealthSynced(true);
-    setSyncedProviders(prev => [...prev, provider]);
+    setSyncedProviders(newSyncedProviders);
     setActivityData(mockHealthData[provider]);
+
+    // Save to localStorage
+    localStorage.setItem("syncedProviders", JSON.stringify(newSyncedProviders));
+    localStorage.setItem("activityData", JSON.stringify(mockHealthData[provider]));
+    localStorage.setItem("isHealthSynced", "true");
   };
 
   const matchingStudy = studies.find(study => study.id === "NCT00083395");
+
+  // Add useEffect to load streak count
+  useEffect(() => {
+    const savedStreakCount = localStorage.getItem("streakCount");
+    if (savedStreakCount) {
+      setStreakCount(parseInt(savedStreakCount));
+    }
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
