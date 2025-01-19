@@ -12,6 +12,26 @@ import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Area } from "recharts";
 import { BarChart } from "@/components/ui/bar-chart";
 import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile, Download, Info } from 'lucide-react';
+
+// Replace the import line with these icons that are definitely available
+import {Trash2} from 'lucide-react';
+
+import { 
+  FaLeaf,
+  FaHome,
+  FaBiking,
+  FaWalking,
+  FaRunning,
+  FaSwimmer,
+  FaPrayingHands
+} from 'react-icons/fa';
+
+
+import {DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+
+
 import {
   Dialog,
   DialogContent,
@@ -79,6 +99,18 @@ export default function Dashboard() {
     { label: "Loss of Consciousness", selected: false, severity: 0 },
     { label: "Fatigue", selected: false, severity: 0 },
   ]);
+
+  const getCurrentDate = () => {
+    const now = new Date();
+    return now.toISOString().split('T')[0];
+  };
+  
+  // Helper function to get current time in HH:mm format
+  const getCurrentTime = () => {
+    const now = new Date();
+    return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  };
+
   const [medications, setMedications] = useState<Medication[]>([
     // Antiarrhythmic drugs
     { name: "Sotalol", taken: false, prescribed: true, category: "Antiarrhythmic", dosage: { value: 80, unit: "mg" } },
@@ -108,6 +140,24 @@ export default function Dashboard() {
   const [newMedication, setNewMedication] = useState<string>("");
   const [showMedicationInput, setShowMedicationInput] = useState(false);
   const [timeRange, setTimeRange] = useState<"today" | "week" | "month">("today");
+
+  // Add this state to track if we're showing the summary
+  const [showActivitySummary, setShowActivitySummary] = useState(false);
+
+  // Add this state for saved activities
+  const [savedActivities, setSavedActivities] = useState<SavedActivity[]>([]);
+
+  // Add the useEffect here, after states, before return
+  useEffect(() => {
+    if (currentStep === 2) {
+      setSelectedActivity("");
+      setShowActivitySummary(false);
+      setShowExerciseDetails(false);
+    }
+  }, [currentStep]);
+
+
+
   const [activityData, setActivityData] = useState({
     today: [
       { time: '9AM', value: 1, activity: 'Complete Rest' },
@@ -134,6 +184,26 @@ export default function Dashboard() {
       { time: 'Week 4', value: 2, activity: 'Daily Activities' },
     ],
   });
+
+  // Add these state variables at the beginning of your Dashboard component
+  const [showExerciseDetails, setShowExerciseDetails] = useState(false);
+  const [exerciseData, setExerciseData] = useState({
+    description: "",
+    date: getCurrentDate(),  // Set current date as default
+    time: getCurrentTime(),  // Set current time as default
+    duration: {
+      hours: 0,
+      minutes: 0
+    },
+    distance: 0,
+    steps: 0,
+    intensity: 50,
+  });
+
+
+
+
+
   const [streakCount, setStreakCount] = useState<number>(7);
   const [syncedProviders, setSyncedProviders] = useState<HealthProvider[]>([]);
 
@@ -168,13 +238,15 @@ export default function Dashboard() {
     }
   }, []);
 
+  // In your useEffect, update the condition to show the summary view when entering step 2
   useEffect(() => {
-    const storedData = localStorage.getItem('patientData');
-    if (storedData) {
-      const parsedData = JSON.parse(storedData);
-      setUserData({ name: parsedData.name || 'user' });
+    if (currentStep === 2) {
+      setSelectedActivity("");
+      // Show the summary view instead of hiding it
+      setShowActivitySummary(true);
+      setShowExerciseDetails(false);
     }
-  }, [setUserData]);
+  }, [currentStep]);
 
   const handleDiaryClick = () => {
     setShowDiaryModal(true);
@@ -318,6 +390,32 @@ export default function Dashboard() {
     },
   };
 
+  const getActivityIcon = (type: string) => {
+    const icons = {
+      garden: <FaLeaf className="w-5 h-5" />,
+      home: <FaHome className="w-5 h-5" />,
+      cycling: <FaBiking className="w-5 h-5" />,
+      walking: <FaWalking className="w-5 h-5" />,
+      running: <FaRunning className="w-5 h-5" />,
+      swimming: <FaSwimmer className="w-5 h-5" />,
+      yoga: <FaPrayingHands className="w-5 h-5" />
+    };
+    return icons[type as keyof typeof icons];
+  };
+  
+  const getActivityLabel = (type: string) => {
+    const labels = {
+      garden: "Lawn & Garden",
+      home: "Home Activities",
+      cycling: "Cycling",
+      walking: "Walking",
+      running: "Running",
+      swimming: "Swimming",
+      yoga: "Yoga"
+    };
+    return labels[type as keyof typeof labels];
+  };
+
 
 
   const submitDiary = () => {
@@ -343,7 +441,7 @@ export default function Dashboard() {
   const getStepTitle = (step: number) => {
     switch (step) {
       case 1: return "How are you feeling today?";
-      case 2: return "How active were you today?";
+      case 2: return "What activities did you do today?";
       case 3: return "Any symptoms today?";
       case 4: return "Track your medications";
       default: return "";
@@ -377,6 +475,20 @@ export default function Dashboard() {
 
   // Update the type (should be near the top with other interfaces)
   type HealthProvider = 'apple' | 'whoop' | 'oura' | 'fitbit';
+
+  // Add this type for saved activities
+  type SavedActivity = {
+    type: string;
+    description: string;
+    datetime: string;
+    intensity: number;
+    duration?: {
+      hours: number;
+      minutes: number;
+    };
+    distance?: number;
+    steps?: number;
+  };
 
 
   // Update handleHealthSync function
@@ -957,50 +1069,321 @@ export default function Dashboard() {
 
             {/* Step 2: Activity */}
             {currentStep === 2 && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {activities.map((activity) => (
-                    <div
-                      key={activity.value}
-                      className={`relative rounded-2xl p-4 cursor-pointer transition-all ${
-                        selectedActivity === activity.value
-                          ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
-                          : 'bg-white/95 border border-gray-100 hover:border-[#3a2a76]/30'
-                      }`}
-                      onClick={() => setSelectedActivity(activity.value)}
-                    >
-                      {selectedActivity === activity.value && (
-                        <div className="absolute top-3 right-3">
-                          <div className="w-5 h-5 bg-[#3a2a76] rounded-full flex items-center justify-center">
-                            <Check className="w-3 h-3 text-white" />
+              <div className="space-y-6">
+                {!showActivitySummary ? (
+                  // Activity Selection View
+                  <div className="space-y-6">
+                    <h2 className="text-2xl font-bold text-center mb-8">What activities did you do?</h2>
+                    <div className="grid grid-cols-3 gap-4">
+                      {[
+                        { icon: getActivityIcon("garden"), label: "Lawn & Garden", value: "garden" },
+                        { icon: getActivityIcon("home"), label: "Home Activities", value: "home" },
+                        { icon: getActivityIcon("cycling"), label: "Cycling", value: "cycling" },
+                        { icon: getActivityIcon("walking"), label: "Walking", value: "walking" },
+                        { icon: getActivityIcon("running"), label: "Running", value: "running" },
+                        { icon: getActivityIcon("swimming"), label: "Swimming", value: "swimming" },
+                        { icon: getActivityIcon("yoga"), label: "Yoga", value: "yoga" }
+                      ].map((activity) => (
+                        <div
+                          key={activity.value}
+                          onClick={() => {
+                            setSelectedActivity(activity.value);
+                            // Reset exercise data when opening new entry
+                            setExerciseData({
+                              description: "",
+                              date: getCurrentDate(),
+                              time: getCurrentTime(),
+                              duration: {
+                                hours: 0,
+                                minutes: 0
+                              },
+                              distance: 0,
+                              steps: 0,
+                              intensity: 50
+                            });
+                            setShowExerciseDetails(true);
+                          }}
+                          className={`relative p-6 rounded-2xl border cursor-pointer transition-all flex flex-col items-center gap-4 ${
+                            selectedActivity === activity.value
+                              ? 'border-[#3a2a76] bg-white'
+                              : 'border-gray-100 bg-white hover:border-[#3a2a76]/30'
+                          }`}
+                        >
+                          <div className={`w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center ${
+                            selectedActivity === activity.value ? 'bg-[#3a2a76]/10' : ''
+                          }`}>
+                            {activity.icon}
+                          </div>
+                          <span className={`text-lg font-medium text-center ${
+                            selectedActivity === activity.value 
+                              ? 'text-[#3a2a76]' 
+                              : 'text-gray-600'
+                          }`}>
+                            {activity.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  // Activity Summary View
+                  <div className="space-y-6">
+                    <div className="flex justify-between items-center">
+                      <h2 className="text-2xl font-bold">Today's Activities</h2>
+                      <Button
+                        onClick={() => {
+                          setShowActivitySummary(false);
+                          setSelectedActivity("");
+                        }}
+                        className="bg-black hover:bg-gray-800 text-white rounded-xl px-4 py-2 flex items-center gap-2"
+                      >
+                        <Plus className="w-5 h-5" /> Add Activity
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                    {savedActivities
+                      .sort((a, b) => {
+                        const timeA = a.datetime.split(' at ')[1];
+                        const timeB = b.datetime.split(' at ')[1];
+                        return timeA.localeCompare(timeB);
+                      })
+                      .map((activity, index) => (
+                        <div key={index} className="bg-white rounded-2xl p-6 border border-gray-100 relative">
+                          <button
+                            onClick={() => {
+                              const newActivities = savedActivities.filter((_, i) => i !== index);
+                              setSavedActivities(newActivities);
+                            }}
+                            className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4 text-gray-500" />
+                          </button>
+                      
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                              {getActivityIcon(activity.type)}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-xl font-bold">{activity.description}</h3>
+                              <div className="text-gray-600">
+                                {getActivityLabel(activity.type)} • {activity.datetime.split(' at ')[1]}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 space-y-2">
+                            <div>
+                              <span className="font-medium">Intensity: </span>
+                              <span>{activity.intensity}%</span>
+                            </div>
+                      
+                            {/* Show duration if either hours or minutes exist */}
+                            {(activity.duration.hours > 0 || activity.duration.minutes > 0) && (
+                              <div>
+                                <span className="font-medium">Duration: </span>
+                                <span>
+                                  {activity.duration.hours > 0 && `${activity.duration.hours}h `}
+                                  {activity.duration.minutes > 0 && `${activity.duration.minutes}m`}
+                                </span>
+                              </div>
+                            )}
+                      
+                            {/* Show steps if they exist */}
+                            {activity.steps > 0 && (
+                              <div>
+                                <span className="font-medium">Distance: </span>
+                                <span>{activity.steps} meters</span>
+                              </div>
+                            )}
+                      
+                            {/* Show distance if it exists */}
+                            {activity.distance > 0 && (
+                              <div>
+                                <span className="font-medium">Distance: </span>
+                                <span>{activity.distance} km</span>
+                              </div>
+                            )}
                           </div>
                         </div>
-                      )}
-                      <div className="flex flex-col items-center gap-3">
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                          selectedActivity === activity.value 
-                            ? 'bg-[#3a2a76]/20' 
-                            : 'bg-gray-50'
-                        }`}>
-                          {cloneElement(activity.icon, { 
-                            className: `w-6 h-6 ${
-                              selectedActivity === activity.value 
-                                ? 'text-[#3a2a76]' 
-                                : 'text-gray-400'
-                            }`
-                          })}
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Exercise Details Dialog */}
+                <Dialog open={showExerciseDetails} onOpenChange={setShowExerciseDetails}>
+                  <DialogContent className="sm:max-w-[600px] p-6">
+                    <DialogHeader className="mb-4">
+                      <DialogTitle className="text-2xl font-bold">Describe your exercise</DialogTitle>
+                    </DialogHeader>
+                    
+                    <div className="space-y-6">
+                      {/* Description */}
+                      <div className="space-y-4">
+                        {selectedActivity && (
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                              {getActivityIcon(selectedActivity)}
+                            </div>
+                            <Label className="text-lg">
+                              Category: {getActivityLabel(selectedActivity)}
+                            </Label>
+                          </div>
+                        )}
+                        <Input
+                          placeholder={selectedActivity 
+                            ? `Describe your ${getActivityLabel(selectedActivity).toLowerCase()}`
+                            : 'Describe your activity'
+                          }
+                          value={exerciseData.description}
+                          onChange={(e) => setExerciseData(prev => ({
+                            ...prev,
+                            description: e.target.value
+                          }))}
+                          className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                        />
+                      </div>
+
+                      {/* Date and Time */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label>When did you exercise</Label>
+                          <Input
+                            type="date"
+                            value={exerciseData.date}
+                            onChange={(e) => setExerciseData(prev => ({
+                              ...prev,
+                              date: e.target.value
+                            }))}
+                            className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                          />
                         </div>
-                        <span className={`text-sm font-medium text-center ${
-                          selectedActivity === activity.value 
-                            ? 'text-[#3a2a76]' 
-                            : 'text-gray-600'
-                        }`}>
-                          {activity.label}
-                        </span>
+                        <div className="space-y-2">
+                          <Label>Time</Label>
+                          <Input
+                            type="time"
+                            value={exerciseData.time}
+                            onChange={(e) => setExerciseData(prev => ({
+                              ...prev,
+                              time: e.target.value
+                            }))}
+                            className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Time spent (optional) */}
+                      <div className="space-y-2">
+                        <Label>Time spent (optional)</Label>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <Input
+                              type="number"
+                              placeholder="Hours"
+                              value={exerciseData.duration.hours}
+                              onChange={(e) => setExerciseData(prev => ({
+                                ...prev,
+                                duration: {
+                                  ...prev.duration,
+                                  hours: Number(e.target.value)
+                                }
+                              }))}
+                              className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                            />
+                            <span className="text-sm text-gray-500">hours</span>
+                          </div>
+                          <div className="space-y-1">
+                            <Input
+                              type="number"
+                              placeholder="Minutes"
+                              value={exerciseData.duration.minutes}
+                              onChange={(e) => setExerciseData(prev => ({
+                                ...prev,
+                                duration: {
+                                  ...prev.duration,
+                                  minutes: Number(e.target.value)
+                                }
+                              }))}
+                              className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                            />
+                            <span className="text-sm text-gray-500">minutes</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Steps */}
+                      <div className="space-y-2">
+                        <Label>Distance (optional)</Label>
+                        <div className="space-y-1">
+                          <Input
+                            type="number"
+                            value={exerciseData.steps}
+                            onChange={(e) => setExerciseData(prev => ({
+                              ...prev,
+                              steps: Number(e.target.value)
+                            }))}
+                            className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                          />
+                          <span className="text-sm text-gray-500">meters</span>
+                        </div>
+                      </div>
+
+                      {/* Intensity */}
+                      <div className="space-y-2">
+                        <Label>Intensity Level</Label>
+                        <div className="space-y-1">
+                          <Slider
+                            value={[exerciseData.intensity]}
+                            onValueChange={(value) => setExerciseData(prev => ({
+                              ...prev,
+                              intensity: value[0]
+                            }))}
+                            max={100}
+                            step={1}
+                            className="w-full"
+                          />
+                          <div className="flex justify-between text-sm text-gray-500">
+                            <span>Low</span>
+                            <span>High</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+
+                    <DialogFooter className="mt-6">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => {
+                          setShowExerciseDetails(false);
+                          setSelectedActivity("");
+                        }}
+                        className="border-[#3a2a76]/20 hover:bg-[#3a2a76]/10 text-[#3a2a76]"
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          const newActivity = {
+                            type: selectedActivity,
+                            description: exerciseData.description,
+                            datetime: `${exerciseData.date} at ${exerciseData.time}`,
+                            intensity: exerciseData.intensity,
+                            duration: exerciseData.duration,
+                            distance: exerciseData.distance,
+                            steps: exerciseData.steps
+                          };
+                          setSavedActivities([...savedActivities, newActivity]);
+                          setShowExerciseDetails(false);
+                          setShowActivitySummary(true);
+                        }}
+                        className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+                      >
+                        Add Entry
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>                
               </div>
             )}
 
@@ -1181,7 +1564,7 @@ export default function Dashboard() {
                                     };
                                     setMedications(newMeds);
                                   }}
-                                  className="w-20 px-2 py-1 rounded-md border text-sm"
+                                  className="w-20 px-2 py-1 rounded-md border text-sm bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
                                   placeholder="Dosage"
                                 />
                                 <Select
@@ -1314,16 +1697,16 @@ export default function Dashboard() {
               </Button>
             </div>
           </div>
-    </DialogContent>
-  </Dialog>
+        </DialogContent>
+      </Dialog>
 
-  <style jsx global>{`
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-    }
-  `}</style>
+      <style jsx global>{`
+        body {
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+      `}</style>
 
-</div>
+    </div>
   )
 }
 
