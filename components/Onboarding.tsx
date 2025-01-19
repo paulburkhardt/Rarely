@@ -18,6 +18,7 @@ interface MedicationFrequency {
 }
 
 interface OnboardingData {
+  
   name: string;
   dateOfBirth: string;
   diagnosisDate: string;
