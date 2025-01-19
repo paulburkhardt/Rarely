@@ -10,7 +10,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useUser } from "@/contexts/UserContext"
-import { useReactMediaRecorder } from 'react-media-recorder'
+import dynamic from 'next/dynamic'
+
+const AudioRecorder = dynamic(() => import('@/components/audio-recorder'), { ssr: false });
 
 const welcomeMessage = {
   id: 'welcome',
@@ -65,6 +67,14 @@ const formatFileSize = (bytes: number) => {
   else return (bytes / 1048576).toFixed(1) + ' MB';
 };
 
+// Define the type for the recorder hook
+type ReactMediaRecorderHook = {
+  status: string;
+  startRecording: () => void;
+  stopRecording: () => void;
+  mediaBlobUrl: string | null;
+}
+
 export default function ChatPage() {
   const { userData } = useUser();
   const [messages, setMessages] = useState<Message[]>(() => {
@@ -81,15 +91,44 @@ export default function ChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
-  const [isListening, setIsListening] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
-  const {
-    status,
-    startRecording,
-    stopRecording,
-    mediaBlobUrl,
-  } = useReactMediaRecorder({ audio: true });
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const handleRecordingStop = async (blob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'recording.webm');
+
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Transcription failed');
+      }
+
+      const { text } = await response.json();
+      setInput(text);
+    } catch (error) {
+      console.error('Transcription error:', error);
+    } finally {
+      setIsRecording(false);
+    }
+  };
+
+  const toggleListening = () => {
+    if (isRecording) {
+      setIsRecording(false);
+    } else {
+      setIsRecording(true);
+    }
+  };
 
   useEffect(() => {
     // Check if this is the first visit
@@ -286,46 +325,6 @@ export default function ChatPage() {
     checkSupport();
   }, []);
 
-  const toggleListening = async () => {
-    if (isListening) {
-      stopRecording();
-      setIsListening(false);
-    } else {
-      startRecording();
-      setIsListening(true);
-    }
-  };
-
-  // Add this effect to handle recording completion
-  useEffect(() => {
-    if (mediaBlobUrl && !isListening) {
-      const fetchAudio = async () => {
-        try {
-          const response = await fetch(mediaBlobUrl);
-          const blob = await response.blob();
-          const formData = new FormData();
-          formData.append('file', blob, 'recording.webm');
-
-          const transcriptionResponse = await fetch('/api/transcribe', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!transcriptionResponse.ok) {
-            throw new Error('Transcription failed');
-          }
-
-          const { text } = await transcriptionResponse.json();
-          setInput(text);
-        } catch (error) {
-          console.error('Transcription error:', error);
-        }
-      };
-
-      fetchAudio();
-    }
-  }, [mediaBlobUrl, isListening]);
-
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
       {/* Header */}
@@ -456,15 +455,18 @@ export default function ChatPage() {
               <Paperclip className="w-5 h-5" />
             </Button>
             {speechSupported && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-[#3a2a76]"
-                onClick={toggleListening}
-              >
-                {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-[#3a2a76]"
+                  onClick={toggleListening}
+                >
+                  {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </Button>
+                {isRecording && <AudioRecorder onStop={handleRecordingStop} isRecording={isRecording} />}
+              </>
             )}
             <Input
               value={input}
