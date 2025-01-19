@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useUser } from "@/contexts/UserContext"
+import { useReactMediaRecorder } from 'react-media-recorder'
 
 const welcomeMessage = {
   id: 'welcome',
@@ -82,8 +83,13 @@ export default function ChatPage() {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const [speechSupported, setSpeechSupported] = useState(false)
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  const {
+    status,
+    startRecording,
+    stopRecording,
+    mediaBlobUrl,
+  } = useReactMediaRecorder({ audio: true });
 
   useEffect(() => {
     // Check if this is the first visit
@@ -280,74 +286,45 @@ export default function ChatPage() {
     checkSupport();
   }, []);
 
-  // Add speech recognition function
   const toggleListening = async () => {
     if (isListening) {
-      // Stop recording
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-      }
-      if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-      }
+      stopRecording();
       setIsListening(false);
-      setMediaRecorder(null);
-      setStream(null);
     } else {
-      // Start recording
-      try {
-        const newStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const recorder = new MediaRecorder(newStream, {
-          mimeType: 'audio/mp4',  // Safari mobile supports mp4
-          audioBitsPerSecond: 128000
-        });
-        const audioChunks: BlobPart[] = [];
-
-        recorder.ondataavailable = (event) => {
-          audioChunks.push(event.data);
-        };
-
-        recorder.onstop = async () => {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/mp4' });
-          
-          // Clean up
-          newStream.getTracks().forEach(track => track.stop());
-          setStream(null);
-          setMediaRecorder(null);
-          
-          const formData = new FormData();
-          formData.append('file', audioBlob, 'recording.m4a');
-
-          try {
-            const response = await fetch('/api/transcribe', {
-              method: 'POST',
-              body: formData,
-            });
-
-            if (!response.ok) {
-              throw new Error('Transcription failed');
-            }
-
-            const { text } = await response.json();
-            setInput(text);
-          } catch (error) {
-            console.error('Transcription error:', error);
-          } finally {
-            setIsListening(false);
-          }
-        };
-
-        setStream(newStream);
-        setMediaRecorder(recorder);
-        setIsListening(true);
-        recorder.start();
-
-      } catch (error) {
-        console.error('Recording error:', error);
-        setIsListening(false);
-      }
+      startRecording();
+      setIsListening(true);
     }
   };
+
+  // Add this effect to handle recording completion
+  useEffect(() => {
+    if (mediaBlobUrl && !isListening) {
+      const fetchAudio = async () => {
+        try {
+          const response = await fetch(mediaBlobUrl);
+          const blob = await response.blob();
+          const formData = new FormData();
+          formData.append('file', blob, 'recording.webm');
+
+          const transcriptionResponse = await fetch('/api/transcribe', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!transcriptionResponse.ok) {
+            throw new Error('Transcription failed');
+          }
+
+          const { text } = await transcriptionResponse.json();
+          setInput(text);
+        } catch (error) {
+          console.error('Transcription error:', error);
+        }
+      };
+
+      fetchAudio();
+    }
+  }, [mediaBlobUrl, isListening]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
