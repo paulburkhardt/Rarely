@@ -1,17 +1,15 @@
 "use client"
 
 import React, { useState, useEffect, cloneElement } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { User } from 'lucide-react';
 import Link from "next/link";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { colors } from "@/styles/colors";
 import Image from "next/image";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip, Area } from "recharts";
-import { BarChart } from "@/components/ui/bar-chart";
-import { Calendar, MessageCircle, Activity, Clock, AppleIcon, Check, Heart, Grid, Pill, ClipboardCheck, Smile, Download, Info } from 'lucide-react';
+import { Calendar, MessageCircle, Activity, Check, Heart, Grid, Pill, Smile, Download, Info } from 'lucide-react';
 
 // Replace the import line with these icons that are definitely available
 import {Trash2} from 'lucide-react';
@@ -44,7 +42,6 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { useUser } from "@/contexts/UserContext"
 import { mockData } from "@/data/mock-data";
 import { studies } from "@/app/studies/data";
