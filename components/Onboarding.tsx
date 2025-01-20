@@ -189,7 +189,7 @@ export function Onboarding() {
 
   const handleComplete = () => {
     // Save data to localStorage or your backend
-    //localStorage.setItem('onboardingComplete', 'true');
+    localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('patientData', JSON.stringify(data));
     window.location.href = '/';
   };
@@ -519,6 +519,24 @@ export function Onboarding() {
                       Continue
                     </Button>
                   </div>
+                </div>
+              )}
+              {step === 13 && (
+                <div className="flex flex-col gap-4 pb-16">
+                  <div className="text-center">
+                    <p className="text-[#3a2a76] text-lg font-medium mb-4">
+                      Thank you for completing your profile!
+                    </p>
+                    <p className="text-gray-600 mb-8">
+                      Your information will help us provide you with personalized support.
+                    </p>
+                  </div>
+                  <Button
+                    onClick={handleComplete}
+                    className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+                  >
+                    Get Started
+                  </Button>
                 </div>
               )}
             </div>
