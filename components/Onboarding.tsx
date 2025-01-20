@@ -103,19 +103,6 @@ export function Onboarding() {
 
   const handleNext = () => {
     // Add the user's answer to messages
-    if (currentMessage || step === 9 || step === 10) {
-      setMessages(prev => [...prev, {
-        type: 'answer',
-        content: step === 9 
-          ? formatSelectedSymptoms(data.symptoms)
-          : step === 10
-          ? formatSelectedMedications(data.medications)
-          : step === 1
-          ? `Uploaded: ${currentMessage}`
-          : currentMessage
-      }]);
-    }
-
     // Store the data based on current step
     if (currentMessage || step === 9 || step === 10) {
       switch (step) {
@@ -202,7 +189,7 @@ export function Onboarding() {
 
   const handleComplete = () => {
     // Save data to localStorage or your backend
-    localStorage.setItem('onboardingComplete', 'true');
+    //localStorage.setItem('onboardingComplete', 'true');
     localStorage.setItem('patientData', JSON.stringify(data));
     window.location.href = '/';
   };
@@ -228,11 +215,11 @@ export function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen ">
+    <div className="flex flex-col min-h-screen">
       <Dialog open={true}>
         <DialogContent className="h-screen w-screen max-w-none m-0 bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa] rounded-none flex flex-col [&>button]:hidden bg-transparent">
           {/* Message history - scrollable */}
-          <div className="h-[60%] overflow-y-auto px-4 py-2 space-y-4">
+          <div className="h-[100%] overflow-y-auto px-4 py-2 space-y-4">
             {messages.map((message, index) => (
               <div
                 key={index}
@@ -255,20 +242,38 @@ export function Onboarding() {
           {/* Input and controls - fixed */}
           <div className={`max-h-[40%] ${step !== 13 ? 'border-t border-[#3a2a76]/20' : ''} bg-transparent p-6`}>
             <div className="space-y-6">
-              {step === 3 && (
-                <Input
-                  type="date"
-                  value={currentMessage}
-                  onChange={(e) => setCurrentMessage(e.target.value)}
-                  className="w-full px-4 py-3 h-12 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50"
-                />
+            {step === 3 && (
+                <div className="flex flex-col gap-4 pb-16">
+                  <Input
+                    type="date"
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    className="w-full px-4 py-3 h-12 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50 text-base md:text-sm"
+                    style={{
+                      minHeight: '48px',
+                      fontSize: '16px',
+                      touchAction: 'manipulation',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none',
+                      appearance: 'none',
+                    }}
+                  />
+                  <Button
+                    onClick={handleNext}
+                    className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+                  >
+                    Continue
+                  </Button>
+                </div>
               )}
 
               {(step === 5 || step === 7 || step === 12) && (
-                <div className="flex justify-center gap-4">
+                <div className="flex justify-center gap-4 pb-16">
                   <Button
                     variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                    onClick={() => setCurrentMessage('Yes')}
+                    onClick={() => {setCurrentMessage('Yes');
+                      handleNext();
+                    }}
                     className={`flex-1 h-12 text-base font-medium rounded-xl ${
                       currentMessage.toLowerCase() === 'yes'
                         ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
@@ -279,7 +284,9 @@ export function Onboarding() {
                   </Button>
                   <Button
                     variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                    onClick={() => setCurrentMessage('No')}
+                    onClick={() => {setCurrentMessage('No');
+                      handleNext()
+                    }}
                     className={`flex-1 h-12 text-base font-medium rounded-xl ${
                       currentMessage.toLowerCase() === 'no'
                         ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
@@ -292,21 +299,31 @@ export function Onboarding() {
               )}
 
               {step === 8 && (
-                <div className="flex justify-start">
-                  <div className="rounded-2xl px-4 py-2 max-w-[80%] bg-white backdrop-blur-[2px] w-full">
+                <div className="flex flex-col gap-4 w-full pb-16">
+                  <div className="rounded-2xl bg-white backdrop-blur-[2px] w-full">
                     <Select
                       value={currentMessage}
-                      onValueChange={(value) => setCurrentMessage(value)}
+                      onValueChange={(value) => {
+                        setCurrentMessage(value);
+                        // Optional: automatically proceed after selection
+                        // handleNext();
+                      }}
                     >
-                      <SelectTrigger className="w-full border-0 bg-white focus:ring-0">
+                      <SelectTrigger 
+                        className="w-full h-12 px-4 py-3 border-0 bg-white focus:ring-2 focus:ring-[#3a2a76]/50 rounded-xl text-base"
+                      >
                         <SelectValue placeholder="Select your mutation" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent 
+                        className="max-h-[300px] overflow-y-auto bg-white rounded-xl border-0 shadow-lg"
+                        position="popper"
+                        sideOffset={4}
+                      >
                         {geneticMutations.map(mutation => (
                           <SelectItem 
                             key={mutation} 
                             value={mutation}
-                            className="cursor-pointer"
+                            className="cursor-pointer py-3 px-4 hover:bg-[#3a2a76]/10 focus:bg-[#3a2a76]/10"
                           >
                             {mutation}
                           </SelectItem>
@@ -314,22 +331,40 @@ export function Onboarding() {
                       </SelectContent>
                     </Select>
                   </div>
+                  
+                  {/* Add Continue button after selection */}
+                  {currentMessage && (
+                    <Button
+                      onClick={handleNext}
+                      className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+                    >
+                      Continue
+                    </Button>
+                  )}
                 </div>
               )}
 
               {(step === 2 || step === 4 || step === 6 || step === 11) && (
-                <Input
-                  value={currentMessage}
-                  onChange={(e) => setCurrentMessage(e.target.value)}
-                  placeholder="Type your answer..."
-                  className="w-full px-4 py-3 h-12 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50"
-                />
+                <div className="flex flex-col gap-4 pb-16">
+                  <Input
+                    value={currentMessage}
+                    onChange={(e) => setCurrentMessage(e.target.value)}
+                    placeholder="Type your answer..."
+                    className="w-full px-4 py-3 h-12 bg-white rounded-xl border-0 focus:outline-none focus:ring-2 focus:ring-[#3a2a76]/50"
+                  />
+                  <Button
+                    onClick={handleNext}  // Make sure this is here
+                    className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+                  >
+                    Continue
+                  </Button>
+                </div>
               )}
 
               {(step === 9 || step === 10) && (
-                <div className="flex justify-start w-full">
+                <div className="flex flex-col gap-4 w-full">
                   <div className="rounded-2xl w-full bg-transparent">
-                    <div className="max-h-[25vh] overflow-y-auto">
+                    <div className="max-h-[15vh] sm:max-h-[20vh] md:max-h-[30vh] overflow-y-auto">
                       <div className="space-y-2">
                         {[...(step === 9 ? commonSymptoms : commonMedications), 
                           ...(step === 9 
@@ -475,6 +510,15 @@ export function Onboarding() {
                       </div>
                     </div>
                   </div>
+                  
+                  <div className="pb-16">
+                    <Button
+                      onClick={handleNext}
+                      className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+                    >
+                      Continue
+                    </Button>
+                  </div>
                 </div>
               )}
             </div>
@@ -530,30 +574,31 @@ export function Onboarding() {
                   </label>
                 </div>
                 
-                <button
-                  onClick={() => {
-                    setCurrentMessage('demo_letter.pdf');
-                    setData(prev => ({
-                      ...prev,
-                      doctorLetter: 'demo_letter.pdf'
-                    }));
-                  }}
-                  className="mt-4 text-sm text-[#3a2a76] hover:text-[#a680db] underline"
-                >
-                  Skip for demo
-                </button>
+                <div className="flex flex-col gap-4 mt-4">
+                  <Button
+                    onClick={handleNext}
+                    className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
+                  >
+                    Continue
+                  </Button>
+
+                  <button
+                    onClick={() => {
+                      setCurrentMessage('demo_letter.pdf');
+                      setData(prev => ({
+                        ...prev,
+                        doctorLetter: 'demo_letter.pdf'
+                      }));
+                    }}
+                    className="text-sm text-[#3a2a76] hover:text-[#a680db] underline pb-16"
+                  >
+                    Skip for demo
+                  </button>
+                </div>
               </div>
             </div>
           )}
           <div className={`sticky bottom-0 pt-4 bg-transparent ${step !== 13 ? 'border-t border-[#3a2a76]/20' : ''}`}>
-            <Button
-              onClick={step === 13 ? handleComplete : handleNext}
-              className="w-full h-12 bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium rounded-xl"
-              disabled={step === 1 && !currentMessage}
-            >
-              {step === 13 ? 'Complete Setup' : 'Continue'}
-            </Button>
-
             <div className="flex justify-between items-center px-2 mt-4">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((s) => (
                 <div key={s} className="flex flex-col items-center gap-1">
