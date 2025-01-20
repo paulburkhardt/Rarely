@@ -995,6 +995,8 @@ export default function Dashboard() {
         </div>
       </div>
 
+
+
       <Dialog open={showDiaryModal} onOpenChange={(open) => {
         setShowDiaryModal(open);
         if (!open) setCurrentStep(1);
