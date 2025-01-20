@@ -55,16 +55,12 @@ Key Information:
     
     await new Promise(resolve => setTimeout(resolve, 1000))
     
-    if (study) {
-      study.hasApplied = true
-    }
-    
     toast({
       title: "Application Submitted",
       description: "Your application has been successfully submitted. We'll be in touch soon.",
     })
     
-    router.push('/studies?tab=recruiting')
+    router.push(`/studies?tab=recruiting&justApplied=${study?.id}`)
   }
 
   if (!study) return <div>Study not found</div>

@@ -1,19 +1,23 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { ArrowLeft, Heart, Paperclip, Send, Trash2, X } from 'lucide-react'
+import { Paperclip, Send, Trash2, X, Mic, MicOff } from 'lucide-react'
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { useChat } from 'ai/react'
 import Image from 'next/image'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
 import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { useUser } from "@/contexts/UserContext"
+import dynamic from 'next/dynamic'
+
+const AudioRecorder = dynamic(() => import('@/components/audio-recorder'), { ssr: false });
 
 const welcomeMessage = {
   id: 'welcome',
   role: 'assistant' as const,
-  content: 'Hi there! I\'m Dr. Joni, your ACM specialist. I\'m here to help answer your questions about Arrhythmogenic Cardiomyopathy and provide guidance. How can I assist you today?'
+  content: 'Hi there! I\'m Jona, your ACM assistant. I\'m here to help answer your questions about Arrhythmogenic Cardiomyopathy and provide guidance. How can I assist you today?'
 }
 
 interface UploadedFile {
@@ -21,6 +25,18 @@ interface UploadedFile {
   size: number;
   type: string;
   content: string;
+}
+
+interface Window {
+  webkitSpeechRecognition: any;
+  SpeechRecognition: any;
+}
+
+declare global {
+  interface Window {
+    webkitSpeechRecognition: any;
+    SpeechRecognition: any;
+  }
 }
 
 const examplePrompts = [
@@ -51,14 +67,84 @@ const formatFileSize = (bytes: number) => {
   else return (bytes / 1048576).toFixed(1) + ' MB';
 };
 
+// Define the type for the recorder hook
+type ReactMediaRecorderHook = {
+  status: string;
+  startRecording: () => void;
+  stopRecording: () => void;
+  mediaBlobUrl: string | null;
+}
+
 export default function ChatPage() {
-  const [messages, setMessages] = useState<Message[]>([welcomeMessage])
+  const { userData } = useUser();
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Initialize messages from localStorage if available, otherwise use welcomeMessage
+    if (typeof window !== 'undefined') {
+      const savedMessages = localStorage.getItem('chatMessages');
+      return savedMessages ? JSON.parse(savedMessages) : [welcomeMessage];
+    }
+    return [welcomeMessage];
+  });
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [speechSupported, setSpeechSupported] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
+  const handleRecordingStop = async (blob: Blob) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', blob, 'recording.webm');
+
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Transcription failed');
+      }
+
+      const { text } = await response.json();
+      setInput(text);
+    } catch (error) {
+      console.error('Transcription error:', error);
+    } finally {
+      setIsRecording(false);
+    }
+  };
+
+  const toggleListening = () => {
+    if (isRecording) {
+      setIsRecording(false);
+    } else {
+      setIsRecording(true);
+    }
+  };
+
+  useEffect(() => {
+    // Check if this is the first visit
+    const hasVisited = localStorage.getItem('hasVisitedChat');
+    
+    if (!hasVisited) {
+      // Add a small delay to ensure the modal renders after component mount
+      const timer = setTimeout(() => {
+        setShowWelcomeModal(true);
+        // Set the flag in localStorage
+        localStorage.setItem('hasVisitedChat', 'true');
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -115,12 +201,14 @@ export default function ChatPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (response.status === 429 && errorData.message) {
+        if (response.status === 429) {
           setMessages(messages => [...messages, {
             id: (Date.now() + 1).toString(),
             role: 'assistant',
-            content: errorData.message
+            content: errorData.message || "You've reached the message limit for the demo. Unfortunately the api bill will drown us otherwise:("
           }]);
+          setIsLoading(false);
+          return;
         }
         throw new Error('Failed to fetch response');
       }
@@ -146,8 +234,9 @@ export default function ChatPage() {
   }
 
   const handleReset = () => {
-    setMessages([welcomeMessage])
-  }
+    setMessages([welcomeMessage]);
+    localStorage.removeItem('chatMessages');
+  };
 
   useEffect(() => {
     if (messages.length === 0) {
@@ -211,75 +300,91 @@ export default function ChatPage() {
     setUploadedFiles(uploadedFiles.filter(file => file.name !== fileName));
   };
 
-  const renderMessage = (message: Message) => {
-    if ('isSummary' in message) {
-      return (
-        <div key={message.id} className="flex justify-center my-4">
-          <div className="bg-gray-100 rounded-lg p-3 text-sm text-gray-600 max-w-[80%]">
-            <div className="font-medium mb-1">Previous Conversation Summary:</div>
-            <div>{message.content}</div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div
-        key={message.id}
-        className={`flex items-start gap-2 ${
-          message.role === 'user' ? 'justify-end' : 'justify-start'
-        }`}
-      >
-        {message.role === 'assistant' && (
-          <Avatar className="w-8 h-8">
-            <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
-            <AvatarFallback className="bg-[#1E4D57] text-[#DEEAE5]">J</AvatarFallback>
-          </Avatar>
-        )}
-        <div
-          className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-            message.role === 'user'
-              ? 'bg-[#E6E3FD] text-[#473F63]'
-              : 'bg-[#DEEAE5] text-[#1E4D57]'
-          }`}
-        >
-          <ReactMarkdown>{message.content}</ReactMarkdown>
-        </div>
-        {message.role === 'user' && (
-          <Avatar className="w-8 h-8">
-            <AvatarFallback className="bg-[#473F63] text-[#E6E3FD]">ME</AvatarFallback>
-          </Avatar>
-        )}
-      </div>
-    );
-  };
-
+  // Add effect to save messages to localStorage whenever they change
   useEffect(() => {
-    const hasVisited = localStorage.getItem('hasVisitedACMChat');
-    if (!hasVisited) {
-      setShowWelcomeModal(true);
-      localStorage.setItem('hasVisitedACMChat', 'true');
+    if (messages.length > 0) {
+      localStorage.setItem('chatMessages', JSON.stringify(messages));
     }
+  }, [messages]);
+
+  // Add this useEffect to check for speech recognition support
+  useEffect(() => {
+    const checkSupport = async () => {
+      try {
+        // Check if browser supports getUserMedia
+        const hasMediaSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        // Check if browser supports necessary APIs
+        const hasRequiredAPIs = 'MediaRecorder' in window;
+        
+        setSpeechSupported(hasMediaSupport && hasRequiredAPIs);
+      } catch (error) {
+        setSpeechSupported(false);
+      }
+    };
+    
+    checkSupport();
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] bg-white">
-
-      <div className="flex justify-center items-center py-6">
-        <Image 
-          src="/logo_purple.png" 
-          alt="Logo" 
-          width={100}
-          height={100}
-          priority
-        />
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
+      {/* Header */}
+      <div className="p-6 pb-2">
+        {/* Logo centered, Avatar right */}
+        <div className="flex items-center relative mb-6">
+          <div className="w-full flex justify-center">
+            <Image 
+              src="/logo_green.png" 
+              alt="Logo" 
+              width={100} 
+              height={100} 
+              className="opacity-90"
+            />
+          </div>
+        </div>
+        <h1 className="text-3xl font-bold text-black mb-1">Chat Assistant</h1>
       </div>
 
+      {/* Chat Messages */}
       <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
-        {messages.map((message) => renderMessage(message))}
+        {messages.map((message) => (
+          <div
+            key={message.id}
+            className={`flex items-start gap-2 ${
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            }`}
+          >
+            {message.role === 'assistant' && (
+              <Avatar className="w-8 h-8">
+                <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
+                <AvatarFallback className="bg-[#3a2a76] text-white">J</AvatarFallback>
+              </Avatar>
+            )}
+            <div
+              className={`max-w-[80%] rounded-xl px-4 py-2.5 ${
+                message.role === 'user'
+                  ? 'bg-[#FAF9F6] text-[#3a2a76]'
+                  : 'bg-white/95 text-[#3a2a76]'
+              } shadow-sm backdrop-blur-sm`}
+            >
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]}
+                className="prose prose-sm max-w-none prose-p:leading-normal prose-pre:p-0"
+              >
+                {message.content}
+              </ReactMarkdown>
+            </div>
+            {message.role === 'user' && (
+              <Avatar className="w-8 h-8">
+                <AvatarFallback className="bg-[#3a2a76] text-white">
+                  {userData?.name?.slice(0, 2) || 'Me'}
+                </AvatarFallback>
+              </Avatar>
+            )}
+          </div>
+        ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-[#DEEAE5] text-[#1E4D57] rounded-2xl px-4 py-2">
+            <div className="bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76] rounded-xl px-4 py-2.5">
               Typing...
             </div>
           </div>
@@ -287,104 +392,123 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSubmit} className="border-t p-4 bg-white">
-        {uploadedFiles.length > 0 && (
-          <div className="flex flex-col gap-2 mb-4">
-            <div className="text-sm text-gray-500 px-2">
-              Documents to be used in next response:
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {uploadedFiles.map((file) => (
-                <div
-                  key={file.name}
-                  className="flex items-center gap-2 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm"
-                >
-                  <span>{file.name}</span>
-                  <span className="text-xs text-gray-500">
-                    ({formatFileSize(file.size)})
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => removeFile(file.name)}
-                    className="hover:text-red-500"
+      {/* Input Area - Adjust padding */}
+      <div className="px-4 pb-4">
+        <div className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl p-4">
+          {uploadedFiles.length > 0 && (
+            <div className="flex flex-col gap-2 mb-4">
+              <div className="text-sm text-gray-500 px-2">
+                Documents to be used in next response:
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {uploadedFiles.map((file) => (
+                  <div
+                    key={file.name}
+                    className="flex items-center gap-2 bg-[#3a2a76]/10 text-[#3a2a76] px-3 py-1.5 rounded-full text-sm"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
+                    <span>{file.name}</span>
+                    <span className="text-xs text-gray-500">
+                      ({formatFileSize(file.size)})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(file.name)}
+                      className="hover:text-red-500"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
+
+          <div className="flex gap-2 overflow-x-auto pb-4 px-2">
+            {examplePrompts.map((prompt, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => handleExampleClick(prompt)}
+                className="flex-shrink-0 bg-[#3a2a76]/10 text-[#3a2a76] px-3 py-1.5 rounded-full text-sm hover:bg-[#3a2a76]/20 transition-colors"
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
-        )}
 
-        <div className="flex gap-2 overflow-x-auto pb-4 px-2">
-          {examplePrompts.map((prompt, index) => (
-            <button
-              key={index}
+          <form onSubmit={handleSubmit} className="flex items-center gap-2">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept=".pdf, image/*"
+              className="hidden"
+              multiple
+            />
+            <Button
               type="button"
-              onClick={() => handleExampleClick(prompt)}
-              className="flex-shrink-0 bg-[#F5F4FF] text-[#473F63] px-3 py-1.5 rounded-full text-sm hover:bg-[#E6E3FD] transition-colors"
+              variant="ghost"
+              size="sm"
+              className="text-[#3a2a76]"
+              onClick={() => fileInputRef.current?.click()}
             >
-              {prompt}
-            </button>
-          ))}
+              <Paperclip className="w-5 h-5" />
+            </Button>
+            {speechSupported && (
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="text-[#3a2a76]"
+                  onClick={toggleListening}
+                >
+                  {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+                </Button>
+                {isRecording && <AudioRecorder onStop={handleRecordingStop} isRecording={isRecording} />}
+              </>
+            )}
+            <Input
+              value={input}
+              onChange={handleInputChange}
+              placeholder="Ask anything..."
+              className="flex-1 bg-transparent border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]"
+            />
+            <Button
+              type="submit"
+              size="sm"
+              className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+              disabled={!input.trim() || isLoading}
+            >
+              <Send className="w-5 h-5" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-[#3a2a76]"
+              onClick={handleReset}
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </form>
         </div>
+      </div>
 
-        <div className="flex items-center gap-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept=".pdf, image/*"
-            className="hidden"
-            multiple
-          />
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Paperclip className="w-5 h-5" />
-          </Button>
-          <Input
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Ask anything..."
-            className="flex-1 bg-white border-[#E6E3FD] focus-visible:ring-[#473F63]"
-          />
-          <Button
-            type="submit"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            disabled={!input.trim() || isLoading}
-          >
-            <Send className="w-5 h-5" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-[#473F63]"
-            onClick={handleReset}
-          >
-            <Trash2 className="w-5 h-5" />
-          </Button>
-        </div>
-      </form>
+    
 
+      {/* Welcome Dialog - Updated styles */}
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="bg-white/95 backdrop-blur-sm rounded-3xl">
           <DialogHeader>
-            <DialogTitle className="text-[#1E4D57]">Welcome to Your ACM Assistant</DialogTitle>
+            <DialogTitle className="text-[#3a2a76]">Welcome to Your ACM Assistant</DialogTitle>
             <DialogDescription className="space-y-4 pt-3">
-              <p>
+              <p className="text-gray-600">
                 I'm here to help you understand your medical documents and answer any questions about ACM.
               </p>
-              <div className="bg-[#F5F4FF] p-4 rounded-lg">
-                <h4 className="font-medium text-[#473F63] mb-2">💡 Pro Tip</h4>
-                <p className="text-sm text-[#473F63]">
+              <div className="bg-[#3a2a76]/10 p-4 rounded-xl">
+                <h4 className="font-medium text-[#3a2a76] mb-2">💡 Pro Tip</h4>
+                <p className="text-sm text-[#3a2a76]">
                   You can upload your doctor's letters or medical reports (PDF format) using the paperclip icon. 
                   This helps me provide more personalized answers about your specific situation.
                 </p>
@@ -397,7 +521,6 @@ export default function ChatPage() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-
     </div>
   )
 }

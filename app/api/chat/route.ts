@@ -1,25 +1,33 @@
 import { OpenAI } from 'openai';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
+import { Langfuse } from 'langfuse';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const MAX_TOKENS = 4000; // Adjust based on your needs
+const langfuse = new Langfuse({
+  publicKey: process.env.LANGFUSE_PUBLIC_KEY!,
+  secretKey: process.env.LANGFUSE_SECRET_KEY!,
+  baseUrl: process.env.LANGFUSE_BASE_URL
+});
+
+const MAX_TOKENS = 200; // Adjust based on your needs
 const MEMORY_WINDOW = 10; // Number of recent messages to keep in full
-let systemPrompt = `You are Dr. Joni, a knowledgeable and compassionate ACM (Arrhythmogenic Cardiomyopathy) specialist. 
-When asked about ACM, provide accurate information about ACM, its symptoms, management, and treatment options. 
-Be supportive and professional while maintaining medical accuracy.
-Give short and concise answers!
-Please use markdown to format your answers.
-For medical advice, provide a disclaimer that you are not a doctor and that you are not providing medical advice.
-Also reference to specialists for mental advice`;
+let systemPrompt = `
+You are Jona, a knowledgeable and compassionate ACM (Arrhythmogenic Cardiomyopathy) specialist.
+Respond to queries with accurate information about ACM, its symptoms, management, and treatment options.
+Keep answers short and concise, strictly under 50 words.
+If your response exceeds 50 words, truncate it appropriately.
+Always use markdown for formatting. 
+Provide a disclaimer for medical advice and recommend consulting a specialist.
+`;
 
 
 // Add rate limiting configuration
 const RATE_LIMIT = 5; // messages per minute
-const RATE_WINDOW = 60 * 1000; // 1 minute in milliseconds
+const RATE_WINDOW = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // Store request timestamps by IP
 const requestLog = new Map<string, number[]>();
@@ -52,14 +60,14 @@ async function summarizeMessages(messages: any[]) {
       .join('\n');
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4",
+      model: "gpt-4o-mini",
       messages: [
         {
           role: "system",
           content: "Please provide a brief, informative summary of the key points from this conversation. Focus on the most important information that would be relevant for continuing the discussion."
         },
         {
-          role: "user",
+          role: "assistant",
           content: conversation
         }
       ],
@@ -73,17 +81,30 @@ async function summarizeMessages(messages: any[]) {
 }
 
 export async function POST(req: Request) {
+  const headersList = headers();
+  const ip = headersList.get('x-forwarded-for') || 'unknown';
+
+  const trace = langfuse.trace({
+    id: `chat-${Date.now()}`,
+    userId: ip,
+    metadata: { 
+      source: 'chat-api',
+      environment: process.env.NODE_ENV
+    },
+    tags: ['acm-chat']
+  });
+
   try {
-    // Get user IP
-    const headersList = headers();
-    const ip = headersList.get('x-forwarded-for') || 'unknown';
-    
-    // Check rate limit
+    // Rate limit check
     if (isRateLimited(ip)) {
+      trace.update({ 
+        name: 'rate_limited',
+        output: { error: 'Rate limit exceeded' },
+      });
       return NextResponse.json(
         { 
-          error: 'Rate limit exceeded. Please try again later.',
-          message: 'This chatbot is for demonstration purposes and is limited to 5 messages per minute. Please wait a moment before sending more messages.' 
+          message: "You've reached the message limit for the demo. Unfortunately the API bill will drown us otherwise:(",
+          error: 'Rate limit exceeded' 
         },
         { status: 429 }
       );
@@ -91,34 +112,71 @@ export async function POST(req: Request) {
 
     const { messages, documentContext } = await req.json();
 
-    // If we have more messages than our window, summarize older ones
+    // Track message summarization if needed
     let processedMessages = [...messages];
     if (messages.length > MEMORY_WINDOW) {
-      const oldMessages = messages.slice(0, -MEMORY_WINDOW);
-      const recentMessages = messages.slice(-MEMORY_WINDOW);
+      const oldMessages = messages.slice(0, -1);
+      const lastMessage = messages[messages.length - 1];
+      
+      const summarySpan = trace.span({
+        name: 'summarize_messages',
+        input: { messages: oldMessages },
+        metadata: { messageCount: oldMessages.length }
+      });
       
       const summary = await summarizeMessages(oldMessages);
       
+      summarySpan.end({
+        output: { summary },
+        level: summary ? 'DEFAULT' : 'ERROR'
+      });
+      
       processedMessages = [
-        {
-          role: "system",
-          content: `Previous conversation summary: ${summary}`
-        },
-        ...recentMessages
+        { role: "assistant", content: `Previous conversation summary: ${summary}` },
+        lastMessage
       ];
     }
 
-    // Add document context if available
-    if (documentContext) {
-      systemPrompt += `\n\nContext from uploaded documents:\n${documentContext}`;
-    }
+    const generation = trace.generation({
+      name: 'chat_completion',
+      model: "gpt-4o-mini",
+      modelParameters: {
+        temperature: 0.7,
+        max_tokens: MAX_TOKENS,
+      },
+      input: {
+        system_prompt: systemPrompt,
+        messages: processedMessages,
+        document_context: documentContext
+      },
+      metadata: {
+        hasContext: !!documentContext,
+        messageCount: processedMessages.length,
+        totalTokens: processedMessages.reduce((acc, msg) => acc + msg.content.length, 0)
+      }
+    });
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
+      temperature: 0.7,
+      max_tokens: MAX_TOKENS,
       messages: [
         { role: "system", content: systemPrompt },
         ...processedMessages
       ],
+    });
+
+    generation.end({ 
+      output: {
+        completion: completion.choices[0].message.content,
+        usage: completion.usage,
+        finish_reason: completion.choices[0].finish_reason
+      }
+    });
+
+    trace.update({
+      name: 'success',
+      output: { status: 'Chat completion successful' },
     });
 
     return NextResponse.json({
@@ -126,6 +184,12 @@ export async function POST(req: Request) {
     });
 
   } catch (error) {
+    // Now trace is in scope
+    trace.update({
+      name: 'error',
+      output: { error: error instanceof Error ? error.message : 'Unknown error' },
+    });
+    
     console.error('Chat error:', error);
     return NextResponse.json(
       { error: 'Failed to process chat' },
