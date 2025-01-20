@@ -72,13 +72,6 @@ interface Medication {
   };
 }
 
-interface ActivityDataPoint {
-  time: string;
-  value: number;
-  activity: string;
-}
-
-
 
 
 // ... rest of existing code ...
@@ -1179,18 +1172,18 @@ export default function Dashboard() {
                             </div>
                       
                             {/* Show duration if either hours or minutes exist */}
-                            {(activity.duration.hours > 0 || activity.duration.minutes > 0) && (
+                            {activity.duration &&   (activity.duration.hours > 0 || activity.duration.minutes > 0) && (
                               <div>
                                 <span className="font-medium">Duration: </span>
                                 <span>
-                                  {activity.duration.hours > 0 && `${activity.duration.hours}h `}
-                                  {activity.duration.minutes > 0 && `${activity.duration.minutes}m`}
+                                  { activity.duration && activity.duration.hours > 0 && `${activity.duration.hours}h `}
+                                  { activity.duration && activity.duration.minutes > 0 && `${activity.duration.minutes}m`}
                                 </span>
                               </div>
                             )}
                       
                             {/* Show steps if they exist */}
-                            {activity.steps > 0 && (
+                            {activity.steps && activity.steps > 0 && (
                               <div>
                                 <span className="font-medium">Distance: </span>
                                 <span>{activity.steps} meters</span>
@@ -1198,7 +1191,7 @@ export default function Dashboard() {
                             )}
                       
                             {/* Show distance if it exists */}
-                            {activity.distance > 0 && (
+                            {activity.distance && activity.distance > 0 && (
                               <div>
                                 <span className="font-medium">Distance: </span>
                                 <span>{activity.distance} km</span>
