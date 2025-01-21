@@ -15,11 +15,7 @@ import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucid
 
 import { DiaryDialog } from '@/components/DiaryDialog';
 
-
-
 import { mockHealthData } from '@/data/mockHealthData';
-
-
 
 import {
   Dialog,
@@ -30,7 +26,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-
 import { Badge } from "@/components/ui/badge";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,6 +34,8 @@ import { mockData } from "@/data/mock-data";
 import { studies } from "@/app/studies/data";
 
 import { useDiaryState } from '@/hooks/useDiaryState';
+import RarelyWrapped from './RarelyWrapped';
+import { FaGift } from 'react-icons/fa';
 
 interface Activity {
   icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
@@ -46,14 +43,11 @@ interface Activity {
   value: string;
 }
 
-
-// ... rest of existing code ...
 export default function Dashboard() {
   const isDesktop = useMediaQuery("(min-width: 1024px)");
   const [isHealthSynced, setIsHealthSynced] = useState<boolean>(false);
+  const [showWrapped, setShowWrapped] = useState(false);
   
-  
-
   const { 
     symptoms,
         setSymptoms,
@@ -100,11 +94,6 @@ export default function Dashboard() {
         getSavedActivitiesCount
   } = useDiaryState();
 
-
-
-  // Load saved activities
-  // The state will be initialized from localStorage by useDiaryState
-
   useEffect(() => {
     // Load diary entry status
     const diaryEntryStatus = sessionStorage.getItem("hasDiaryEntry");
@@ -121,18 +110,11 @@ export default function Dashboard() {
 
   }, []);
 
-
-
-  // Add these state variables at the beginning of your Dashboard component
-  // const [showExerciseDetails, setShowExerciseDetails] = useState(false);
-
-
   const [streakCount, setStreakCount] = useState<number>(7);
   const [syncedProviders, setSyncedProviders] = useState<HealthProvider[]>([]);
 
   const { userData, setUserData } = useUser();
 
-  // In your useEffect, update the condition to show the summary view when entering step 2
   useEffect(() => {
     if (currentStep === 2) {
       setSelectedActivity("");
@@ -147,7 +129,6 @@ export default function Dashboard() {
     setShowDiaryModal(true);
   };
 
-  // Sample streak data - replace with your actual data
   const currentDate = new Date();
   const weekDates = Array.from({length: 7}, (_, i) => {
     const date = new Date();
@@ -194,12 +175,8 @@ export default function Dashboard() {
     window.URL.revokeObjectURL(url);
   };
 
-  // Update the type (should be near the top with other interfaces)
   type HealthProvider = 'apple' | 'whoop' | 'oura' | 'fitbit';
 
-
-
-  // Update handleHealthSync function
   const handleHealthSync = (provider: HealthProvider) => {
     const newSyncedProviders = [...syncedProviders, provider];
     setIsHealthSynced(true);
@@ -214,7 +191,6 @@ export default function Dashboard() {
 
   const matchingStudy = studies.find(study => study.id === "NCT00083395");
 
-  // Add useEffect to load streak count
   useEffect(() => {
     const savedStreakCount = localStorage.getItem("streakCount");
     if (savedStreakCount) {
@@ -222,7 +198,6 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Add useEffect to handle diary reset at midnight
   useEffect(() => {
     const checkNewDay = () => {
       const lastEntry = localStorage.getItem("lastDiaryEntry");
@@ -242,16 +217,13 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Parse the JSON string to an array and get its length
   const savedActivitiesLength = sessionStorage.getItem("savedActivities")
     ? JSON.parse(sessionStorage.getItem("savedActivities")!).length
     : 0;
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
-      {/* Header - Updated layout */}
       <div className="p-6">
-        {/* Logo centered, Avatar right */}
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
             <Image 
@@ -262,7 +234,14 @@ export default function Dashboard() {
               className="opacity-90"
             />
           </div>
-          {/* Updated streak counter */}
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+            <button
+              onClick={() => setShowWrapped(true)}
+              className="text-purple-500"
+            >
+              <FaGift size={20} />
+            </button>
+          </div>
           <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
             <div className="flex items-center gap-1">
               <span className="text-sm font-semibold">{streakCount}</span>
@@ -271,17 +250,13 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Centered Greeting */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-black">Hello {userData.name}.</h1>
         </div>
       </div>
 
-      {/* Main Content - Adjusted spacing */}
       <div className="px-4 pb-24 space-y-4">
-        {/* Daily Overview Cards */}
         <div className="space-y-4">
-          {/* Mental Wellbeing Card */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl overflow-hidden">
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
@@ -337,9 +312,7 @@ export default function Dashboard() {
             </div>
           </Card>
 
-          {/* Metrics Overview */}
           <div className="grid grid-cols-3 gap-3">
-            {/* Symptoms Card */}
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -355,7 +328,6 @@ export default function Dashboard() {
               </div>
             </Card>
 
-            {/* Medications Card */}
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -371,7 +343,6 @@ export default function Dashboard() {
               </div>
             </Card>
 
-            {/* Activity Level Card */}
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
@@ -389,7 +360,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Activity Tracking */}
         <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -511,7 +481,6 @@ export default function Dashboard() {
                 </span>
               </div>
               
-              {/* Health Tracking Integration */}
               <div className="mt-4 flex items-center gap-3">
                 <span className="text-sm text-gray-500">Sync with:</span>
                 <div className="flex gap-2">
@@ -573,11 +542,9 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        {/* Upcoming */}
         <div className="space-y-4">
           <h2 className="text-base font-semibold px-1">Upcoming</h2>
           
-          {/* Next Appointment */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
             <CardContent className="p-4">
               <div className="text-sm font-medium text-gray-500 mb-3">Upcoming Appointment</div>
@@ -608,7 +575,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Study Match */}
           {matchingStudy && (
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
               <CardContent className="p-4">
@@ -650,11 +616,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* Community Section */}
         <div className="space-y-4">
           <h2 className="text-base font-semibold px-1">Trending</h2>
           
-          {/* Trending Discussion */}
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
             <Link href={`/forum/chat/${mockData.groups[0].id}`} className="block p-4">
               <div className="flex items-start gap-3">
@@ -674,7 +638,6 @@ export default function Dashboard() {
             </Link>
           </Card>
 
-          {/* Community Stats */}
           <div className="space-y-4">
           <h2 className="text-base font-semibold px-1">Community Stats</h2>
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
@@ -700,7 +663,6 @@ export default function Dashboard() {
       </div>
       </div>
 
-      {/* Bottom Navigation - Added slight blur effect */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm border-t">
         <div className="flex justify-around items-center py-2">
           <Link href="/" className="flex flex-col items-center p-2">
@@ -728,8 +690,8 @@ export default function Dashboard() {
       <DiaryDialog submitDiary={submitDiary}/>
       </Dialog>
       
-
-
+      {showWrapped && <RarelyWrapped onClose={() => setShowWrapped(false)} />}
+      
       <style jsx global>{`
         body {
           font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
