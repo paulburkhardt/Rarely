@@ -68,7 +68,27 @@ export function useDiaryState() {
         }
       };
 
-      const [savedActivities, setSavedActivities] = useState<SavedActivity[]>([]);
+      // Inside useDiaryState hook
+      const [savedActivities, setSavedActivities] = useState<SavedActivity[]>(() => {
+        // Initialize from sessionStorage on hook creation
+        const saved = sessionStorage.getItem('savedActivities');
+        return saved ? JSON.parse(saved) : [];
+      });
+
+      // Function to get the length of savedActivities
+      const getSavedActivitiesCount = () => {
+        return savedActivities.length;
+      };
+
+
+
+      // Add a function to update activities that handles both state and sessionStorage
+      const updateSavedActivities = (activities: SavedActivity[]) => {
+        setSavedActivities(activities);
+        sessionStorage.setItem('savedActivities', JSON.stringify(activities));
+        console.log('updateSavedActivities', activities);
+        console.log('sessionStorage after update:', sessionStorage.getItem('savedActivities'));
+      };
 
       const getCurrentDate = () => {
         const now = new Date();
@@ -82,12 +102,12 @@ export function useDiaryState() {
       };
 
       const [exerciseData, setExerciseData] = useState<ExerciseData>(() => {
-        const saved = localStorage.getItem('diary_exercise_data');
+        const saved = sessionStorage.getItem('diary_exercise_data');
         return saved ? JSON.parse(saved) : DEFAULT_EXERCISE_DATA;
     });
 
     const [showExerciseDetails, setShowExerciseDetails] = useState<boolean>(() => {
-        const saved = localStorage.getItem('diary_show_exercise_details');
+        const saved = sessionStorage.getItem('diary_show_exercise_details');
         return saved ? JSON.parse(saved) : false;
     });
 
@@ -141,7 +161,7 @@ export function useDiaryState() {
           medications,
           timestamp: new Date().toISOString(),
       };
-      localStorage.setItem("lastDiaryEntry", JSON.stringify(diaryData));
+      sessionStorage.setItem("lastDiaryEntry", JSON.stringify(diaryData));
     };
   
     // Return everything that other components might need
@@ -159,7 +179,7 @@ export function useDiaryState() {
         activityData,
         setActivityData,
         savedActivities,
-        setSavedActivities,
+        setSavedActivities: updateSavedActivities,
         getCurrentDate,
         getCurrentTime,
         exerciseData,
@@ -187,6 +207,7 @@ export function useDiaryState() {
         showDiaryModal, 
         setShowDiaryModal,
         mood, 
-        setMood
+        setMood,
+        getSavedActivitiesCount
     };
 }

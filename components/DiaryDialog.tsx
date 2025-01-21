@@ -39,7 +39,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             activityData,
             setActivityData,
             savedActivities,
-            setSavedActivities,
+            setSavedActivities: updateSavedActivities,
             getCurrentDate,
             getCurrentTime,
             exerciseData,
@@ -67,7 +67,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             showDiaryModal, 
             setShowDiaryModal,
             mood, 
-            setMood
+            setMood,
       } = useDiaryState();
 
 
@@ -216,7 +216,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                             <button
                             onClick={() => {
                                 const newActivities = savedActivities.filter((_, i) => i !== index);
-                                setSavedActivities(newActivities);
+                                updateSavedActivities(newActivities);
                             }}
                             className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
                             >
@@ -428,15 +428,16 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                         <Button 
                         onClick={() => {
                             const newActivity = {
-                            type: selectedActivity,
-                            description: exerciseData.description,
-                            datetime: `${exerciseData.date} at ${exerciseData.time}`,
-                            intensity: exerciseData.intensity,
-                            duration: exerciseData.duration,
-                            distance: exerciseData.distance,
-                            steps: exerciseData.steps
+                                type: selectedActivity,
+                                description: exerciseData.description,
+                                datetime: `${exerciseData.date} at ${exerciseData.time}`,
+                                intensity: exerciseData.intensity,
+                                duration: exerciseData.duration,
+                                distance: exerciseData.distance,
+                                steps: exerciseData.steps
                             };
-                            setSavedActivities([...savedActivities, newActivity]);
+                            const updatedActivities = [...savedActivities, newActivity];
+                            updateSavedActivities(updatedActivities);
                             setShowExerciseDetails(false);
                             setShowActivitySummary(true);
                         }}

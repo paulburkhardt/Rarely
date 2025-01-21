@@ -1,4 +1,3 @@
-
 export interface Symptom {
     label: string;
     selected: boolean;
@@ -17,9 +16,21 @@ export interface Medication {
   }
 
 export interface ActivityData {
-icon: React.ReactElement<React.SVGProps<SVGSVGElement>>;
-label: string;
-value: string;
+    today: Array<{
+        time: string;
+        value: number;
+        activity: string;
+    }>;
+    week: Array<{
+        time: string;
+        value: number;
+        activity: string;
+    }>;
+    month: Array<{
+        time: string;
+        value: number;
+        activity: string;
+    }>;
 }
   
 // Add this type for saved activities

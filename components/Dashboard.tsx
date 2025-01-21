@@ -96,31 +96,14 @@ export default function Dashboard() {
         showDiaryModal, 
         setShowDiaryModal,
         mood, 
-        setMood
+        setMood,
+        getSavedActivitiesCount
   } = useDiaryState();
 
 
-  
 
-
-  // Add the useEffect here, after states, before return
-  useEffect(() => {
-    if (currentStep === 2) {
-      setSelectedActivity("");
-      setShowActivitySummary(false);
-      setShowExerciseDetails(false);
-    }
-  }, [currentStep]);
-
-
-  // Add these state variables at the beginning of your Dashboard component
-  // const [showExerciseDetails, setShowExerciseDetails] = useState(false);
-
-
-  const [streakCount, setStreakCount] = useState<number>(7);
-  const [syncedProviders, setSyncedProviders] = useState<HealthProvider[]>([]);
-
-  const { userData, setUserData } = useUser();
+  // Load saved activities
+  // The state will be initialized from localStorage by useDiaryState
 
   useEffect(() => {
     // Load diary entry status
@@ -136,12 +119,18 @@ export default function Dashboard() {
       setIsHealthSynced(true);
     }
 
-    // Load activity data
-    const savedActivityData = localStorage.getItem("activityData");
-    if (savedActivityData) {
-      setActivityData(JSON.parse(savedActivityData));
-    }
   }, []);
+
+
+
+  // Add these state variables at the beginning of your Dashboard component
+  // const [showExerciseDetails, setShowExerciseDetails] = useState(false);
+
+
+  const [streakCount, setStreakCount] = useState<number>(7);
+  const [syncedProviders, setSyncedProviders] = useState<HealthProvider[]>([]);
+
+  const { userData, setUserData } = useUser();
 
   // In your useEffect, update the condition to show the summary view when entering step 2
   useEffect(() => {
@@ -252,6 +241,11 @@ export default function Dashboard() {
 
     return () => clearInterval(interval);
   }, []);
+
+  // Parse the JSON string to an array and get its length
+  const savedActivitiesLength = sessionStorage.getItem("savedActivities")
+    ? JSON.parse(sessionStorage.getItem("savedActivities")!).length
+    : 0;
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
@@ -386,9 +380,9 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold truncate">
-                    {selectedActivity ? activityData[timeRange].find(a => a.value === selectedActivity)?.label.split(' ')[0] : 'None'}
+                    {savedActivitiesLength}
                   </h3>
-                  <p className="text-xs text-gray-500 truncate">Activity</p>
+                  <p className="text-xs text-gray-500 truncate">Activities</p>
                 </div>
               </div>
             </Card>
