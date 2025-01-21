@@ -18,10 +18,67 @@ import { Calendar, MessageCircle, Activity, Check, Heart, Grid, Pill, Smile, Dow
 
 // Replace the import line with these icons that are definitely available
 import {Trash2} from 'lucide-react';
+import { FaTrash } from 'react-icons/fa';
 
 interface DiaryDialogProps {
     submitDiary: () => void;
 }
+
+const MoodSlider = ({ mood, setMood }) => {
+  const handleMoodChange = (event) => {
+    setMood(parseFloat(event.target.value));
+  };
+
+  const getMoodIcon = () => {
+    if (mood < 1.5) return <Frown style={{ color: smileyColor }} className="w-20 h-20" />;
+    if (mood < 2.5) return <Meh style={{ color: smileyColor }} className="w-20 h-20" />;
+    return <Smile style={{ color: smileyColor }} className="w-20 h-20" />;
+  };
+
+  const interpolateColor = (value) => {
+    // Define your gradient colors
+
+    const startColor = [75, 0, 130]; // Darker purple (RGB)
+    const endColor = [150, 100, 200]; // 
+
+
+    // Interpolate between start and end colors
+    const r = Math.round(startColor[0] + (endColor[0] - startColor[0]) * value);
+    const g = Math.round(startColor[1] + (endColor[1] - startColor[1]) * value);
+    const b = Math.round(startColor[2] + (endColor[2] - startColor[2]) * value);
+
+    return `rgb(${r}, ${g}, ${b})`;
+  };
+
+  const smileyColor = interpolateColor((mood - 1) / 2); // Normalize mood to 0-1 range
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="flex items-center justify-center w-24 h-24">
+        {getMoodIcon()}
+      </div>
+      <input
+        type="range"
+        min="1"
+        max="3"
+        step="0.1"
+        value={mood}
+        onChange={handleMoodChange}
+        className="w-full p-3 mt-3"
+        style={{
+          background: `linear-gradient(to right, #4B0082, #957DAD, #E6E6FA)`,
+          borderRadius: '10px',
+          height: '8px',
+          outline: 'none',
+          appearance: 'none',
+        }}
+      />
+      <span className="text-2xl font-medium pt-1">
+        {mood < 1.5 ? 'Not Good' : mood < 2.5 ? 'Okay' : 'Good'}
+      </span>
+    </div>
+  );
+};
 
 export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
 
@@ -70,6 +127,86 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             setMood,
       } = useDiaryState();
 
+    const [medicationsState, setMedicationsState] = useState(() => 
+        medications.map(med => ({
+            ...med,
+            taken: med.prescribed ? true : med.taken,
+        }))
+    );
+
+    const handleAddMedication = () => {
+        if (newMedication.trim()) {
+            setMedications(prev => [
+                ...prev,
+                { 
+                    name: newMedication.trim(), 
+                    taken: true, 
+                    prescribed: false,
+                    category: "Other",
+                    dosage: { value: 0, unit: 'mg' },
+                    details_taken: [false],
+                    times: ["8:00 AM"]
+                }
+            ]);
+            setNewMedication("");
+            setShowMedicationInput(false);
+        }
+    };
+
+    const handleTimeChange = (e, medIndex, timeIndex, newTime) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].times[timeIndex] = newTime;
+        setMedications(updatedMeds);
+    };
+
+    const handleDosageChange = (e, medIndex, timeIndex, newValue) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].dosage[timeIndex].value = newValue;
+        setMedications(updatedMeds);
+    };
+
+    const handleUnitChange = (e, medIndex, timeIndex, newUnit) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].dosage[timeIndex].unit = newUnit;
+        setMedications(updatedMeds);
+    };
+
+    const handlePillsChange = (e, medIndex, timeIndex, newValue) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].number_of_pills[timeIndex] = newValue;
+        setMedications(updatedMeds);
+    };
+
+    const handleDetailsTakenChange = (e, medIndex, timeIndex) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].details_taken[timeIndex] = !updatedMeds[medIndex].details_taken[timeIndex];
+        setMedications(updatedMeds);
+    };
+
+    const addTime = (e, medIndex) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].times.push("12:00 PM");
+        updatedMeds[medIndex].details_taken.push(false);
+        updatedMeds[medIndex].dosage.push({ value: 0, unit: "mg" });
+        updatedMeds[medIndex].number_of_pills.push(1);
+        setMedications(updatedMeds);
+    };
+
+    const removeTime = (e, medIndex, timeIndex) => {
+        e.stopPropagation();
+        const updatedMeds = [...medicationsState];
+        updatedMeds[medIndex].times.splice(timeIndex, 1);
+        updatedMeds[medIndex].details_taken.splice(timeIndex, 1);
+        updatedMeds[medIndex].dosage.splice(timeIndex, 1);
+        updatedMeds[medIndex].number_of_pills.splice(timeIndex, 1);
+        setMedications(updatedMeds);
+    };
 
     return(
         <DialogContent className="max-w-md mx-auto max-h-[90vh] flex flex-col bg-white/95 backdrop-blur-sm rounded-3xl border-0">
@@ -97,36 +234,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             {/* Step 1: Mood */}
             {currentStep === 1 && (
                 <div className="space-y-6">
-                <div className="grid grid-cols-3 gap-4">
-                    {[
-                    { icon: <Frown />, value: 1, label: "Not Good", color: "bg-red-100", textColor: "text-red-500" },
-                    { icon: <Meh />, value: 2, label: "Okay", color: "bg-yellow-100", textColor: "text-yellow-500" },
-                    { icon: <Smile />, value: 3, label: "Good", color: "bg-green-100", textColor: "text-green-500" }
-                    ].map((item) => (
-                    <div 
-                        key={item.value}
-                        className={`flex flex-col items-center gap-3 cursor-pointer transition-all ${
-                        mood === item.value ? 'scale-105' : 'opacity-70 hover:opacity-100'
-                        }`}
-                        onClick={() => setMood(item.value)}
-                    >
-                        <div className={`w-full aspect-square rounded-2xl flex items-center justify-center ${
-                        mood === item.value 
-                            ? `${item.color}` 
-                            : 'bg-white/95 border border-gray-100'
-                        }`}>
-                        {cloneElement(item.icon, { 
-                            className: `w-8 h-8 ${mood === item.value ? item.textColor : 'text-gray-400'}`
-                        })}
-                        </div>
-                        <span className={`text-sm font-medium ${
-                        mood === item.value ? 'text-gray-900' : 'text-gray-500'
-                        }`}>
-                        {item.label}
-                        </span>
-                    </div>
-                    ))}
-                </div>
+                <MoodSlider mood={mood} setMood={setMood} />
                 </div>
             )}
 
@@ -145,7 +253,8 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                         { icon: getActivityIcon("walking"), label: "Walking", value: "walking" },
                         { icon: getActivityIcon("running"), label: "Running", value: "running" },
                         { icon: getActivityIcon("swimming"), label: "Swimming", value: "swimming" },
-                        { icon: getActivityIcon("yoga"), label: "Yoga", value: "yoga" }
+                        { icon: getActivityIcon("yoga"), label: "Yoga", value: "yoga" },
+                        { icon: getActivityIcon("other"), label: "Other", value: "other" }
                         ].map((activity) => (
                         <div
                             key={activity.value}
@@ -342,8 +451,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-1">
                             <Input
-                                type="number"
-                                placeholder="Hours"
+                                type="text"
                                 value={exerciseData.duration.hours}
                                 onChange={(e) => setExerciseData(prev => ({
                                 ...prev,
@@ -352,14 +460,25 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                                     hours: Number(e.target.value)
                                 }
                                 }))}
+                                onFocus={(e) => e.target.value = ''}
+                                onBlur={(e) => {
+                                    if (e.target.value === '') {
+                                    setExerciseData(prev => ({
+                                        ...prev,
+                                        duration: {
+                                            ...prev.duration,
+                                            hours: 0
+                                        }
+                                    }));
+                                    }
+                                }}
                                 className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
                             />
                             <span className="text-sm text-gray-500">hours</span>
                             </div>
                             <div className="space-y-1">
                             <Input
-                                type="number"
-                                placeholder="Minutes"
+                                type="text"
                                 value={exerciseData.duration.minutes}
                                 onChange={(e) => setExerciseData(prev => ({
                                 ...prev,
@@ -368,6 +487,18 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                                     minutes: Number(e.target.value)
                                 }
                                 }))}
+                                onFocus={(e) => e.target.value = ''}
+                                onBlur={(e) => {
+                                    if (e.target.value === '') {
+                                    setExerciseData(prev => ({
+                                        ...prev,
+                                        duration: {
+                                            ...prev.duration,
+                                            minutes: 0
+                                        }
+                                    }));
+                                    }
+                                }}
                                 className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
                             />
                             <span className="text-sm text-gray-500">minutes</span>
@@ -380,12 +511,21 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                         <Label>Distance (optional)</Label>
                         <div className="space-y-1">
                             <Input
-                            type="number"
+                            type="text"
                             value={exerciseData.steps}
                             onChange={(e) => setExerciseData(prev => ({
                                 ...prev,
                                 steps: Number(e.target.value)
                             }))}
+                            onFocus={(e) => e.target.value = ''}
+                            onBlur={(e) => {
+                                if (e.target.value === '') {
+                                setExerciseData(prev => ({
+                                    ...prev,
+                                    steps: 0
+                                }));
+                                }
+                            }}
                             className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
                             />
                             <span className="text-sm text-gray-500">meters</span>
@@ -569,97 +709,117 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             {/* Step 4: Medications */}
             {currentStep === 4 && (
                 <div className="space-y-6">
-                {Array.from(new Set(medications.map(med => med.category))).map(category => (
-                    <div key={category} className="space-y-2">
-                    <h3 className="font-medium text-sm text-gray-500">{category}</h3>
-                    <div className="space-y-2">
-                        {medications
-                        .filter(med => med.category === category)
-                        .map((med, index) => (
-                            <div
-                            key={med.name}
-                            onClick={() => {
-                                const newMeds = [...medications];
-                                const medIndex = medications.findIndex(m => m.name === med.name);
-                                newMeds[medIndex].taken = !newMeds[medIndex].taken;
-                                setMedications(newMeds);
-                            }}
-                            className={`relative rounded-xl p-4 transition-all cursor-pointer ${
-                                med.taken
-                                ? 'bg-[#3a2a76]/10 border border-[#3a2a76]'
-                                : 'bg-white/95 border border-gray-100 hover:border-[#3a2a76]/30'
-                            }`}
-                            >
-                            <div className="flex items-center justify-between">
-                                <div className="flex flex-col">
-                                <span className="font-medium">{med.name}</span>
-                                {med.dosage && (
-                                    <span className="text-sm text-gray-500">
-                                    {med.dosage.value} {med.dosage.unit}
-                                    </span>
-                                )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                {med.prescribed && (
-                                    <Badge variant="secondary" className="text-xs">Prescribed</Badge>
-                                )}
-                                <div
-                                    className={`w-5 h-5 rounded-full flex items-center justify-center border cursor-pointer ${
-                                    med.taken 
-                                        ? 'bg-[#3a2a76] border-[#3a2a76]' 
-                                        : 'border-gray-300'
-                                    }`}
-                                >
-                                    {med.taken && <Check className="w-3 h-3 text-white" />}
-                                </div>
-                                </div>
-                            </div>
-                            {med.taken && (
-                                <div className="mt-3 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                                <input
-                                    type="number"
-                                    value={med.dosage?.value || ""}
-                                    onChange={(e) => {
-                                    const newMeds = [...medications];
-                                    const medIndex = medications.findIndex(m => m.name === med.name);
-                                    newMeds[medIndex].dosage = {
-                                        value: Number(e.target.value) || 0,
-                                        unit: med.dosage?.unit || 'mg'
-                                    };
-                                    setMedications(newMeds);
-                                    }}
-                                    className="w-20 px-2 py-1 rounded-md border text-sm bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
-                                    placeholder="Dosage"
-                                />
-                                <Select
-                                    value={med.dosage?.unit || "mg"}
-                                    onValueChange={(value) => {
-                                    const newMeds = [...medications];
-                                    const medIndex = medications.findIndex(m => m.name === med.name);
-                                    newMeds[medIndex].dosage = {
-                                        value: med.dosage?.value || 0,
-                                        unit: value
-                                    };
-                                    setMedications(newMeds);
-                                    }}
-                                >
-                                    <SelectTrigger className="w-20 bg-white">
-                                    <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent className="bg-white">
-                                    <SelectItem value="mg">mg</SelectItem>
-                                    <SelectItem value="g">g</SelectItem>
-                                    <SelectItem value="ml">ml</SelectItem>
-                                    <SelectItem value="mcg">mcg</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                                </div>
-                            )}
-                            </div>
-                        ))}
-                    </div>
-                    </div>
-                ))}
+                {medicationsState.map((med, medIndex) => (
+        <div
+          key={med.name}
+          onClick={() => {
+            const newMeds = [...medicationsState];
+            newMeds[medIndex].taken = !newMeds[medIndex].taken;
+            setMedications(newMeds);
+          }}
+          className={`relative rounded-lg p-6 transition-all cursor-pointer shadow-md ${
+            med.taken
+              ? 'bg-[#f3f0ff] border border-[#3a2a76]'
+              : 'bg-white border border-gray-200 hover:border-[#3a2a76]/30'
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+              <span className="font-semibold text-lg">{med.name}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const newMeds = [...medicationsState];
+                  newMeds[medIndex].prescribed = !newMeds[medIndex].prescribed;
+                  setMedications(newMeds);
+                }}
+                className={`text-xs px-2 py-1 rounded-full ${
+                  med.prescribed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                }`}
+              >
+                {med.prescribed ? 'Prescribed' : 'Not Prescribed'}
+              </button>
+              <div
+                className={`w-5 h-5 rounded-full flex items-center justify-center border cursor-pointer ${
+                  med.taken 
+                    ? 'bg-[#3a2a76] border-[#3a2a76]' 
+                    : 'border-gray-300'
+                }`}
+              >
+                {med.taken && <Check className="w-3 h-3 text-white" />}
+              </div>
+            </div>
+          </div>
+          {med.taken && (
+            <div className="mt-4">
+              {med.times.map((time, timeIndex) => (
+                <div key={timeIndex} className="relative mb-4 p-4 bg-gray-50 rounded-md shadow-sm">
+                  <button
+                    onClick={(e) => removeTime(e, medIndex, timeIndex)}
+                    className="absolute top-2 right-2 text-red-500"
+                  >
+                    <FaTrash />
+                  </button>
+                  <div className="flex items-center gap-3 mb-2">
+                    <label className="text-sm text-gray-600">Time:</label>
+                    <input
+                      type="text"
+                      value={time}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => handleTimeChange(e, medIndex, timeIndex, e.target.value)}
+                      className="border rounded-md p-2 flex-1 shadow-sm"
+                    />
+                  </div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <label className="text-sm text-gray-600">Dosage:</label>
+                    <input
+                      type="number"
+                      value={med.dosage[timeIndex].value}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => handleDosageChange(e, medIndex, timeIndex, e.target.value)}
+                      className="border rounded-md p-2 w-20 shadow-sm"
+                    />
+                    <select
+                      value={med.dosage[timeIndex].unit}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => handleUnitChange(e, medIndex, timeIndex, e.target.value)}
+                      className="border rounded-md p-2 shadow-sm"
+                    >
+                      <option value="mg">mg</option>
+                      <option value="g">g</option>
+                      <option value="ml">ml</option>
+                      <option value="mcg">mcg</option>
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <label className="text-sm text-gray-600">Pills:</label>
+                    <input
+                      type="number"
+                      value={med.number_of_pills[timeIndex]}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => handlePillsChange(e, medIndex, timeIndex, e.target.value)}
+                      className="border rounded-md p-2 w-20 shadow-sm"
+                    />
+                    <button
+                      onClick={(e) => handleDetailsTakenChange(e, medIndex, timeIndex)}
+                      className={`flex-1 px-3 py-1 rounded-md transition-colors text-center ${
+                        med.details_taken[timeIndex] 
+                          ? 'bg-green-500 text-white' 
+                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      }`}
+                    >
+                      {med.details_taken[timeIndex] ? 'Taken' : 'Not Taken'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              <button onClick={(e) => addTime(e, medIndex)} className="text-blue-500 mt-2">Add Time</button>
+            </div>
+          )}
+        </div>
+      ))}
                 
                 {/* Add Custom Medication UI */}
                 {showMedicationInput ? (
@@ -691,22 +851,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                     </div>
                     <div className="flex gap-2">
                         <Button
-                        onClick={() => {
-                            if (newMedication.trim()) {
-                            setMedications([
-                                ...medications,
-                                { 
-                                name: newMedication.trim(), 
-                                taken: true, 
-                                prescribed: false,
-                                category: "Other",
-                                dosage: { value: 0, unit: 'mg' }
-                                }
-                            ]);
-                            setNewMedication("");
-                            setShowMedicationInput(false);
-                            }
-                        }}
+                        onClick={handleAddMedication}
                         className="flex-1"
                         >
                         Add Medication

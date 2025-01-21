@@ -12,8 +12,11 @@ export interface Medication {
     dosage: {
       value: number;
       unit: string;
-    };
-  }
+    }[];
+    details_taken: boolean[];
+    times: string[];
+    number_of_pills: number[];
+}
 
 export interface ActivityData {
     today: Array<{
@@ -77,26 +80,134 @@ export const DEFAULT_SYMPTOMS: Symptom[] = [
 
 export const DEFAULT_MEDICATIONS: Medication[] = [
     // Antiarrhythmic drugs
-    { name: "Sotalol", taken: false, prescribed: true, category: "Antiarrhythmic", dosage: { value: 80, unit: "mg" } },
-    { name: "Amiodarone", taken: false, prescribed: false, category: "Antiarrhythmic", dosage: { value: 200, unit: "mg" } },
-    { name: "Flecainide", taken: false, prescribed: false, category: "Antiarrhythmic", dosage: { value: 100, unit: "mg" } },
+    { 
+      name: "Sotalol", 
+      taken: false, 
+      prescribed: true, 
+      category: "Antiarrhythmic", 
+      dosage: [{ value: 80, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Amiodarone", 
+      taken: false, 
+      prescribed: false, 
+      category: "Antiarrhythmic", 
+      dosage: [{ value: 200, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Flecainide", 
+      taken: false, 
+      prescribed: false, 
+      category: "Antiarrhythmic", 
+      dosage: [{ value: 100, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
     
     // Beta blockers
-    { name: "Bisoprolol", taken: false, prescribed: true, category: "Beta Blocker", dosage: { value: 20, unit: "mg" } },
-    { name: "Metoprolol", taken: false, prescribed: false, category: "Beta Blocker", dosage: { value: 50, unit: "mg" } },
+    { 
+      name: "Bisoprolol", 
+      taken: false, 
+      prescribed: true, 
+      category: "Beta Blocker", 
+      dosage: [{ value: 20, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Metoprolol", 
+      taken: false, 
+      prescribed: false, 
+      category: "Beta Blocker", 
+      dosage: [{ value: 50, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
     
     // Heart failure drugs
-    { name: "ACE Inhibitor", taken: false, prescribed: true, category: "Heart Failure", dosage: { value: 10, unit: "mg" } },
-    { name: "Entresto (Sacubitril/Valsartan)", taken: false, prescribed: true, category: "Heart Failure", dosage: { value: 20, unit: "mg" } },
-    { name: "Eplerenon", taken: false, prescribed: false, category: "Heart Failure", dosage: { value: 10, unit: "mg" } },
-    { name: "Finerenon", taken: false, prescribed: false, category: "Heart Failure", dosage: { value: 10, unit: "mg" } },
+    { 
+      name: "ACE Inhibitor", 
+      taken: false, 
+      prescribed: true, 
+      category: "Heart Failure", 
+      dosage: [{ value: 10, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Entresto (Sacubitril/Valsartan)", 
+      taken: false, 
+      prescribed: true, 
+      category: "Heart Failure", 
+      dosage: [{ value: 20, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Eplerenon", 
+      taken: false, 
+      prescribed: false, 
+      category: "Heart Failure", 
+      dosage: [{ value: 10, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Finerenon", 
+      taken: false, 
+      prescribed: false, 
+      category: "Heart Failure", 
+      dosage: [{ value: 10, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
     
     // Diuretics
-    { name: "Furosemide", taken: false, prescribed: false, category: "Diuretic", dosage: { value: 20, unit: "mg" } },
-    { name: "Torasemide", taken: false, prescribed: false, category: "Diuretic", dosage: { value: 20, unit: "mg" } },
+    { 
+      name: "Furosemide", 
+      taken: false, 
+      prescribed: false, 
+      category: "Diuretic", 
+      dosage: [{ value: 20, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
+    { 
+      name: "Torasemide", 
+      taken: false, 
+      prescribed: false, 
+      category: "Diuretic", 
+      dosage: [{ value: 20, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
     
     // SGLT2 Inhibitors
-    { name: "SGLT2 Inhibitor", taken: false, prescribed: false, category: "SGLT2", dosage: { value: 10, unit: "mg" } },
+    { 
+      name: "SGLT2 Inhibitor", 
+      taken: false, 
+      prescribed: false, 
+      category: "SGLT2", 
+      dosage: [{ value: 10, unit: "mg" }],
+      details_taken: [false],
+      times: ["8:00 AM"],
+      number_of_pills: [1]
+    },
   ];
 
 

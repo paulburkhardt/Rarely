@@ -20,7 +20,8 @@ import {
     FaWalking, 
     FaRunning, 
     FaSwimmer, 
-    FaPrayingHands 
+    FaPrayingHands,
+    FaQuestionCircle
 } from 'react-icons/fa';
 
 // A custom hook is just a function that uses React hooks
@@ -49,7 +50,8 @@ export function useDiaryState() {
             walking: <FaWalking className="w-5 h-5" />,
             running: <FaRunning className="w-5 h-5" />,
             swimming: <FaSwimmer className="w-5 h-5" />,
-            yoga: <FaPrayingHands className="w-5 h-5" />
+            yoga: <FaPrayingHands className="w-5 h-5" />,
+            other: <FaQuestionCircle className="w-5 h-5" />
         };
         return icons[type as keyof typeof icons];
     };
@@ -119,7 +121,8 @@ export function useDiaryState() {
         walking: "Walking",
         running: "Running",
         swimming: "Swimming",
-        yoga: "Yoga"
+        yoga: "Yoga",
+        other: "Other"
       };
       return labels[type as keyof typeof labels];
     };
