@@ -24,8 +24,24 @@ interface DiaryDialogProps {
     submitDiary: () => void;
 }
 
-const MoodSlider = ({ mood, setMood }) => {
-  const handleMoodChange = (event) => {
+interface Medication {
+    name: string;
+    taken: boolean;
+    prescribed: boolean;
+    category: string;
+    dosage: { value: number; unit: string; }[];
+    details_taken: boolean[];
+    times: string[];
+    number_of_pills: number[];
+}
+
+interface MoodSliderProps {
+    mood: number;
+    setMood: (value: number) => void;
+}
+
+const MoodSlider = ({ mood, setMood }: MoodSliderProps) => {
+  const handleMoodChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setMood(parseFloat(event.target.value));
   };
 
@@ -35,7 +51,7 @@ const MoodSlider = ({ mood, setMood }) => {
     return <Smile style={{ color: smileyColor }} className="w-20 h-20" />;
   };
 
-  const interpolateColor = (value) => {
+  const interpolateColor = (value: number) => {
     // Define your gradient colors
 
     const startColor = [75, 0, 130]; // Darker purple (RGB)
@@ -143,9 +159,10 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                     taken: true, 
                     prescribed: false,
                     category: "Other",
-                    dosage: { value: 0, unit: 'mg' },
+                    dosage: [{ value: 0, unit: 'mg' }],
                     details_taken: [false],
-                    times: ["8:00 AM"]
+                    times: ["8:00 AM"],
+                    number_of_pills: [1]
                 }
             ]);
             setNewMedication("");
@@ -153,42 +170,42 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
         }
     };
 
-    const handleTimeChange = (e, medIndex, timeIndex, newTime) => {
+    const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>, medIndex: number, timeIndex: number) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
-        updatedMeds[medIndex].times[timeIndex] = newTime;
+        updatedMeds[medIndex].times[timeIndex] = e.target.value;
         setMedications(updatedMeds);
     };
 
-    const handleDosageChange = (e, medIndex, timeIndex, newValue) => {
+    const handleDosageChange = (e: React.ChangeEvent<HTMLInputElement>, medIndex: number, timeIndex: number, newValue: string) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
-        updatedMeds[medIndex].dosage[timeIndex].value = newValue;
+        updatedMeds[medIndex].dosage[timeIndex].value = parseFloat(newValue) || 0;
         setMedications(updatedMeds);
     };
 
-    const handleUnitChange = (e, medIndex, timeIndex, newUnit) => {
+    const handleUnitChange = (e: React.ChangeEvent<HTMLSelectElement>, medIndex: number, timeIndex: number, newUnit: string) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
         updatedMeds[medIndex].dosage[timeIndex].unit = newUnit;
         setMedications(updatedMeds);
     };
 
-    const handlePillsChange = (e, medIndex, timeIndex, newValue) => {
+    const handlePillsChange = (e: React.ChangeEvent<HTMLInputElement>, medIndex: number, timeIndex: number, newValue: string) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
-        updatedMeds[medIndex].number_of_pills[timeIndex] = newValue;
+        updatedMeds[medIndex].number_of_pills[timeIndex] = parseInt(newValue) || 0;
         setMedications(updatedMeds);
     };
 
-    const handleDetailsTakenChange = (e, medIndex, timeIndex) => {
+    const handleDetailsTakenChange = (e: React.MouseEvent, medIndex: number, timeIndex: number) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
         updatedMeds[medIndex].details_taken[timeIndex] = !updatedMeds[medIndex].details_taken[timeIndex];
         setMedications(updatedMeds);
     };
 
-    const addTime = (e, medIndex) => {
+    const addTime = (e: React.MouseEvent, medIndex: number) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
         updatedMeds[medIndex].times.push("12:00 PM");
@@ -198,7 +215,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
         setMedications(updatedMeds);
     };
 
-    const removeTime = (e, medIndex, timeIndex) => {
+    const removeTime = (e: React.MouseEvent, medIndex: number, timeIndex: number) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
         updatedMeds[medIndex].times.splice(timeIndex, 1);
@@ -768,7 +785,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                       type="text"
                       value={time}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleTimeChange(e, medIndex, timeIndex, e.target.value)}
+                      onChange={(e) => handleTimeChange(e, medIndex, timeIndex)}
                       className="border rounded-md p-2 flex-1 shadow-sm"
                     />
                   </div>
