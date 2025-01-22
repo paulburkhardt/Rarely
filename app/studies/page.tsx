@@ -64,7 +64,7 @@ function StudiesContent() {
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
             <Image 
-              src="/logo_green.png" 
+              src="/logo_final.png" 
               alt="Logo" 
               width={100} 
               height={100} 
@@ -186,13 +186,42 @@ function StudiesContent() {
             {runningStudies.map((study) => (
               <Card key={study.id} className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl overflow-hidden">
                 <CardContent className="p-4">
-                    <h2 className="text-xl font-semibold text-black">
-                      {study.title}
-                    </h2>
+                  <div className="relative mb-3">
+                    <div 
+                      onClick={() => setExpandedId(expandedId === study.id ? null : study.id)}
+                      className="cursor-pointer"
+                    >
+                      <h2 className={`text-xl font-semibold text-black ${expandedId === study.id ? '' : 'line-clamp-2'}`}>
+                        {study.title}
+                        {!expandedId && study.title.length > 100 && (
+                          <span className="text-[#3a2a76] text-sm font-normal ml-1">(tap to read more)</span>
+                        )}
+                      </h2>
+                    </div>
+                    {study.enrolled && (
+                      <Badge 
+                        className="bg-emerald-100 text-emerald-700 font-medium mt-2"
+                      >
+                        Enrolled
+                      </Badge>
+                    )}
+                  </div>
           
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                    {study.purpose}
-                  </p>
+                  <div 
+                    onClick={() => setExpandedId(expandedId === study.id ? null : study.id)} 
+                    className="text-gray-600 text-sm mb-4 cursor-pointer hover:text-gray-800"
+                  >
+                    {expandedId === study.id ? (
+                      study.purpose
+                    ) : (
+                      <div className="flex items-center">
+                        <span className="line-clamp-1">
+                          {study.purpose}
+                        </span>
+                        <span className="text-[#3a2a76] ml-1 flex-shrink-0">(tap to read more)</span>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Study Details */}
                   <div className="space-y-2 text-sm mb-4">

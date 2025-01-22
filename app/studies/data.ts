@@ -13,33 +13,39 @@ export type Study = {
   participants?: number
   hasApplied?: boolean
   matches?: boolean
+  enrolled?: boolean
 }
 
 export const studies: Study[] = [
   {
-    id: "NCT03068149",
-    title: "Pilot Randomized Trial With Flecainide in ARVC Patients",
-    explanation: "A clinical trial studying the effects of Flecainide in patients with Arrhythmogenic Right Ventricular Cardiomyopathy (ARVC)",
-    location: "Multiple locations: Denver, Baltimore, New York",
-    startDate: new Date("2023-01-15"),
-    totalSpots: 100,
-    availableSpots: 45,
+    id: "TARGET-2024",
+    title: "TaRGETed Therapy with Glycogen Synthase Kinase-3 Inhibition for Arrhythmogenic Cardiomyopathy",
+    purpose: "To evaluate the therapeutic efficacy of tideglusib, a GSK3β inhibitor, in genotype positive arrhythmogenic cardiomyopathy (ACM)",
+    explanation: "A multi-centre, prospective, randomized, double-blind, placebo-controlled trial studying the effects of tideglusib in ACM patients. The study aims to assess changes in PVC count and ventricular strain, among other cardiac outcomes.",
+    location: "Multiple locations across Canada (20 sites)",
+    startDate: new Date("2024-01-01"),
+    endDate: new Date("2026-12-31"),
+    totalSpots: 120,
+    availableSpots: 0,
+    progress: 50,
+    participants: 120,
     status: "running",
-    progress: 55,
-    participants: 55,
-    matches: true
+    matches: false,
+    enrolled: true
   },
   {
-    id: "NCT01804699",
-    title: "National ARVC Data Registry and Bio Bank",
-    explanation: "A comprehensive registry and bio bank study for ARVC patients across multiple Canadian centers",
-    location: "Multiple locations in Canada",
-    startDate: new Date("2023-03-01"),
-    totalSpots: 200,
-    availableSpots: 85,
-    status: "running",
+    id: "NCT06275893",
+    title: "Arrhythmogenic Right Ventricular Cardiomyopathy Biomarker Study",
+    purpose: "To identify novel biomarkers for early detection and monitoring of ARVC progression",
+    explanation: "A prospective study collecting blood samples from ARVC patients to identify potential biomarkers that could help in early disease detection and monitoring of disease progression",
+    location: "Johns Hopkins Hospital, Baltimore, Maryland, United States",
+    startDate: new Date("2024-01-15"),
+    endDate: new Date("2025-12-01"),
+    totalSpots: 100,
+    availableSpots: 0,
     progress: 42,
-    participants: 115,
+    participants: 100,
+    status: "running",
     matches: false
   },
   {

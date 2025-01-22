@@ -79,7 +79,7 @@ function ForumContent() {
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
             <Image 
-              src="/logo_green.png" 
+              src="/logo_final.png" 
               alt="Logo" 
               width={100} 
               height={100} 
