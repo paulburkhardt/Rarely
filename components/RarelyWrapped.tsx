@@ -4,7 +4,11 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, Activity, X, MessageCircle, Database } from "lucide-react";
 
-const RarelyWrapped = ({ onClose }) => {
+interface RarelyWrappedProps {
+  onClose: () => void;
+}
+
+const RarelyWrapped = ({ onClose }: RarelyWrappedProps) => {
   const [[page, direction], setPage] = useState([0, 0]);
 
   const wrapperPages = [
