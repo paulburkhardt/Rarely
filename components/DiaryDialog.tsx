@@ -257,7 +257,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
 
             {/* Step 2: Activity */}
             {currentStep === 2 && (
-                <div className="space-y-6">
+                 <div className="space-y-6 max-h-[80vh] overflow-y-auto px-2 pb-4">
                 {!showActivitySummary ? (
                     // Activity Selection View
                     <div className="space-y-6">
@@ -402,12 +402,12 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
 
                 {/* Exercise Details Dialog */}
                 <Dialog open={showExerciseDetails} onOpenChange={setShowExerciseDetails}>
-                    <DialogContent className="sm:max-w-[600px] p-6">
-                    <DialogHeader className="mb-4">
-                        <DialogTitle className="text-2xl font-bold">Describe your exercise</DialogTitle>
-                    </DialogHeader>
+                    <DialogContent className="sm:max-w-[600px] p-6 h-[85vh] overflow-y-auto flex flex-col gap-6 mx-2"> {/* Changed positioning */}
+                        <DialogHeader className="flex-shrink-0"> {/* Prevent header from shrinking */}
+                            <DialogTitle className="text-2xl font-bold">Describe your exercise</DialogTitle>
+                        </DialogHeader>
                     
-                    <div className="space-y-6">
+                    <div className="flex-1 overflow-y-auto space-y-6"> {/* Make content area scrollable */}
                         {/* Description */}
                         <div className="space-y-4">
                         {selectedActivity && (
@@ -434,33 +434,33 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                         />
                         </div>
 
-                        {/* Date and Time */}
-                        <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>When did you exercise</Label>
-                            <Input
-                            type="date"
-                            value={exerciseData.date}
-                            onChange={(e) => setExerciseData(prev => ({
-                                ...prev,
-                                date: e.target.value
-                            }))}
-                            className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Time</Label>
-                            <Input
-                            type="time"
-                            value={exerciseData.time}
-                            onChange={(e) => setExerciseData(prev => ({
-                                ...prev,
-                                time: e.target.value
-                            }))}
-                            className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
-                            />
-                        </div>
-                        </div>
+                            {/* Date and Time */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>When did you exercise</Label>
+                                    <Input
+                                        type="date"
+                                        value={exerciseData.date}
+                                        onChange={(e) => setExerciseData(prev => ({
+                                            ...prev,
+                                            date: e.target.value
+                                        }))}
+                                        className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Time</Label>
+                                    <Input
+                                        type="time"
+                                        value={exerciseData.time}
+                                        onChange={(e) => setExerciseData(prev => ({
+                                            ...prev,
+                                            time: e.target.value
+                                        }))}
+                                        className="w-full bg-white border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]/50"
+                                    />
+                                </div>
+                            </div>
 
                         {/* Time spent (optional) */}
                         <div className="space-y-2">
@@ -571,7 +571,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                         </div>
                     </div>
 
-                    <DialogFooter className="mt-6">
+                    <DialogFooter className="flex-shrink-0 pt-4">
                         <Button 
                         variant="outline" 
                         onClick={() => {
@@ -598,7 +598,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                             setShowExerciseDetails(false);
                             setShowActivitySummary(true);
                         }}
-                        className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+                        className="bg-[#3a2a76] hover:bg-[#a680db] text-white mb-3"
                         >
                         Add Entry
                         </Button>
