@@ -159,9 +159,9 @@ export default function Dashboard() {
       'BEGIN:VEVENT',
       `DTSTART:${new Date('2024-01-15T10:00:00').toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
       `DTEND:${new Date('2024-01-15T11:00:00').toISOString().replace(/[-:]/g, '').split('.')[0]}Z`,
-      'SUMMARY:Gene Therapy - Ph.2',
-      'DESCRIPTION:Your scheduled gene therapy appointment',
-      'LOCATION:Medical Center',
+      'SUMMARY:TaRGETed Therapy - Phase 2',
+      'DESCRIPTION:Your scheduled gene therapy appointment for the TaRGETed study',
+      'LOCATION:Toronto, Ontario, Canada',
       'END:VEVENT',
       'END:VCALENDAR'
     ].join('\r\n');
@@ -229,7 +229,7 @@ export default function Dashboard() {
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
             <Image 
-              src="/logo_green.png" 
+              src="/logo_final.png" 
               alt="Logo" 
               width={100} 
               height={100} 
@@ -556,7 +556,7 @@ export default function Dashboard() {
                 <div className="flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-[#3a2a76]" />
                   <div>
-                    <p className="font-medium">Isoproterenol Challenge - ARVC Detection</p>
+                    <p className="font-medium">TaRGETed Therapy - Phase 2</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
                   </div>
                 </div>
@@ -566,9 +566,9 @@ export default function Dashboard() {
                     size="sm"
                     className="text-[#007AFF] border-[#007AFF] hover:bg-[#007AFF]/10"
                     onClick={() => generateICalEvent({
-                      title: "Isoproterenol Challenge - ARVC Detection",
-                      studyId: "NCT00083395",
-                      location: "Bethesda, Maryland, United States"
+                      title: "TaRGETed Therapy - Phase 2",
+                      studyId: "TARGET-2024",
+                      location: "Toronto, Ontario, Canada"
                     })}
                   >
                     <Download className="w-4 h-4 mr-1" />
