@@ -155,14 +155,22 @@ const RarelyWrapped = ({ onClose }: RarelyWrappedProps) => {
             <ChevronLeft className="h-4 w-4" />
             Previous
           </button>
-          <button
-            onClick={() => setPage([page + 1, 1])}
-            disabled={page === wrapperPages.length - 1}
-            className="flex items-center gap-1 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full disabled:opacity-50 text-sm font-medium text-gray-700 hover:bg-gray-50/80 transition-colors shadow-sm"
-          >
-            Next
-            <ChevronRight className="h-4 w-4" />
-          </button>
+          {page === wrapperPages.length - 1 ? (
+            <button
+              onClick={onClose}
+              className="flex items-center gap-1 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50/80 transition-colors shadow-sm"
+            >
+              Close
+            </button>
+          ) : (
+            <button
+              onClick={() => setPage([page + 1, 1])}
+              className="flex items-center gap-1 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full text-sm font-medium text-gray-700 hover:bg-gray-50/80 transition-colors shadow-sm"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
     </div>
