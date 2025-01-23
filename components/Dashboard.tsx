@@ -582,34 +582,31 @@ export default function Dashboard() {
         </Card>
 
         <div className="space-y-4">
-          <h2 className="text-base font-semibold px-1">Upcoming</h2>
           
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
             <CardContent className="p-4">
               <div className="text-sm font-medium text-gray-500 mb-3">Upcoming Appointment</div>
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-[#3a2a76]" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-start gap-3">
+                  <Calendar className="w-5 h-5 text-[#3a2a76] mt-1" />
                   <div>
-                    <p className="font-medium">TaRGETed Therapy - Phase 2</p>
+                    <p className="font-medium text-base">TaRGETed Therapy - Phase 2</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="text-[#007AFF] border-[#007AFF] hover:bg-[#007AFF]/10"
-                    onClick={() => generateICalEvent({
-                      title: "TaRGETed Therapy - Phase 2",
-                      studyId: "TARGET-2024",
-                      location: "Toronto, Ontario, Canada"
-                    })}
-                  >
-                    <Download className="w-4 h-4 mr-1" />
-                    Add to Calendar
-                  </Button>
-                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-[#007AFF] border-[#007AFF] hover:bg-[#007AFF]/10 whitespace-nowrap"
+                  onClick={() => generateICalEvent({
+                    title: "TaRGETed Therapy - Phase 2",
+                    studyId: "TARGET-2024",
+                    location: "Toronto, Ontario, Canada"
+                  })}
+                >
+                  <Download className="w-4 h-4 mr-1.5" />
+                  Add to Calendar
+                </Button>
               </div>
             </CardContent>
           </Card>

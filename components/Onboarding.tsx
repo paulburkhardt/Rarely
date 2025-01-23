@@ -34,6 +34,7 @@ interface OnboardingData {
     phone: string;
   };
   doctorLetter: string | null;
+  dataShareConsent: boolean;
 }
 
 const commonSymptoms = [
@@ -42,8 +43,7 @@ const commonSymptoms = [
   "Shortness of breath",
   "Chest pain",
   "Dizziness",
-  "Fainting",
-  "Exercise intolerance"
+  "Fainting"
 ];
 
 const commonMedications = [
@@ -83,6 +83,7 @@ export function Onboarding() {
       phone: ''
     },
     doctorLetter: null,
+    dataShareConsent: false,
   });
 
   const [currentMessage, setCurrentMessage] = useState('');
@@ -102,13 +103,54 @@ export function Onboarding() {
   }, [messages]);
 
   const handleNext = () => {
-    if (step === 2) {
-      sessionStorage.setItem('userName', currentMessage);
+    if (step === 9) { // Symptoms step
+      // Format selected symptoms with their frequencies
+      const selectedSymptomsText = data.symptoms
+        .map(s => `${s.symptom} (${s.frequency})`)
+        .join(", ");
+      
+      setMessages(prev => [...prev, {
+        type: 'answer',
+        content: selectedSymptomsText || "No symptoms selected"
+      }]);
+
+      // Add the next question
+      const nextQuestion = getNextQuestion(step + 1);
+      setMessages(prev => [...prev, {
+        type: 'question',
+        content: nextQuestion
+      }]);
+
+      setStep(prev => prev + 1);
+    } 
+    else if (step === 10) { // Medications step
+      // Format selected medications with their frequencies
+      const selectedMedicationsText = data.medications
+        .map(m => `${m.medication} (${m.frequency})`)
+        .join(", ");
+      
+      setMessages(prev => [...prev, {
+        type: 'answer',
+        content: selectedMedicationsText || "No medications selected"
+      }]);
+
+      // Add the next question
+      const nextQuestion = getNextQuestion(step + 1);
+      setMessages(prev => [...prev, {
+        type: 'question',
+        content: nextQuestion
+      }]);
+
+      setStep(prev => prev + 1);
     }
-    
-    // Add the user's answer to messages
-    // Store the data based on current step
-    if (currentMessage || step === 9 || step === 10) {
+    else if (currentMessage) {
+      // Add the user's answer to messages
+      setMessages(prev => [...prev, {
+        type: 'answer',
+        content: currentMessage
+      }]);
+
+      // Store the data based on current step
       switch (step) {
         case 1:
           setData(prev => ({ ...prev, doctorLetter: currentMessage }));
@@ -146,18 +188,21 @@ export function Onboarding() {
         case 12:
           setData(prev => ({ ...prev, hasICD: currentMessage.toLowerCase() === 'yes' }));
           break;
+        case 13:
+          setData(prev => ({ ...prev, dataShareConsent: true }));
+          break;
       }
+
+      // Add the next question
+      const nextQuestion = getNextQuestion(step + 1);
+      setMessages(prev => [...prev, {
+        type: 'question',
+        content: nextQuestion
+      }]);
+
+      setStep(prev => prev + 1);
+      setCurrentMessage('');
     }
-
-    // Add the next question
-    const nextQuestion = getNextQuestion(step + 1);
-    setMessages(prev => [...prev, {
-      type: 'question',
-      content: nextQuestion
-    }]);
-
-    setStep(prev => prev + 1);
-    setCurrentMessage('');
   };
 
   const getNextQuestion = (currentStep: number) => {
@@ -185,6 +230,8 @@ export function Onboarding() {
       case 12:
         return "Do you have an ICD (Implantable Cardioverter Defibrillator)?";
       case 13:
+        return "Is it okay if we share your completely anonymized personal data with external partners? This would significantly help to push the research on your disease forward. However, we can understand if you still not want that and will also value that decision.";
+      case 14:
         return "Thank you! Your profile is set up.";
       default:
         return "";
@@ -244,7 +291,7 @@ export function Onboarding() {
           </div>
 
           {/* Input and controls - fixed */}
-          <div className={`max-h-[40%] ${step !== 13 ? 'border-t border-[#3a2a76]/20' : ''} bg-transparent p-6`}>
+          <div className={`max-h-[40%] ${step !== 14 ? 'border-t border-[#3a2a76]/20' : ''} bg-transparent p-6`}>
             <div className="space-y-6">
             {step === 3 && (
                 <div className="flex flex-col gap-4 pb-16">
@@ -271,31 +318,79 @@ export function Onboarding() {
                 </div>
               )}
 
-              {(step === 5 || step === 7 || step === 12) && (
+              {(step === 5 || step === 7 || step === 12 || step === 13) && (
                 <div className="flex justify-center gap-4 pb-16">
                   <Button
-                    variant={currentMessage.toLowerCase() === 'yes' ? 'default' : 'outline'}
-                    onClick={() => {setCurrentMessage('Yes');
-                      handleNext();
+                    onClick={() => {
+                      const answer = 'Yes';
+                      setMessages(prev => [...prev, {
+                        type: 'answer',
+                        content: answer
+                      }]);
+                      
+                      // Store the data based on current step
+                      switch (step) {
+                        case 5:
+                          setData(prev => ({ ...prev, hadCardiacArrest: true }));
+                          break;
+                        case 7:
+                          setData(prev => ({ ...prev, hadHighIntensitySports: true }));
+                          break;
+                        case 12:
+                          setData(prev => ({ ...prev, hasICD: true }));
+                          break;
+                        case 13:
+                          setData(prev => ({ ...prev, dataShareConsent: true }));
+                          break;
+                      }
+
+                      // Add the next question
+                      const nextQuestion = getNextQuestion(step + 1);
+                      setMessages(prev => [...prev, {
+                        type: 'question',
+                        content: nextQuestion
+                      }]);
+
+                      setStep(prev => prev + 1);
                     }}
-                    className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                      currentMessage.toLowerCase() === 'yes'
-                        ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                        : 'bg-white hover:bg-[#3a2a76]/10 text-[#3a2a76]'
-                    }`}
+                    className="flex-1 h-12 bg-white hover:bg-[#3a2a76]/10 text-[#3a2a76] font-medium rounded-xl border border-[#3a2a76]"
                   >
                     Yes
                   </Button>
                   <Button
-                    variant={currentMessage.toLowerCase() === 'no' ? 'default' : 'outline'}
-                    onClick={() => {setCurrentMessage('No');
-                      handleNext()
+                    onClick={() => {
+                      const answer = 'No';
+                      setMessages(prev => [...prev, {
+                        type: 'answer',
+                        content: answer
+                      }]);
+                      
+                      // Store the data based on current step
+                      switch (step) {
+                        case 5:
+                          setData(prev => ({ ...prev, hadCardiacArrest: false }));
+                          break;
+                        case 7:
+                          setData(prev => ({ ...prev, hadHighIntensitySports: false }));
+                          break;
+                        case 12:
+                          setData(prev => ({ ...prev, hasICD: false }));
+                          break;
+                        case 13:
+                          setData(prev => ({ ...prev, dataShareConsent: false }));
+                          break;
+                      }
+
+                      // Add the next question
+                      const nextQuestion = getNextQuestion(step + 1);
+                      setMessages(prev => [...prev, {
+                        type: 'question',
+                        content: nextQuestion
+                      }]);
+
+                      setStep(prev => prev + 1);
                     }}
-                    className={`flex-1 h-12 text-base font-medium rounded-xl ${
-                      currentMessage.toLowerCase() === 'no'
-                        ? 'bg-[#3a2a76] hover:bg-[#a680db] text-white'
-                        : 'bg-white hover:bg-[#3a2a76]/10 text-[#3a2a76]'
-                    }`}
+                    className="flex-1 h-12 bg-white hover:bg-[#3a2a76]/10 text-[#3a2a76] font-medium rounded-xl border border-[#3a2a76]"
                   >
                     No
                   </Button>
@@ -525,7 +620,7 @@ export function Onboarding() {
                   </div>
                 </div>
               )}
-              {step === 13 && (
+              {step === 14 && (
                 <div className="flex flex-col gap-4 pb-16">
                   <div className="text-center">
                     <p className="text-[#3a2a76] text-lg font-medium mb-4">
@@ -620,9 +715,9 @@ export function Onboarding() {
               </div>
             </div>
           )}
-          <div className={`sticky bottom-0 pt-4 bg-transparent ${step !== 13 ? 'border-t border-[#3a2a76]/20' : ''}`}>
+          <div className={`sticky bottom-0 pt-4 bg-transparent ${step !== 14 ? 'border-t border-[#3a2a76]/20' : ''}`}>
             <div className="flex justify-between items-center px-2 mt-4">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((s) => (
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((s) => (
                 <div key={s} className="flex flex-col items-center gap-1">
                   <div
                     className={`w-3 h-3 rounded-full transition-all ${

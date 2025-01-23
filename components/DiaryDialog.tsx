@@ -162,7 +162,8 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
     const [medicationsState, setMedicationsState] = useState(() => 
         medications.map(med => ({
             ...med,
-            taken: med.prescribed ? true : med.taken,
+            details_taken: med.times.map(() => !med.prescribed),
+            taken: true
         }))
     );
 
@@ -178,7 +179,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                     prescribed: false,
                     category: "Other",
                     dosage: [{ value: 0, unit: 'mg' }],
-                    details_taken: [false],
+                    details_taken: [true],
                     times: ["8:00 AM"],
                     number_of_pills: [1]
                 }
@@ -276,63 +277,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             {/* Step 2: Activity */}
             {currentStep === 2 && (
                  <div className="space-y-6 max-h-[80vh] overflow-y-auto px-2 pb-4">
-                {!showActivitySummary ? (
-                    // Activity Selection View
-                    <div className="space-y-6">
-                    <h2 className="text-2xl font-bold text-center mb-8">What activities did you do?</h2>
-                    <div className="grid grid-cols-3 gap-4">
-                        {[
-                        { icon: getActivityIcon("garden"), label: "Lawn & Garden", value: "garden" },
-                        { icon: getActivityIcon("home"), label: "Home Activities", value: "home" },
-                        { icon: getActivityIcon("cycling"), label: "Cycling", value: "cycling" },
-                        { icon: getActivityIcon("walking"), label: "Walking", value: "walking" },
-                        { icon: getActivityIcon("running"), label: "Running", value: "running" },
-                        { icon: getActivityIcon("swimming"), label: "Swimming", value: "swimming" },
-                        { icon: getActivityIcon("yoga"), label: "Yoga", value: "yoga" },
-                        { icon: getActivityIcon("other"), label: "Other", value: "other" }
-                        ].map((activity) => (
-                        <div
-                            key={activity.value}
-                            onClick={() => {
-                            setSelectedActivity(activity.value);
-                            // Reset exercise data when opening new entry
-                            setExerciseData({
-                                description: "",
-                                date: getCurrentDate(),
-                                time: getCurrentTime(),
-                                duration: {
-                                hours: 0,
-                                minutes: 0
-                                },
-                                distance: 0,
-                                steps: 0,
-                                intensity: 50
-                            });
-                            setShowExerciseDetails(true);
-                            }}
-                            className={`relative p-6 rounded-2xl border cursor-pointer transition-all flex flex-col items-center gap-4 ${
-                            selectedActivity === activity.value
-                                ? 'border-[#3a2a76] bg-white'
-                                : 'border-gray-100 bg-white hover:border-[#3a2a76]/30'
-                            }`}
-                        >
-                            <div className={`w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center ${
-                            selectedActivity === activity.value ? 'bg-[#3a2a76]/10' : ''
-                            }`}>
-                            {activity.icon}
-                            </div>
-                            <span className={`text-lg font-medium text-center ${
-                            selectedActivity === activity.value 
-                                ? 'text-[#3a2a76]' 
-                                : 'text-gray-600'
-                            }`}>
-                            {activity.label}
-                            </span>
-                        </div>
-                        ))}
-                    </div>
-                    </div>
-                ) : (
+                {showActivitySummary ? (
                     // Activity Summary View
                     <div className="space-y-6">
                     <div className="flex justify-between items-center">
@@ -412,6 +357,62 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                                 </div>
                             )}
                             </div>
+                        </div>
+                        ))}
+                    </div>
+                    </div>
+                ) : (
+                    // Activity Selection View
+                    <div className="space-y-6">
+                    <h2 className="text-2xl font-bold text-center mb-8">What activities did you do?</h2>
+                    <div className="grid grid-cols-3 gap-4">
+                        {[
+                        { icon: getActivityIcon("garden"), label: "Lawn & Garden", value: "garden" },
+                        { icon: getActivityIcon("home"), label: "Home Activities", value: "home" },
+                        { icon: getActivityIcon("cycling"), label: "Cycling", value: "cycling" },
+                        { icon: getActivityIcon("walking"), label: "Walking", value: "walking" },
+                        { icon: getActivityIcon("running"), label: "Running", value: "running" },
+                        { icon: getActivityIcon("swimming"), label: "Swimming", value: "swimming" },
+                        { icon: getActivityIcon("yoga"), label: "Yoga", value: "yoga" },
+                        { icon: getActivityIcon("other"), label: "Other", value: "other" }
+                        ].map((activity) => (
+                        <div
+                            key={activity.value}
+                            onClick={() => {
+                            setSelectedActivity(activity.value);
+                            // Reset exercise data when opening new entry
+                            setExerciseData({
+                                description: "",
+                                date: getCurrentDate(),
+                                time: getCurrentTime(),
+                                duration: {
+                                hours: 0,
+                                minutes: 0
+                                },
+                                distance: 0,
+                                steps: 0,
+                                intensity: 50
+                            });
+                            setShowExerciseDetails(true);
+                            }}
+                            className={`relative p-6 rounded-2xl border cursor-pointer transition-all flex flex-col items-center gap-4 ${
+                            selectedActivity === activity.value
+                                ? 'border-[#3a2a76] bg-white'
+                                : 'border-gray-100 bg-white hover:border-[#3a2a76]/30'
+                            }`}
+                        >
+                            <div className={`w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center ${
+                            selectedActivity === activity.value ? 'bg-[#3a2a76]/10' : ''
+                            }`}>
+                            {activity.icon}
+                            </div>
+                            <span className={`text-lg font-medium text-center ${
+                            selectedActivity === activity.value 
+                                ? 'text-[#3a2a76]' 
+                                : 'text-gray-600'
+                            }`}>
+                            {activity.label}
+                            </span>
                         </div>
                         ))}
                     </div>

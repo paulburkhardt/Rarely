@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
     DEFAULT_SYMPTOMS, 
     DEFAULT_MEDICATIONS, 
@@ -127,7 +127,7 @@ export function useDiaryState() {
       return labels[type as keyof typeof labels];
     };
     const [currentStep, setCurrentStep] = useState<number>(1);
-    const [mood, setMood] = useState<number>(2);
+    const [mood, setMood] = useState<number>(3);
 
     const getStepTitle = (step: number) => {
       switch (step) {
@@ -148,9 +148,14 @@ export function useDiaryState() {
     const [showDiaryModal, setShowDiaryModal] = useState(false);
 
     // Add this state to track if we're showing the summary
-    const [showActivitySummary, setShowActivitySummary] = useState(false);
+    const [showActivitySummary, setShowActivitySummary] = useState(true);
 
-
+    // When entering step 2, make sure it shows summary first
+    useEffect(() => {
+      if (currentStep === 2) {
+        setShowActivitySummary(true);
+      }
+    }, [currentStep]);
 
     const callSubmitDiary = () => {
       setHasDiaryEntry(true);
