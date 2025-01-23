@@ -251,7 +251,8 @@ export default function Dashboard() {
 
     
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#F5F5F5] via-[#F5F5F5] to-[#F5F5F5]">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
+
       <div className="p-6">
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">

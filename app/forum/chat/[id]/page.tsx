@@ -95,7 +95,7 @@ export default function ChatPage() {
     : ''
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#F5F5F5] via-[#F5F5F5] to-[#F5F5F5]">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
       {/* Header */}
       <div className="p-6 pb-12">
         <div className="flex justify-between items-start mb-6">
@@ -142,7 +142,7 @@ export default function ChatPage() {
               className={`max-w-[80%] rounded-xl px-4 py-2.5 ${
                 message.sender.id === 'currentUser'
                   ? 'bg-[#9F8DC7] text-white'
-                  : 'bg-white/95 text-[#3a2a76]'
+                  : 'bg-white/95 text-[#302d36]'
               } shadow-sm backdrop-blur-sm`}
             >
               {message.content}
