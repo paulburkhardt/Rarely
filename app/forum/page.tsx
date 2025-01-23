@@ -71,7 +71,7 @@ function ForumContent() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#F5F5F5] via-[#F5F5F5] to-[#F5F5F5]">
       
       {/* Header */}
       <div className="p-6 pb-2">
@@ -81,8 +81,8 @@ function ForumContent() {
             <Image 
               src="/logo_final.png" 
               alt="Logo" 
-              width={100} 
-              height={100} 
+              width={120}
+              height={120}
               className="opacity-90"
             />
           </div>

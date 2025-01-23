@@ -95,7 +95,7 @@ export default function ChatPage() {
     : ''
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
+    <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#F5F5F5] via-[#F5F5F5] to-[#F5F5F5]">
       {/* Header */}
       <div className="p-6 pb-12">
         <div className="flex justify-between items-start mb-6">
