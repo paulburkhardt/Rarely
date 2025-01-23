@@ -191,21 +191,21 @@ export default function ChatPage() {
               type="button"
               variant="ghost"
               size="sm"
-              className="text-[#3a2a76]"
+              className="text-[#302d36]"
               onClick={() => fileInputRef.current?.click()}
             >
-              <Paperclip className="w-5 h-5" />
+              <Paperclip className="w-5 h-5 " />
             </Button>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type a message..."
-              className="flex-1 bg-transparent border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]"
+              className="flex-1 bg-transparent border-[#3a2a76]/20 focus-visible:ring-[#3a2a76] rounded-full"
             />
             <Button
               type="submit"
               size="sm"
-              className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+              className="bg-[#3a2a76] hover:bg-[#a680db] text-white rounded-full"
               disabled={!newMessage.trim()}
             >
               <Send className="w-5 h-5" />
