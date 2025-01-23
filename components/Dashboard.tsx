@@ -17,6 +17,9 @@ import { DiaryDialog } from '@/components/DiaryDialog';
 
 import { mockHealthData } from '@/data/mockHealthData';
 
+import { CloudRain, Cloud, Sun, Sunset, Sparkles } from 'lucide-react';
+
+
 
 
 import {
@@ -91,8 +94,6 @@ export default function Dashboard() {
         setHasDiaryEntry,
         showDiaryModal, 
         setShowDiaryModal,
-        mood, 
-        setMood,
         getSavedActivitiesCount
   } = useDiaryState();
 
@@ -176,6 +177,31 @@ export default function Dashboard() {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
   };
+
+  const [mood, setMood] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedMood = sessionStorage.getItem('mood');
+      const moodValue = savedMood ? parseFloat(savedMood) : 3;
+      console.log('Current mood:', moodValue);
+      return moodValue;
+    }
+    return 3;
+  });
+
+  useEffect(() => {
+    const updateMood = () => {
+      const savedMood = sessionStorage.getItem('mood');
+      if (savedMood) {
+        setMood(parseFloat(savedMood));
+        console.log('Mood updated:', savedMood);
+      }
+    };
+
+    // Update when showDiaryModal changes to false
+    if (!showDiaryModal) {
+      updateMood();
+    }
+  }, [showDiaryModal]); // Depend on showDiaryModal
 
   type HealthProvider = 'apple' | 'whoop' | 'oura' | 'fitbit';
 
@@ -292,18 +318,26 @@ export default function Dashboard() {
               
                 </div>
                 <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                  mood === 3 
-                    ? 'bg-green-100' 
-                    : mood === 2 
-                    ? 'bg-yellow-100' 
-                    : 'bg-red-100'
+                  mood <= 1.5 
+                    ? 'bg-red-100' 
+                    : mood <= 2.5 
+                    ? 'bg-orange-100'
+                    : mood <= 3.5
+                    ? 'bg-yellow-100'
+                    : mood <= 4.5
+                    ? 'bg-green-100'
+                    : 'bg-emerald-100'
                 }`}>
-                  {mood === 3 ? (
-                    <Smile className="w-6 h-6 text-green-500" />
-                  ) : mood === 2 ? (
-                    <Meh className="w-6 h-6 text-yellow-500" />
+                  {mood <= 1.5 ? (
+                    <CloudRain className="w-6 h-6 text-red-500" />
+                  ) : mood <= 2.5 ? (
+                    <Cloud className="w-6 h-6 text-orange-500" />
+                  ) : mood <= 3.5 ? (
+                    <Sunset className="w-6 h-6 text-yellow-500" />
+                  ) : mood <= 4.5 ? (
+                    <Sun className="w-6 h-6 text-green-500" />
                   ) : (
-                    <Frown className="w-6 h-6 text-red-500" />
+                    <Sparkles className="w-6 h-6 text-emerald-500" />
                   )}
                 </div>
               </div>
@@ -557,7 +591,7 @@ export default function Dashboard() {
                 <div className="flex items-start gap-2">
                   <Calendar className="w-5 h-5 text-[#3a2a76] mt-0.5" />
                   <div>
-                    <p className="font-medium">TaRGETed Therapy - Phase 2</p>
+                    <p className="font-medium text-base">TaRGETed Therapy - Phase 2</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
                   </div>
                 </div>
