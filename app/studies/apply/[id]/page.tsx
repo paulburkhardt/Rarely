@@ -10,10 +10,10 @@ import { studies } from '../../data'
 
 // Mock user data - in a real app, this would come from your auth system
 const mockUserData = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  phone: '+1 (555) 123-4567',
-  age: '45',
+  name: 'Anna Heart',
+  email: 'anna.heart@example.com',
+  phone: '+49 176 12345678',
+  age: '27',
   medicalHistory: 'Diagnosed with ACM in 2020\nNo other major health conditions\nFamily history of heart disease',
   currentMedications: 'Beta blockers (Metoprolol 25mg daily)\nACE inhibitors (Lisinopril 10mg daily)',
 }
