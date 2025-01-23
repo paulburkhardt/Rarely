@@ -13,8 +13,11 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 import { Slider } from "@/components/ui/slider";
-import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed } from 'lucide-react';
-import { Calendar, MessageCircle, Activity, Check, Heart, Grid, Pill, Smile, Download, Info } from 'lucide-react';
+import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed, Smile, SmilePlus, FrownIcon } from 'lucide-react';
+import { Calendar, MessageCircle, Activity, Check, Heart, Grid, Pill, Download, Info } from 'lucide-react';
+
+import { CloudRain, Cloud, Sun, Sunset, Sparkles } from 'lucide-react';
+
 
 // Replace the import line with these icons that are definitely available
 import {Trash2} from 'lucide-react';
@@ -42,13 +45,17 @@ interface MoodSliderProps {
 
 const MoodSlider = ({ mood, setMood }: MoodSliderProps) => {
   const handleMoodChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setMood(parseFloat(event.target.value));
+    const newMood = parseFloat(event.target.value);
+    setMood(newMood);
+    sessionStorage.setItem('mood', newMood.toString());
   };
 
   const getMoodIcon = () => {
-    if (mood < 1.5) return <Frown style={{ color: smileyColor }} className="w-20 h-20" />;
-    if (mood < 2.5) return <Meh style={{ color: smileyColor }} className="w-20 h-20" />;
-    return <Smile style={{ color: smileyColor }} className="w-20 h-20" />;
+    if (mood < 1.5) return <CloudRain style={{ color: smileyColor }} className="w-20 h-20" />; // Very Bad
+    if (mood < 2.5) return <Cloud style={{ color: smileyColor }} className="w-20 h-20" />; // Bad
+    if (mood < 3.5) return <Sunset style={{ color: smileyColor }} className="w-20 h-20" />; // Okay
+    if (mood < 4.5) return <Sun style={{ color: smileyColor }} className="w-20 h-20" />; // Good
+    return <Sparkles style={{ color: smileyColor }} className="w-20 h-20" />; // Very Good
   };
 
   const interpolateColor = (value: number) => {
@@ -76,7 +83,7 @@ const MoodSlider = ({ mood, setMood }: MoodSliderProps) => {
       <input
         type="range"
         min="1"
-        max="3"
+        max="5"
         step="0.1"
         value={mood}
         onChange={handleMoodChange}
@@ -90,7 +97,16 @@ const MoodSlider = ({ mood, setMood }: MoodSliderProps) => {
         }}
       />
       <span className="text-2xl font-medium pt-1">
-        {mood < 1.5 ? 'Not Good' : mood < 2.5 ? 'Okay' : 'Good'}
+        {mood < 1.5 
+          ? 'Very Bad' 
+          : mood < 2.5 
+          ? 'Bad' 
+          : mood < 3.5 
+          ? 'Okay' 
+          : mood < 4.5 
+          ? 'Good' 
+          : 'Very Good'
+        }
       </span>
     </div>
   );
@@ -149,6 +165,8 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             taken: med.prescribed ? true : med.taken,
         }))
     );
+
+    const [pills, setPills] = useState(1);
 
     const handleAddMedication = () => {
         if (newMedication.trim()) {
@@ -810,25 +828,37 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                       <option value="mcg">mcg</option>
                     </select>
                   </div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <label className="text-sm text-gray-600">Pills:</label>
-                    <input
-                      type="number"
-                      value={med.number_of_pills[timeIndex]}
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-gray-700"># Pills:</span>
+                      <input
+                        type="number"
+                        value={med.number_of_pills[timeIndex]}
+                        onChange={(e) => handlePillsChange(e, medIndex, timeIndex, e.target.value)}
+                        min="0"
+                        className="w-16 h-10 rounded-lg border-gray-300 focus:ring-[#3a2a76] focus:border-[#3a2a76]"
+                      />
+                    </div>
+
+                    <label 
+                      className="flex items-center space-x-2 cursor-pointer"
                       onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handlePillsChange(e, medIndex, timeIndex, e.target.value)}
-                      className="border rounded-md p-2 w-20 shadow-sm"
-                    />
-                    <button
-                      onClick={(e) => handleDetailsTakenChange(e, medIndex, timeIndex)}
-                      className={`flex-1 px-3 py-1 rounded-md transition-colors text-center ${
-                        med.details_taken[timeIndex] 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      }`}
                     >
-                      {med.details_taken[timeIndex] ? 'Taken' : 'Not Taken'}
-                    </button>
+                      <input
+                        type="checkbox"
+                        checked={med.details_taken[timeIndex]}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          const updatedMeds = [...medicationsState];
+                          updatedMeds[medIndex].details_taken[timeIndex] = !updatedMeds[medIndex].details_taken[timeIndex];
+                          setMedications(updatedMeds);
+                        }}
+                        className="w-5 h-5 rounded border-gray-300 text-[#3a2a76] focus:ring-[#3a2a76]"
+                      />
+                      <span className="text-gray-700">
+                        {med.details_taken[timeIndex] ? "Taken" : "Not Taken"}
+                      </span>
+                    </label>
                   </div>
                 </div>
               ))}
