@@ -676,9 +676,10 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-base font-semibold px-1">Trending</h2>
+          <h2 className="text-base font-semibold px-1">Community</h2>
           
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
+          
             <Link href={`/forum/chat/${mockData.groups[0].id}`} className="block p-4">
               <div className="flex items-start gap-3">
               <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
@@ -688,8 +689,8 @@ export default function Dashboard() {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium">{mockData.groups[0].name}</h3>
-                    <Badge variant="secondary" className="text-xs">
-                      {mockData.groups[0].unreadCount} new
+                    <Badge variant="secondary" className="text-xs" >
+                      Trending
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-500 line-clamp-2">
@@ -701,7 +702,6 @@ export default function Dashboard() {
           </Card>
 
           <div className="space-y-4">
-          <h2 className="text-base font-semibold px-1">Community Stats</h2>
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
 
             <CardContent className="p-4">
