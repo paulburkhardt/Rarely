@@ -699,18 +699,48 @@ export function Onboarding() {
                     Continue
                   </Button>
 
-                  <button
-                    onClick={() => {
-                      setCurrentMessage('demo_letter.pdf');
-                      setData(prev => ({
-                        ...prev,
-                        doctorLetter: 'demo_letter.pdf'
-                      }));
-                    }}
-                    className="text-sm text-[#3a2a76] hover:text-[#a680db] underline pb-16"
-                  >
-                    Skip for demo
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => {
+                        setCurrentMessage('demo_letter.pdf');
+                        setData(prev => ({
+                          ...prev,
+                          doctorLetter: 'demo_letter.pdf'
+                        }));
+                      }}
+                      className="text-sm text-[#3a2a76] hover:text-[#a680db] underline"
+                    >
+                      Skip upload for demo
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        localStorage.setItem('onboardingComplete', 'true');
+                        localStorage.setItem('patientData', JSON.stringify({
+                          ...data,
+                          doctorLetter: 'mpd_demo_letter.pdf',
+                          name: 'MPD Demo User',
+                          dateOfBirth: '1990-01-01',
+                          diagnosisDate: '2023-01-01',
+                          symptoms: [],
+                          medications: [],
+                          hasICD: false,
+                          exerciseRestrictions: '',
+                          familyHistory: false,
+                          emergencyContact: {
+                            name: '',
+                            relationship: '',
+                            phone: ''
+                          },
+                          dataShareConsent: true
+                        }));
+                        window.location.href = '/';
+                      }}
+                      className="text-sm text-[#3a2a76] hover:text-[#a680db] underline pb-16"
+                    >
+                      Skip whole onboarding for demo
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
