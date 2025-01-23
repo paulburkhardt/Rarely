@@ -324,7 +324,7 @@ export default function Dashboard() {
                     <Badge variant="secondary">Updated</Badge></div>}
               
                 </div>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                <div className={`min-w-[48px] w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
                   mood <= 1.5 
                     ? 'bg-red-100' 
                     : mood <= 2.5 
