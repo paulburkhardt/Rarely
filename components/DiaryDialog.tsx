@@ -1,11 +1,10 @@
-import React, { useState, useEffect, cloneElement } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useDiaryState } from '@/hooks/useDiaryState';
 import { Button } from "@/components/ui/button";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { Badge } from "@/components/ui/badge";
 
 
 import {DialogFooter } from "@/components/ui/dialog";
@@ -13,8 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
 import { Slider } from "@/components/ui/slider";
-import { Plus, Frown, Meh, Dumbbell, Footprints, Bike, Coffee, Bed, Smile, SmilePlus, FrownIcon } from 'lucide-react';
-import { Calendar, MessageCircle, Activity, Check, Heart, Grid, Pill, Download, Info } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { Activity, Check } from 'lucide-react';
 
 import { CloudRain, Cloud, Sun, Sunset, Sparkles } from 'lucide-react';
 

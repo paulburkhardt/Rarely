@@ -249,7 +249,21 @@ export default function Dashboard() {
     ? JSON.parse(sessionStorage.getItem("savedActivities")!).length
     : 0;
 
-    
+  const [medicationCount, setMedicationCount] = useState(0);
+
+  useEffect(() => {
+    // Update medication count whenever medications change or when diary modal closes
+    const savedMeds = sessionStorage.getItem('medications');
+    if (savedMeds) {
+        const meds = JSON.parse(savedMeds);
+        const takenCount = meds.reduce((count: number, med: any) => {
+            const anyDoseTaken = med.details_taken?.some((taken: boolean) => taken);
+            return count + (anyDoseTaken ? 1 : 0);
+        }, 0);
+        setMedicationCount(takenCount);
+    }
+  }, [medications, showDiaryModal]);
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
 
@@ -387,12 +401,7 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">
-                    {medications.reduce((count, med) => {
-                        // Check if any dose was taken for this medication
-                        const anyDoseTaken = med.details_taken?.some(taken => taken);
-                        return count + (anyDoseTaken ? 1 : 0);
-                    }, 0)}
-                    /{medications.length}
+                    {medicationCount}/{medications.length}
                   </h3>
                   <p className="text-xs text-gray-500 truncate">Medications</p>
                 </div>
