@@ -20,7 +20,6 @@ import { CloudRain, Cloud, Sun, Sunset, Sparkles } from 'lucide-react';
 
 // Replace the import line with these icons that are definitely available
 import {Trash2} from 'lucide-react';
-import { FaTrash } from 'react-icons/fa';
 
 interface DiaryDialogProps {
     submitDiary: () => void;
@@ -824,12 +823,6 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                     <div className="mt-4">
                       {med.times.map((time, timeIndex) => (
                         <div key={timeIndex} className="relative mb-4 p-4 bg-gray-50 rounded-md shadow-sm">
-                          <button
-                            onClick={(e) => removeTime(e, medIndex, timeIndex)}
-                            className="absolute top-2 right-2 text-red-500"
-                          >
-                            <FaTrash />
-                          </button>
                           <div className="flex items-center gap-3 mb-2">
                             <label className="text-sm text-gray-600">Time:</label>
                             <input
@@ -895,7 +888,22 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                           </div>
                         </div>
                       ))}
-                      <button onClick={(e) => addTime(e, medIndex)} className="text-blue-500 mt-2">Add Time</button>
+                      <div className="flex justify-between items-center">
+                        <button 
+                          onClick={(e) => addTime(e, medIndex)} 
+                          className="text-blue-500"
+                        >
+                          Add Time
+                        </button>
+                        {med.times.length > 1 && (
+                          <button 
+                            onClick={(e) => removeTime(e, medIndex, med.times.length - 1)} 
+                            className="text-gray-500"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
