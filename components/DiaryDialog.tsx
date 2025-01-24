@@ -160,11 +160,28 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
       } = useDiaryState();
 
     const [medicationsState, setMedicationsState] = useState(() => 
-        medications.map(med => ({
-            ...med,
-            details_taken: med.times.map(() => !med.prescribed),
-            taken: true
-        }))
+        medications.map(med => {
+            // Default times for medications if none are set
+            if (!med.times || med.times.length === 0) {
+                return {
+                    ...med,
+                    times: ["09:00"],
+                    details_taken: [med.prescribed], // Pre-select if prescribed
+                    dosage: [{ value: 0, unit: 'mg' }],
+                    number_of_pills: [1],
+                    taken: med.prescribed // Pre-select if prescribed
+                };
+            }
+            // Keep existing times if they're already set
+            return {
+                ...med,
+                times: med.times.map(time => time || "09:00"),
+                details_taken: med.times.map(() => med.prescribed), // Pre-select all doses if prescribed
+                dosage: med.dosage || Array(med.times.length).fill({ value: 0, unit: 'mg' }),
+                number_of_pills: med.number_of_pills || Array(med.times.length).fill(1),
+                taken: med.prescribed // Pre-select if prescribed
+            };
+        })
     );
 
     const [pills, setPills] = useState(1);
@@ -180,7 +197,7 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
                     category: "Other",
                     dosage: [{ value: 0, unit: 'mg' }],
                     details_taken: [true],
-                    times: ["8:00 AM"],
+                    times: ["08:00"],
                     number_of_pills: [1]
                 }
             ]);
@@ -227,7 +244,15 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
     const addTime = (e: React.MouseEvent, medIndex: number) => {
         e.stopPropagation();
         const updatedMeds = [...medicationsState];
-        updatedMeds[medIndex].times.push("12:00 PM");
+        const existingTimes = updatedMeds[medIndex].times;
+        
+        // Common medication times throughout the day
+        const defaultTimes = ["09:00", "13:00", "18:00", "21:00"];
+        
+        // Find first unused default time
+        const newTime = defaultTimes.find(time => !existingTimes.includes(time)) || "09:00";
+        
+        updatedMeds[medIndex].times.push(newTime);
         updatedMeds[medIndex].details_taken.push(false);
         updatedMeds[medIndex].dosage.push({ value: 0, unit: "mg" });
         updatedMeds[medIndex].number_of_pills.push(1);
@@ -745,129 +770,137 @@ export function DiaryDialog({ submitDiary }: DiaryDialogProps) {
             {/* Step 4: Medications */}
             {currentStep === 4 && (
                 <div className="space-y-6">
-                {medicationsState.map((med, medIndex) => (
-        <div
-          key={med.name}
-          onClick={() => {
-            const newMeds = [...medicationsState];
-            newMeds[medIndex].taken = !newMeds[medIndex].taken;
-            setMedications(newMeds);
-          }}
-          className={`relative rounded-lg p-6 transition-all cursor-pointer shadow-md ${
-            med.taken
-              ? 'bg-[#f3f0ff] border border-[#3a2a76]'
-              : 'bg-white border border-gray-200 hover:border-[#3a2a76]/30'
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="font-semibold text-lg">{med.name}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const newMeds = [...medicationsState];
-                  newMeds[medIndex].prescribed = !newMeds[medIndex].prescribed;
-                  setMedications(newMeds);
-                }}
-                className={`text-xs px-2 py-1 rounded-full ${
-                  med.prescribed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                {med.prescribed ? 'Prescribed' : 'Not Prescribed'}
-              </button>
-              <div
-                className={`w-5 h-5 rounded-full flex items-center justify-center border cursor-pointer ${
-                  med.taken 
-                    ? 'bg-[#3a2a76] border-[#3a2a76]' 
-                    : 'border-gray-300'
-                }`}
-              >
-                {med.taken && <Check className="w-3 h-3 text-white" />}
-              </div>
-            </div>
-          </div>
-          {med.taken && (
-            <div className="mt-4">
-              {med.times.map((time, timeIndex) => (
-                <div key={timeIndex} className="relative mb-4 p-4 bg-gray-50 rounded-md shadow-sm">
-                  <button
-                    onClick={(e) => removeTime(e, medIndex, timeIndex)}
-                    className="absolute top-2 right-2 text-red-500"
-                  >
-                    <FaTrash />
-                  </button>
-                  <div className="flex items-center gap-3 mb-2">
-                    <label className="text-sm text-gray-600">Time:</label>
-                    <input
-                      type="text"
-                      value={time}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleTimeChange(e, medIndex, timeIndex)}
-                      className="border rounded-md p-2 flex-1 shadow-sm"
-                    />
-                  </div>
-                  <div className="flex items-center gap-3 mb-2">
-                    <label className="text-sm text-gray-600">Dosage:</label>
-                    <input
-                      type="number"
-                      value={med.dosage[timeIndex].value}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleDosageChange(e, medIndex, timeIndex, e.target.value)}
-                      className="border rounded-md p-2 w-20 shadow-sm"
-                    />
-                    <select
-                      value={med.dosage[timeIndex].unit}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => handleUnitChange(e, medIndex, timeIndex, e.target.value)}
-                      className="border rounded-md p-2 shadow-sm"
-                    >
-                      <option value="mg">mg</option>
-                      <option value="g">g</option>
-                      <option value="ml">ml</option>
-                      <option value="mcg">mcg</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-700"># Pills:</span>
-                      <input
-                        type="number"
-                        value={med.number_of_pills[timeIndex]}
-                        onChange={(e) => handlePillsChange(e, medIndex, timeIndex, e.target.value)}
-                        min="0"
-                        className="w-16 h-10 rounded-lg border-gray-300 focus:ring-[#3a2a76] focus:border-[#3a2a76]"
-                      />
+                {medicationsState
+                    .sort((a, b) => {
+                        // Sort by prescribed status (prescribed first)
+                        if (a.prescribed && !b.prescribed) return -1;
+                        if (!a.prescribed && b.prescribed) return 1;
+                        // If prescription status is the same, sort alphabetically by name
+                        return a.name.localeCompare(b.name);
+                    })
+                    .map((med, medIndex) => (
+                <div
+                  key={med.name}
+                  onClick={() => {
+                    const newMeds = [...medicationsState];
+                    newMeds[medIndex].taken = !newMeds[medIndex].taken;
+                    setMedications(newMeds);
+                  }}
+                  className={`relative rounded-lg p-6 transition-all cursor-pointer shadow-md ${
+                    med.taken
+                      ? 'bg-[#f3f0ff] border border-[#3a2a76]'
+                      : 'bg-white border border-gray-200 hover:border-[#3a2a76]/30'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-lg">{med.name}</span>
                     </div>
-
-                    <label 
-                      className="flex items-center space-x-2 cursor-pointer"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={med.details_taken[timeIndex]}
-                        onChange={(e) => {
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={(e) => {
                           e.stopPropagation();
-                          const updatedMeds = [...medicationsState];
-                          updatedMeds[medIndex].details_taken[timeIndex] = !updatedMeds[medIndex].details_taken[timeIndex];
-                          setMedications(updatedMeds);
+                          const newMeds = [...medicationsState];
+                          newMeds[medIndex].prescribed = !newMeds[medIndex].prescribed;
+                          setMedications(newMeds);
                         }}
-                        className="w-5 h-5 rounded border-gray-300 text-[#3a2a76] focus:ring-[#3a2a76]"
-                      />
-                      <span className="text-gray-700">
-                        {med.details_taken[timeIndex] ? "Taken" : "Not Taken"}
-                      </span>
-                    </label>
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          med.prescribed ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        }`}
+                      >
+                        {med.prescribed ? 'Prescribed' : 'Not Prescribed'}
+                      </button>
+                      <div
+                        className={`w-5 h-5 rounded-full flex items-center justify-center border cursor-pointer ${
+                          med.taken 
+                            ? 'bg-[#3a2a76] border-[#3a2a76]' 
+                            : 'border-gray-300'
+                        }`}
+                      >
+                        {med.taken && <Check className="w-3 h-3 text-white" />}
+                      </div>
+                    </div>
                   </div>
+                  {med.taken && (
+                    <div className="mt-4">
+                      {med.times.map((time, timeIndex) => (
+                        <div key={timeIndex} className="relative mb-4 p-4 bg-gray-50 rounded-md shadow-sm">
+                          <button
+                            onClick={(e) => removeTime(e, medIndex, timeIndex)}
+                            className="absolute top-2 right-2 text-red-500"
+                          >
+                            <FaTrash />
+                          </button>
+                          <div className="flex items-center gap-3 mb-2">
+                            <label className="text-sm text-gray-600">Time:</label>
+                            <input
+                              type="time"
+                              value={time}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => handleTimeChange(e, medIndex, timeIndex)}
+                              className="border rounded-md p-2 flex-1 shadow-sm"
+                            />
+                          </div>
+                          <div className="flex items-center gap-3 mb-2">
+                            <label className="text-sm text-gray-600">Dosage:</label>
+                            <input
+                              type="number"
+                              value={med.dosage[timeIndex].value}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => handleDosageChange(e, medIndex, timeIndex, e.target.value)}
+                              className="border rounded-md p-2 w-20 shadow-sm"
+                            />
+                            <select
+                              value={med.dosage[timeIndex].unit}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => handleUnitChange(e, medIndex, timeIndex, e.target.value)}
+                              className="border rounded-md p-2 shadow-sm"
+                            >
+                              <option value="mg">mg</option>
+                              <option value="g">g</option>
+                              <option value="ml">ml</option>
+                              <option value="mcg">mcg</option>
+                            </select>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-gray-700"># Pills:</span>
+                              <input
+                                type="number"
+                                value={med.number_of_pills[timeIndex]}
+                                onChange={(e) => handlePillsChange(e, medIndex, timeIndex, e.target.value)}
+                                min="0"
+                                className="w-16 h-10 rounded-lg border-gray-300 focus:ring-[#3a2a76] focus:border-[#3a2a76]"
+                              />
+                            </div>
+
+                            <label 
+                              className="flex items-center space-x-2 cursor-pointer"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={med.details_taken[timeIndex]}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  const updatedMeds = [...medicationsState];
+                                  updatedMeds[medIndex].details_taken[timeIndex] = !updatedMeds[medIndex].details_taken[timeIndex];
+                                  setMedications(updatedMeds);
+                                }}
+                                className="w-5 h-5 rounded border-gray-300 text-[#3a2a76] focus:ring-[#3a2a76]"
+                              />
+                              <span className="text-gray-700">
+                                {med.details_taken[timeIndex] ? "Taken" : "Not Taken"}
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      ))}
+                      <button onClick={(e) => addTime(e, medIndex)} className="text-blue-500 mt-2">Add Time</button>
+                    </div>
+                  )}
                 </div>
               ))}
-              <button onClick={(e) => addTime(e, medIndex)} className="text-blue-500 mt-2">Add Time</button>
-            </div>
-          )}
-        </div>
-      ))}
                 
                 {/* Add Custom Medication UI */}
                 {showMedicationInput ? (

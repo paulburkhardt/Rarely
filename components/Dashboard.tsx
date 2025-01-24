@@ -375,7 +375,12 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold">
-                    {medications.filter(m => m.taken).length}/{medications.length}
+                    {medications.reduce((count, med) => {
+                        // Check if any dose was taken for this medication
+                        const anyDoseTaken = med.details_taken?.some(taken => taken);
+                        return count + (anyDoseTaken ? 1 : 0);
+                    }, 0)}
+                    /{medications.length}
                   </h3>
                   <p className="text-xs text-gray-500 truncate">Medications</p>
                 </div>

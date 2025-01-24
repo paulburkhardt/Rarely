@@ -85,10 +85,10 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       taken: false, 
       prescribed: true, 
       category: "Antiarrhythmic", 
-      dosage: [{ value: 80, unit: "mg" }],
-      details_taken: [false],
-      times: ["8:00 AM"],
-      number_of_pills: [1]
+      dosage: [{ value: 80, unit: "mg" }, { value: 80, unit: "mg" }],
+      details_taken: [false, false],
+      times: ["08:00", "20:00"],
+      number_of_pills: [1, 1]
     },
     { 
       name: "Amiodarone", 
@@ -97,7 +97,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "Antiarrhythmic", 
       dosage: [{ value: 200, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
     { 
@@ -105,10 +105,10 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       taken: false, 
       prescribed: false, 
       category: "Antiarrhythmic", 
-      dosage: [{ value: 100, unit: "mg" }],
-      details_taken: [false],
-      times: ["8:00 AM"],
-      number_of_pills: [1]
+      dosage: [{ value: 100, unit: "mg" }, { value: 100, unit: "mg" }],
+      details_taken: [false, false],
+      times: ["08:00", "20:00"],
+      number_of_pills: [1, 1]
     },
     
     // Beta blockers
@@ -119,7 +119,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "Beta Blocker", 
       dosage: [{ value: 20, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
     { 
@@ -127,10 +127,10 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       taken: false, 
       prescribed: false, 
       category: "Beta Blocker", 
-      dosage: [{ value: 50, unit: "mg" }],
-      details_taken: [false],
-      times: ["8:00 AM"],
-      number_of_pills: [1]
+      dosage: [{ value: 50, unit: "mg" }, { value: 50, unit: "mg" }],
+      details_taken: [false, false],
+      times: ["08:00", "20:00"],
+      number_of_pills: [1, 1]
     },
     
     // Heart failure drugs
@@ -141,7 +141,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "Heart Failure", 
       dosage: [{ value: 10, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
     { 
@@ -149,10 +149,10 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       taken: false, 
       prescribed: true, 
       category: "Heart Failure", 
-      dosage: [{ value: 20, unit: "mg" }],
-      details_taken: [false],
-      times: ["8:00 AM"],
-      number_of_pills: [1]
+      dosage: [{ value: 20, unit: "mg" }, { value: 20, unit: "mg" }],
+      details_taken: [false, false],
+      times: ["08:00", "20:00"],
+      number_of_pills: [1, 1]
     },
     { 
       name: "Eplerenon", 
@@ -161,7 +161,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "Heart Failure", 
       dosage: [{ value: 10, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
     { 
@@ -171,7 +171,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "Heart Failure", 
       dosage: [{ value: 10, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
     
@@ -181,10 +181,10 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       taken: false, 
       prescribed: false, 
       category: "Diuretic", 
-      dosage: [{ value: 20, unit: "mg" }],
-      details_taken: [false],
-      times: ["8:00 AM"],
-      number_of_pills: [1]
+      dosage: [{ value: 20, unit: "mg" }, { value: 20, unit: "mg" }],
+      details_taken: [false, false],
+      times: ["08:00", "12:00"],
+      number_of_pills: [1, 1]
     },
     { 
       name: "Torasemide", 
@@ -193,7 +193,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "Diuretic", 
       dosage: [{ value: 20, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
     
@@ -205,7 +205,7 @@ export const DEFAULT_MEDICATIONS: Medication[] = [
       category: "SGLT2", 
       dosage: [{ value: 10, unit: "mg" }],
       details_taken: [false],
-      times: ["8:00 AM"],
+      times: ["08:00"],
       number_of_pills: [1]
     },
   ];
