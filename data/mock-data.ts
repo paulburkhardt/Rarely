@@ -142,7 +142,7 @@ export const mockData = {
       messages: [
         {
           id: 'o1',
-          content: 'Hey, I saw your question about ICD recovery in the main group.',
+          content: 'Hey, I saw your question about ICD recovery in the main group. I had mine implanted 6 months ago. Recovery was smooth - back to normal activities within weeks.',
           sender: users.olaf,
           timestamp: new Date('2024-01-04T14:30:00')
         },
@@ -158,19 +158,19 @@ export const mockData = {
       id: 'private2',
       type: 'private',
       user: users.maria,
-      lastMessage: 'Hi! I noticed you\'re new to the group. Welcome!',
+      lastMessage: 'Hey, do you want to meet up for a walk sometime? I\'m in the area and would love to meet someone with ACM in real life.',
       lastMessageTime: new Date(Date.now() - 3 * 60 * 60 * 1000),
       unreadCount: 0,
       messages: [
         {
           id: 'm1',
-          content: 'Hi! I noticed you\'re new to the group. Welcome!',
+          content: 'Hey, do you want to meet up for a walk sometime? I\'m in the area and would love to meet someone with ACM in real life.',
           sender: users.maria,
           timestamp: new Date('2024-01-04T16:00:00')
         },
         {
           id: 'm2',
-          content: 'Thank you Maria! Yes, just joined yesterday.',
+          content: 'Thank you Maria! Yes, I\'d love to!',
           sender: users.currentUser,
           timestamp: new Date('2024-01-04T16:05:00')
         }

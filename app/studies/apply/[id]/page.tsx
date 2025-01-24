@@ -151,7 +151,7 @@ Key Information:
           <div className="pt-4">
             <Button 
               type="submit"
-              className="w-full bg-[#473F63] text-white"
+              className="w-full bg-[#473F63] text-white rounded-full"
             >
               Confirm and Submit Application
             </Button>
