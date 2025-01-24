@@ -582,7 +582,6 @@ export default function Dashboard() {
         </Card>
 
         <div className="space-y-4">
-          
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
             <CardContent className="p-4">
               <div className="text-sm font-medium text-gray-500 mb-3">Upcoming Appointment</div>
