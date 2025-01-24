@@ -81,8 +81,8 @@ function ForumContent() {
             <Image 
               src="/logo_final.png" 
               alt="Logo" 
-              width={100} 
-              height={100} 
+              width={120}
+              height={120}
               className="opacity-90"
             />
           </div>
