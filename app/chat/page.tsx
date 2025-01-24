@@ -335,8 +335,8 @@ export default function ChatPage() {
             <Image 
               src="/logo_final.png" 
               alt="Logo" 
-              width={100} 
-              height={100} 
+              width={120}
+              height={120}
               className="opacity-90"
             />
           </div>
@@ -344,23 +344,23 @@ export default function ChatPage() {
         <h1 className="text-3xl font-bold text-black mb-1">Chat Assistant</h1>
       </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-4">
+      {/* Chat Messages - Updated with modern styling */}
+      <div className="flex-1 overflow-y-auto px-3 sm:px-4 py-4 space-y-3">
         {messages.map((message) => (
           <div
             key={message.id}
             className={`flex items-start gap-2 ${
               message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
+            } animate-in fade-in slide-in-from-bottom-2`}
           >
             {message.role === 'assistant' && (
-              <Avatar className="w-8 h-8">
+              <Avatar className="w-8 h-8 ring-2 ring-white">
                 <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
                 <AvatarFallback className="bg-[#3a2a76] text-white">J</AvatarFallback>
               </Avatar>
             )}
             <div
-              className={`max-w-[80%] rounded-xl px-4 py-2.5 ${
+              className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-2.5 ${
                 message.role === 'user'
                   ? 'bg-[#FAF9F6] text-[#3a2a76]'
                   : 'bg-white/95 text-[#3a2a76]'
@@ -368,13 +368,13 @@ export default function ChatPage() {
             >
               <ReactMarkdown 
                 remarkPlugins={[remarkGfm]}
-                className="prose prose-sm max-w-none prose-p:leading-normal prose-pre:p-0"
+                className="prose prose-sm max-w-none prose-p:leading-normal prose-pre:p-0 prose-headings:text-current prose-a:text-current"
               >
                 {message.content}
               </ReactMarkdown>
             </div>
             {message.role === 'user' && (
-              <Avatar className="w-8 h-8">
+              <Avatar className="w-8 h-8 ring-2 ring-white">
                 <AvatarFallback className="bg-[#3a2a76] text-white">
                   {userData?.name?.slice(0, 2) || 'Me'}
                 </AvatarFallback>
@@ -384,7 +384,7 @@ export default function ChatPage() {
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-white/95 shadow-sm backdrop-blur-sm text-[#3a2a76] rounded-xl px-4 py-2.5">
+            <div className="bg-white rounded-2xl px-4 py-2.5 text-[#3a2a76] shadow-sm animate-pulse">
               Typing...
             </div>
           </div>
@@ -392,13 +392,13 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area - Adjust padding */}
-      <div className="px-4 pb-4">
-        <div className="bg-white/95 shadow-sm backdrop-blur-sm rounded-3xl p-4">
+      {/* Input Area - Updated with modern styling */}
+      <div className="px-3 sm:px-4 pb-4">
+        <div className="bg-white rounded-3xl p-3 sm:p-4 shadow-lg">
           {uploadedFiles.length > 0 && (
-            <div className="flex flex-col gap-2 mb-4">
+            <div className="flex flex-col gap-2 mb-3">
               <div className="text-sm text-gray-500 px-2">
-                Documents to be used in next response:
+                Attached documents:
               </div>
               <div className="flex flex-wrap gap-2">
                 {uploadedFiles.map((file) => (
@@ -406,7 +406,7 @@ export default function ChatPage() {
                     key={file.name}
                     className="flex items-center gap-2 bg-[#3a2a76]/10 text-[#3a2a76] px-3 py-1.5 rounded-full text-sm"
                   >
-                    <span>{file.name}</span>
+                    <span className="truncate max-w-[150px]">{file.name}</span>
                     <span className="text-xs text-gray-500">
                       ({formatFileSize(file.size)})
                     </span>
@@ -423,13 +423,13 @@ export default function ChatPage() {
             </div>
           )}
 
-          <div className="flex gap-2 overflow-x-auto pb-4 px-2">
+          <div className="flex gap-2 overflow-x-auto pb-3 px-2 scrollbar-hide">
             {examplePrompts.map((prompt, index) => (
               <button
                 key={index}
                 type="button"
                 onClick={() => handleExampleClick(prompt)}
-                className="flex-shrink-0 bg-[#3a2a76]/10 text-[#3a2a76] px-3 py-1.5 rounded-full text-sm hover:bg-[#3a2a76]/20 transition-colors"
+                className="flex-shrink-0 bg-gradient-to-br from-[#3a2a76]/10 to-[#FF8E8E]/10 text-[#302d36] px-3 py-1.5 rounded-full text-sm hover:from-[#3a2a76]/20 hover:to-[#3a2a76]/20 transition-colors"
               >
                 {prompt}
               </button>
@@ -449,7 +449,7 @@ export default function ChatPage() {
               type="button"
               variant="ghost"
               size="sm"
-              className="text-[#3a2a76]"
+              className="text-[#302d36]"
               onClick={() => fileInputRef.current?.click()}
             >
               <Paperclip className="w-5 h-5" />
@@ -460,7 +460,7 @@ export default function ChatPage() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="text-[#3a2a76]"
+                  className="text-[#302d36] transition-colors"
                   onClick={toggleListening}
                 >
                   {isRecording ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
@@ -472,12 +472,12 @@ export default function ChatPage() {
               value={input}
               onChange={handleInputChange}
               placeholder="Ask anything..."
-              className="flex-1 bg-transparent border-[#3a2a76]/20 focus-visible:ring-[#3a2a76]"
+              className="flex-1 bg-transparent border-gray-200 focus-visible:ring-[#3a2a76] rounded-full px-4"
             />
             <Button
               type="submit"
               size="sm"
-              className="bg-[#3a2a76] hover:bg-[#a680db] text-white"
+              className="bg-gradient-to-r from-[#3a2a76] to-[#3a2a76] text-white hover:opacity-90 transition-opacity rounded-full px-4"
               disabled={!input.trim() || isLoading}
             >
               <Send className="w-5 h-5" />
@@ -486,7 +486,7 @@ export default function ChatPage() {
               type="button"
               variant="ghost"
               size="sm"
-              className="text-[#3a2a76]"
+              className="text-[#302d36]  transition-colors"
               onClick={handleReset}
             >
               <Trash2 className="w-5 h-5" />
@@ -495,13 +495,11 @@ export default function ChatPage() {
         </div>
       </div>
 
-    
-
-      {/* Welcome Dialog - Updated styles */}
+      {/* Welcome Dialog - Updated with modern styling */}
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className="bg-white/95 backdrop-blur-sm rounded-3xl">
+        <DialogContent className="bg-white rounded-3xl shadow-xl max-w-md mx-auto">
           <DialogHeader>
-            <DialogTitle className="text-[#3a2a76]">Welcome to Your ACM Assistant</DialogTitle>
+            <DialogTitle className="text-[#2D3436] text-xl font-semibold">Welcome to Your ACM Assistant</DialogTitle>
             <DialogDescription className="space-y-4 pt-3">
               <p className="text-gray-600">
                 I'm here to help you understand your medical documents and answer any questions about ACM.
