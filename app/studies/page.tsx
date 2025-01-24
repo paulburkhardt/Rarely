@@ -66,8 +66,8 @@ function StudiesContent() {
             <Image 
               src="/logo_final.png" 
               alt="Logo" 
-              width={100} 
-              height={100} 
+              width={120}
+              height={120}
               className="opacity-90"
             />
           </div>
@@ -170,7 +170,7 @@ function StudiesContent() {
                       <>
                         <Button 
                           onClick={() => handleApply(study.id)}
-                          className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white transition-colors"
+                          className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white transition-colors rounded-full"
                         >
                           Apply Now
                         </Button>

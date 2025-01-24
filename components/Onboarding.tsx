@@ -268,7 +268,7 @@ export function Onboarding() {
   return (
     <div className="flex flex-col min-h-screen">
       <Dialog open={true}>
-        <DialogContent className="h-screen w-screen max-w-none m-0 bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa] rounded-none flex flex-col [&>button]:hidden bg-transparent">
+        <DialogContent className="h-screen w-screen max-w-none m-0 bg-gradient-to-b from-[#F5F5F5] via-[#F5F5F5] to-[#F5F5F5] rounded-none flex flex-col [&>button]:hidden bg-transparent">
           {/* Message history - scrollable */}
           <div className="h-[100%] overflow-y-auto px-4 py-2 space-y-4">
             {messages.map((message, index) => (
@@ -699,18 +699,48 @@ export function Onboarding() {
                     Continue
                   </Button>
 
-                  <button
-                    onClick={() => {
-                      setCurrentMessage('demo_letter.pdf');
-                      setData(prev => ({
-                        ...prev,
-                        doctorLetter: 'demo_letter.pdf'
-                      }));
-                    }}
-                    className="text-sm text-[#3a2a76] hover:text-[#a680db] underline pb-16"
-                  >
-                    Skip for demo
-                  </button>
+                  <div className="flex flex-col gap-2">
+                    <button
+                      onClick={() => {
+                        setCurrentMessage('demo_letter.pdf');
+                        setData(prev => ({
+                          ...prev,
+                          doctorLetter: 'demo_letter.pdf'
+                        }));
+                      }}
+                      className="text-sm text-[#3a2a76] hover:text-[#a680db] underline"
+                    >
+                      Skip upload for demo
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        localStorage.setItem('onboardingComplete', 'true');
+                        localStorage.setItem('patientData', JSON.stringify({
+                          ...data,
+                          doctorLetter: 'mpd_demo_letter.pdf',
+                          name: 'MPD Demo User',
+                          dateOfBirth: '1990-01-01',
+                          diagnosisDate: '2023-01-01',
+                          symptoms: [],
+                          medications: [],
+                          hasICD: false,
+                          exerciseRestrictions: '',
+                          familyHistory: false,
+                          emergencyContact: {
+                            name: '',
+                            relationship: '',
+                            phone: ''
+                          },
+                          dataShareConsent: true
+                        }));
+                        window.location.href = '/';
+                      }}
+                      className="text-sm text-[#3a2a76] hover:text-[#a680db] underline pb-16"
+                    >
+                      Skip whole onboarding for demo
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

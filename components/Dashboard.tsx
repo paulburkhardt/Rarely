@@ -252,37 +252,45 @@ export default function Dashboard() {
     
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-[#E3D7F4] via-[#f0e9fa] to-[#f8f8fa]">
+
       <div className="p-6">
         <div className="flex items-center relative mb-6">
           <div className="w-full flex justify-center">
             <Image 
               src="/logo_final.png" 
               alt="Logo" 
-              width={100} 
-              height={100} 
+              width={120}
+              height={120}
               className="opacity-90"
             />
           </div>
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
             <button
               onClick={() => setShowWrapped(true)}
-              className="text-purple-500"
+              className="text-[#3a2a76] hover:bg-[#3a2a76]/10 transition-transform hover:scale-105 bg-transparent"
             >
-              <FaGift size={20} />
+              <FaGift size={24} />
             </button>
           </div>
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-sm">
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-2">
             <div className="flex items-center gap-1">
-              <span className="text-sm font-semibold">{streakCount}</span>
-              <span className="text-orange-500">🔥</span>
+              <span className="text-base font-semibold">{streakCount}</span>
+              <span className="text-orange-500 text-lg">🔥</span>
             </div>
           </div>
         </div>
 
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-black">
-            Hello {sessionStorage.getItem('userName')}.
+            Hello {sessionStorage.getItem('userName') || 'Anna'}.
           </h1>
+          <p className="text-gray-500 mt-1">
+            {new Date().toLocaleDateString('en-US', { 
+              weekday: 'long',
+              month: 'short', 
+              day: 'numeric'
+            })}
+          </p>
         </div>
       </div>
 
@@ -317,7 +325,7 @@ export default function Dashboard() {
                     <Badge variant="secondary">Updated</Badge></div>}
               
                 </div>
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                <div className={`min-w-[48px] w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${
                   mood <= 1.5 
                     ? 'bg-red-100' 
                     : mood <= 2.5 
@@ -343,7 +351,7 @@ export default function Dashboard() {
               </div>
 
               <Button 
-                className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium h-12 rounded-xl"
+                className="w-full bg-[#3a2a76] hover:bg-[#a680db] text-white font-medium h-12 rounded-full"
                 onClick={handleDiaryClick}
               >
                 {hasDiaryEntry ? "Update Check-in" : "Start Check-in"}
@@ -355,7 +363,9 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Heart className="w-5 h-5 text-[#3a2a76]" />
+                  <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                    <Heart className="w-5 h-5 text-[#3a2a76]" />
+                  </div>
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
@@ -370,7 +380,9 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Pill className="w-5 h-5 text-[#3a2a76]" />
+                  <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                    <Pill className="w-5 h-5 text-[#3a2a76]" />
+                  </div>
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
@@ -390,7 +402,9 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-2xl p-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Activity className="w-5 h-5 text-[#3a2a76]" />
+                  <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                    <Activity className="w-5 h-5 text-[#3a2a76]" />
+                  </div>
                   <span className="text-xs text-gray-400">Today</span>
                 </div>
                 <div>
@@ -594,9 +608,13 @@ export default function Dashboard() {
               <div className="text-sm font-medium text-gray-500 mb-3">Upcoming Appointment</div>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-start gap-2">
-                  <Calendar className="w-5 h-5 text-[#3a2a76] mt-0.5" />
+                <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+                  <Calendar className="w-5 h-5 text-[#3a2a76]" />
+                  </div>
                   <div>
-                    <p className="font-medium text-base">TaRGETed Therapy - Phase 2</p>
+                    <p className="font-medium text-base">TaRGETed Therapy 
+                      <br/>
+                      - Phase 2</p>
                     <p className="text-sm text-gray-500">Jan 15, 10:00 AM</p>
                   </div>
                 </div>
@@ -604,15 +622,15 @@ export default function Dashboard() {
                   <Button 
                     variant="outline" 
                     size="sm"
-                    className="text-[#007AFF] border-[#007AFF] hover:bg-[#007AFF]/10"
+                    className="text3a2a76  hover:bg-[#007AFF]/10"
                     onClick={() => generateICalEvent({
                       title: "TaRGETed Therapy - Phase 2",
                       studyId: "TARGET-2024",
                       location: "Toronto, Ontario, Canada"
                     })}
                   >
-                    <Download className="w-4 h-4 mr-1" />
-                    Add to Calendar
+                    <Calendar className="w-4 h-4 mr-1" />
+                    Add 
                   </Button>
                 </div>
               </div>
@@ -623,7 +641,10 @@ export default function Dashboard() {
             <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
               <CardContent className="p-4">
                 <div className="flex items-start gap-3 mb-3">
-                  <BookOpen className="w-5 h-5 text-[#3a2a76] mt-0.5" />
+                <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+
+                  <BookOpen className="w-5 h-5 text-[#3a2a76]" />
+                  </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <p className="font-medium">New Study Match</p>
@@ -651,7 +672,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <Link href={`/studies/apply/${matchingStudy.id}`}>
-                  <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db]">
+                  <Button size="sm" className="w-full bg-[#3a2a76] hover:bg-[#a680db] rounded-full">
                     Apply
                   </Button>
                 </Link>
@@ -661,17 +682,21 @@ export default function Dashboard() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-base font-semibold px-1">Trending</h2>
+          <h2 className="text-base font-semibold px-1">Community</h2>
           
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
+          
             <Link href={`/forum/chat/${mockData.groups[0].id}`} className="block p-4">
               <div className="flex items-start gap-3">
-                <MessageCircle className="w-5 h-5 text-[#3a2a76] mt-0.5" />
+              <div className="w-8 h-8 rounded-full bg-[#3a2a76]/10 flex items-center justify-center">
+
+                  <MessageCircle className="w-5 h-5 text-[#3a2a76]" />
+                </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="font-medium">{mockData.groups[0].name}</h3>
-                    <Badge variant="secondary" className="text-xs">
-                      {mockData.groups[0].unreadCount} new
+                    <Badge variant="secondary" className="text-xs" >
+                      Trending
                     </Badge>
                   </div>
                   <p className="text-sm text-gray-500 line-clamp-2">
@@ -683,7 +708,6 @@ export default function Dashboard() {
           </Card>
 
           <div className="space-y-4">
-          <h2 className="text-base font-semibold px-1">Community Stats</h2>
           <Card className="bg-white/95 shadow-sm backdrop-blur-sm rounded-xl">
 
             <CardContent className="p-4">
