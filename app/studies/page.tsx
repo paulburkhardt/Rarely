@@ -163,7 +163,7 @@ function StudiesContent() {
 
                   <div className="relative">
                     {study.hasApplied ? (
-                      <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg text-center font-medium">
+                      <div className="w-full bg-emerald-100 text-emerald-700 px-4 py-2 text-center font-medium rounded-full">
                         Application Submitted
                       </div>
                     ) : (

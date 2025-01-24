@@ -354,7 +354,7 @@ export default function ChatPage() {
             } animate-in fade-in slide-in-from-bottom-2`}
           >
             {message.role === 'assistant' && (
-              <Avatar className="w-8 h-8 ring-2 ring-white">
+              <Avatar className="w-8 h-8 ">
                 <AvatarImage src="/doctor-avatar.png" alt="Dr Joni" />
                 <AvatarFallback className="bg-[#3a2a76] text-white">J</AvatarFallback>
               </Avatar>
@@ -374,7 +374,7 @@ export default function ChatPage() {
               </ReactMarkdown>
             </div>
             {message.role === 'user' && (
-              <Avatar className="w-8 h-8 ring-2 ring-white">
+              <Avatar className="w-8 h-8 ">
                 <AvatarFallback className="bg-[#3a2a76] text-white">
                   {userData?.name?.slice(0, 2) || 'Me'}
                 </AvatarFallback>
