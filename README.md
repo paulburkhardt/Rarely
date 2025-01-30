@@ -1,68 +1,100 @@
-# Rarely
+# Rarely - Digital Health Diary
 
-Rarely is a web platform designed to support individuals with rare conditions, providing a space for community connection, resource sharing, and knowledge exchange.
+## Overview
+Rarely is a digital health diary application designed for patients with rare cardiac conditions. It helps users track their:
+- Daily medications and adherence
+- Symptoms and their severity
+- Physical activities and exercise
+- Mood and general wellbeing
 
-## Features
+## Key Features
+- 📊 Dashboard with daily health overview
+- 💊 Medication tracking with multiple time slots
+- 🏃‍♂️ Activity logging with intensity levels
+- 😊 Mood tracking
+- 🤒 Symptom monitoring
+- 📱 Mobile-first responsive design
 
-- **Community Forum**: Connect with others through topic-based discussions
-- **Group Chat**: Real-time communication with community members
-- **Resource Library**: Access curated resources and information
-- **Studies Section**: Stay updated with latest research and clinical trials
-- **OCR Integration**: Extract text from medical documents
-- **Dashboard**: Personalized view of your activities and relevant content
+## Project Structure
+rarely/
+├── components/
+│   ├── Dashboard.tsx        # Main dashboard view
+│   ├── DiaryDialog.tsx      # Daily diary entry dialog
+│   ├── Onboarding.tsx      # First-time user setup
+│   └── ui/                  # Reusable UI components
+├── data/
+│   └── diary.ts            # Default data and types
+├── hooks/
+│   └── useDiaryState.tsx   # Shared state management
+├── public/
+│   └── assets/             # Static assets
+└── styles/
+    └── globals.css         # Global styles
 
-## Tech Stack
-
-- Next.js 14 (React Framework)
+## Technology Stack
+- Next.js 14
 - TypeScript
 - Tailwind CSS
-- API Routes for backend functionality
+- Lucide Icons
+- React Icons
+- Shadcn UI Components
 
 ## Getting Started
 
 ### Prerequisites
-
-- Node.js 18+ 
+- Node.js 16.x or higher
 - npm or yarn
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/Rarely_version_0.git
-cd Rarely_version_0
+# Clone the repository
+```sh
+git clone https://github.com/yourusername/rarely.git
 ```
 
-2. Install dependencies:
-```bash
+# Install dependencies
+```sh
+cd rarely
 npm install
-# or
-yarn install
 ```
 
-3. Set up environment variables:
-Create a `.env.local` file in the root directory with necessary environment variables.
-
-4. Run the development server:
-```bash
+# Start development server
+```sh
 npm run dev
-# or
-yarn dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.
+## Key Components
 
-## Project Structure
+### Dashboard
+The main interface showing:
+- Daily medication tracking
+- Activity monitoring
+- Symptom logging
+- Quick access to diary entries
 
-```
-├── app/                    # Next.js app directory
-│   ├── api/               # API routes
-│   ├── chat/             # Chat feature
-│   ├── forum/            # Forum pages
-│   ├── resources/        # Resource library
-│   └── studies/          # Studies section
-├── components/            # Reusable React components
-├── data/                  # Mock data and data utilities
-├── public/               # Static assets
-└── styles/               # Global styles
-```
+### Diary Dialog
+Handles daily health data entry including:
+- Medication adherence tracking
+- Symptom severity recording
+- Activity logging
+- Mood tracking
+
+## Data Management
+- Session storage for daily entries
+- Local storage for user preferences
+- Type-safe data structures with TypeScript
+
+## Contributing
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+- Design inspiration from modern health apps
+- Shadcn UI for component library
+- Community feedback and contributions
