@@ -1,11 +1,7 @@
 # Rarely - Digital Health Diary
 
-## Overview
-Rarely is a digital health diary application designed for patients with rare cardiac conditions. It helps users track their:
-- Daily medications and adherence
-- Symptoms and their severity
-- Physical activities and exercise
-- Mood and general wellbeing
+With our app, Rarely, we tackle the challenges faced by individuals with rare diseases by providing access to information, personalized guidance, and a supportive community. At the same time, we collect anonymized data to advance research and drive progress in treatment development.
+Your rare story, our shared mission.
 
 ## Key Features
 - 📊 Dashboard with daily health overview
@@ -16,7 +12,7 @@ Rarely is a digital health diary application designed for patients with rare car
 - 📱 Mobile-first responsive design
 
 ## Project Structure
-
+```
 rarely/
 ├── app/
 │   ├── chat/                # Chat interface with AI assistant
@@ -50,7 +46,7 @@ rarely/
 │   └── icons/            # Icon assets
 └── styles/
     └── globals.css       # Global styles
-
+```
 
 ## Technology Stack
 - Next.js 14
